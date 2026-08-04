@@ -842,9 +842,7 @@ td.trail{{font-family:var(--mono);font-size:1rem;letter-spacing:.12em}}
   <h1>Forecast trend</h1>
   {nextline}
   <p class="lede">Cloud cover. <b>Core window 10–11:30 PM</b> decides go/no-go; <b>1–4 AM</b> is
-  Perseids and the scope. Each point is one forecast run.<br>
-  <b style="color:var(--accent)">Decide Aug 8 on Night 2</b> — Perseid max and new moon.
-  Go if its core window is under {GO}%.</p>
+  Perseids and the scope. Each point is one forecast run.</p>
 
   <div class="cards">{"".join(cards)}</div>
 
