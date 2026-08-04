@@ -1,0 +1,1048 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Pittsburg NH 2026//Trip Schedule//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Pittsburg NH - Aug 11-14 2026
+X-WR-TIMEZONE:America/New_York
+BEGIN:VEVENT
+UID:pittsburg2026-000@stephen
+DTSTAMP:20260802T000000Z
+DTSTART:20260805T220000Z
+DTEND:20260805T221000Z
+SUMMARY:Cut the plywood pier plate
+DESCRIPTION:Set the tripod up FIRST at the exact leg extension you'll use
+  and measure the triangle before drilling. Forstner recesses ~1/2in wide
+ \, 1/4in deep. Mark which corner faces north. Tape-mark the leg extensio
+ n.
+BEGIN:VALARM
+TRIGGER:-PT0M
+ACTION:DISPLAY
+DESCRIPTION:Cut the plywood pier plate
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:pittsburg2026-001@stephen
+DTSTAMP:20260802T000000Z
+DTSTART:20260805T223000Z
+DTEND:20260805T224000Z
+SUMMARY:Set mount latitude to 45 deg
+DESCRIPTION:EQ6-R altitude bolt from 42.8 to 45.1. Do it in the driveway\
+ , not in the dark. Same for the SAM's latitude wedge.
+BEGIN:VALARM
+TRIGGER:-PT0M
+ACTION:DISPLAY
+DESCRIPTION:Set mount latitude to 45 deg
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:pittsburg2026-002@stephen
+DTSTAMP:20260802T000000Z
+DTSTART:20260808T160000Z
+DTEND:20260808T161000Z
+SUMMARY:Rental lens should be here
+DESCRIPTION:Confirm Canon EF mount. Decentering test: star field\, compar
+ e all four corners at 100%. Then aperture sweep at 35mm: f/1.8\, 2.0\, 2
+ .2\, 2.5.
+BEGIN:VALARM
+TRIGGER:-PT0M
+ACTION:DISPLAY
+DESCRIPTION:Rental lens should be here
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:pittsburg2026-003@stephen
+DTSTAMP:20260802T000000Z
+DTSTART:20260810T150000Z
+DTEND:20260810T151000Z
+SUMMARY:Verify 12V regulation under load
+DESCRIPTION:WARNING: 4S pack reaches 16.8V\, EQ6-R is rated 11-16V. Meter
+  the distribution box under load and confirm 12.0-13.8V out.
+BEGIN:VALARM
+TRIGGER:-PT0M
+ACTION:DISPLAY
+DESCRIPTION:Verify 12V regulation under load
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:pittsburg2026-004@stephen
+DTSTAMP:20260802T000000Z
+DTSTART:20260809T160000Z
+DTEND:20260809T161000Z
+SUMMARY:Subscribe to ntfy on phone
+DESCRIPTION:Topic name is in remote-astro/FIELD_OPS.md. Star-lost\, merid
+ ian-flip\, low-disk alerts reach you over cell from the lake.
+BEGIN:VALARM
+TRIGGER:-PT0M
+ACTION:DISPLAY
+DESCRIPTION:Subscribe to ntfy on phone
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:pittsburg2026-005@stephen
+DTSTAMP:20260802T000000Z
+DTSTART:20260810T220000Z
+DTEND:20260810T221000Z
+SUMMARY:Pack
+DESCRIPTION:Desktop + monitors + cables. Extension cord. 50ft ethernet. P
+ lywood plate. Pavers. Bubble level. Spare SD cards. Two headlamps (one r
+ ed\, one warm-white). Amber gel. 72mm UV/IR filter. Multimeter. IR therm
+ ometer gun. ID.
+BEGIN:VALARM
+TRIGGER:-PT0M
+ACTION:DISPLAY
+DESCRIPTION:Pack
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:pittsburg2026-006@stephen
+DTSTAMP:20260802T000000Z
+DTSTART:20260811T190000Z
+DTEND:20260811T191000Z
+SUMMARY:ARRIVE - unload the truck
+DESCRIPTION:Move fast. Every minute before dark is load-bearing today.
+BEGIN:VALARM
+TRIGGER:-PT30M
+ACTION:DISPLAY
+DESCRIPTION:ARRIVE - unload the truck
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:pittsburg2026-007@stephen
+DTSTAMP:20260802T000000Z
+DTSTART:20260811T192000Z
+DTEND:20260811T193000Z
+SUMMARY:360 HORIZON SURVEY - do this first
+DESCRIPTION:Phone app\, mark the treeline from the exact spot the tripod 
+ will stand. Dense every 5 deg across 170-240. That band is where M8/M20\
+ , the core and the Trifid all live.
+BEGIN:VALARM
+TRIGGER:-PT5M
+ACTION:DISPLAY
+DESCRIPTION:360 HORIZON SURVEY - do this first
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:pittsburg2026-008@stephen
+DTSTAMP:20260802T000000Z
+DTSTART:20260811T194500Z
+DTEND:20260811T195500Z
+SUMMARY:Pick positions
+DESCRIPTION:EQ6 spot (clear north for Polaris - watch for eaves and the n
+ orth wall\, not trees). 6SE spot far enough that walking to it doesn't s
+ hake the rig. Canon spot. Desktop. Find the AC outlet and measure the ru
+ n.
+BEGIN:VALARM
+TRIGGER:-PT5M
+ACTION:DISPLAY
+DESCRIPTION:Pick positions
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:pittsburg2026-009@stephen
+DTSTAMP:20260802T000000Z
+DTSTART:20260811T200000Z
+DTEND:20260811T201000Z
+SUMMARY:Desktop setup indoors\, then run the ethernet
+DESCRIPTION:Tower\, monitors\, power. Run the 50ft ethernet out to where 
+ the Pi will sit. Do this after picking the mount spot\, not before.
+BEGIN:VALARM
+TRIGGER:-PT5M
+ACTION:DISPLAY
+DESCRIPTION:Desktop setup indoors\, then run the ethernet
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:pittsburg2026-010@stephen
+DTSTAMP:20260802T000000Z
+DTSTART:20260811T204500Z
+DTEND:20260811T205500Z
+SUMMARY:Plate down\, tripod on it\, level to the bubble
+DESCRIPTION:Pavers underneath if the ground is soft - seat them roughly c
+ oplanar or the plywood rocks. Note the leg extension against your tape m
+ arks.
+BEGIN:VALARM
+TRIGGER:-PT5M
+ACTION:DISPLAY
+DESCRIPTION:Plate down\, tripod on it\, level to the bubble
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:pittsburg2026-011@stephen
+DTSTAMP:20260802T000000Z
+DTSTART:20260811T211500Z
+DTEND:20260811T212500Z
+SUMMARY:Head on\, counterweights\, OTA\, balance
+DESCRIPTION:Balance RA on the counterweight shaft and DEC in the dovetail
+ .
+BEGIN:VALARM
+TRIGGER:-PT5M
+ACTION:DISPLAY
+DESCRIPTION:Head on\, counterweights\, OTA\, balance
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:pittsburg2026-012@stephen
+DTSTAMP:20260802T000000Z
+DTSTART:20260811T220000Z
+DTEND:20260811T221000Z
+SUMMARY:Cabling and power - USB FIRST
+DESCRIPTION:All USB connected before the Pi gets power. Hot-plug crashes 
+ the Pi 5. Boot\, wait for the beep\, Ekos connects\, verify all five dev
+ ices.
+BEGIN:VALARM
+TRIGGER:-PT5M
+ACTION:DISPLAY
+DESCRIPTION:Cabling and power - USB FIRST
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:pittsburg2026-013@stephen
+DTSTAMP:20260802T000000Z
+DTSTART:20260811T223000Z
+DTEND:20260811T224000Z
+SUMMARY:Site coords in - virtualgps on the Pi
+DESCRIPTION:ssh astro / sudo nano /etc/systemd/system/virtualgps.service 
+ / set 45.088279\, -71.324767 + elevation / sudo systemctl daemon-reload 
+ / sudo systemctl restart virtualgps / cat /tmp/vgps to confirm. Then che
+ ck the site in Ekos. Wrong coords means wrong LST and wrong meridian-fli
+ p timing. Cool to -10C. Daylight focus\, EAF step 500.
+BEGIN:VALARM
+TRIGGER:-PT5M
+ACTION:DISPLAY
+DESCRIPTION:Site coords in - virtualgps on the Pi
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:pittsburg2026-014@stephen
+DTSTAMP:20260802T000000Z
+DTSTART:20260811T230000Z
+DTEND:20260811T231000Z
+SUMMARY:Daylight flats
+DESCRIPTION:~0.005s at gain 100 with the panel. These cover all three nig
+ hts unless you rotate the camera or change the optical train.
+BEGIN:VALARM
+TRIGGER:-PT5M
+ACTION:DISPLAY
+DESCRIPTION:Daylight flats
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:pittsburg2026-015@stephen
+DTSTAMP:20260802T000000Z
+DTSTART:20260812T003000Z
+DTEND:20260812T004000Z
+SUMMARY:Set park position = home/Polaris
+DESCRIPTION:Verify ON_COORD_SET=TRACK\, never SYNC.
+BEGIN:VALARM
+TRIGGER:-PT5M
+ACTION:DISPLAY
+DESCRIPTION:Set park position = home/Polaris
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:pittsburg2026-016@stephen
+DTSTAMP:20260802T000000Z
+DTSTART:20260812T004500Z
+DTEND:20260812T005500Z
+SUMMARY:POLAR ALIGN
+DESCRIPTION:Polaris is up. Take your time - tonight's alignment is the on
+ e you reproduce for the rest of the trip.
+BEGIN:VALARM
+TRIGGER:-PT5M
+ACTION:DISPLAY
+DESCRIPTION:POLAR ALIGN
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:pittsburg2026-017@stephen
+DTSTAMP:20260802T000000Z
+DTSTART:20260812T011000Z
+DTEND:20260812T012000Z
+SUMMARY:*** MARK THE PLATE ***
+DESCRIPTION:Stake it\, outline it\, both. Mark which corner faces north. 
+ Then DO NOT TOUCH THE ALT/AZ BOLTS again all trip. This is what makes ni
+ ghts 2 and 3 possible.
+BEGIN:VALARM
+TRIGGER:-PT5M
+ACTION:DISPLAY
+DESCRIPTION:*** MARK THE PLATE ***
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:pittsburg2026-018@stephen
+DTSTAMP:20260802T000000Z
+DTSTART:20260812T011500Z
+DTEND:20260812T012500Z
+SUMMARY:Plate-solve test\, autofocus V-curve\, start guiding
+DESCRIPTION:Step 30\, 15 steps. Target HFR ~1.2.
+BEGIN:VALARM
+TRIGGER:-PT5M
+ACTION:DISPLAY
+DESCRIPTION:Plate-solve test\, autofocus V-curve\, start guiding
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:pittsburg2026-019@stephen
+DTSTAMP:20260802T000000Z
+DTSTART:20260812T015600Z
+DTEND:20260812T020600Z
+SUMMARY:ASTRONOMICAL DARK - scope to M8/M20
+DESCRIPTION:120s subs\, gain 100\, offset 50\, dither 3px. THE ONLY NIGHT
+  the refractor can reach this pair - on lake nights it's below 10 deg be
+ fore you get back.
+BEGIN:VALARM
+TRIGGER:-PT10M
+ACTION:DISPLAY
+DESCRIPTION:ASTRONOMICAL DARK - scope to M8/M20
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:pittsburg2026-020@stephen
+DTSTAMP:20260802T000000Z
+DTSTART:20260812T020000Z
+DTEND:20260812T021000Z
+SUMMARY:6SE - the southern showpieces
+DESCRIPTION:M8\, M17 Swan\, M16 Eagle\, M22\, M11\, M20. Invisible from h
+ ome and only up now. This is the why-did-we-drive-here moment.
+BEGIN:VALARM
+TRIGGER:-PT5M
+ACTION:DISPLAY
+DESCRIPTION:6SE - the southern showpieces
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:pittsburg2026-021@stephen
+DTSTAMP:20260802T000000Z
+DTSTART:20260813T041500Z
+DTEND:20260813T042500Z
+SUMMARY:Scope to the Veil / Cygnus Loop
+DESCRIPTION:Just past its 12:17 transit so it's west of the meridian - no
+  flip all night. Teal OIII and crimson Ha filaments.
+BEGIN:VALARM
+TRIGGER:-PT10M
+ACTION:DISPLAY
+DESCRIPTION:Scope to the Veil / Cygnus Loop
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:pittsburg2026-022@stephen
+DTSTAMP:20260802T000000Z
+DTSTART:20260813T043000Z
+DTEND:20260813T044000Z
+SUMMARY:Canon to the meteor field
+DESCRIPTION:20s\, f/1.8\, ISO 3200\, continuous.
+BEGIN:VALARM
+TRIGGER:-PT5M
+ACTION:DISPLAY
+DESCRIPTION:Canon to the meteor field
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:pittsburg2026-023@stephen
+DTSTAMP:20260802T000000Z
+DTSTART:20260813T060000Z
+DTEND:20260813T061000Z
+SUMMARY:Perseids building
+DESCRIPTION:6SE on NGC 7331 + Stephan's Quintet while it's high. Then M31
+ \, M33\, Saturn.
+BEGIN:VALARM
+TRIGGER:-PT15M
+ACTION:DISPLAY
+DESCRIPTION:Perseids building
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:pittsburg2026-024@stephen
+DTSTAMP:20260802T000000Z
+DTSTART:20260813T074500Z
+DTEND:20260813T075500Z
+SUMMARY:Twilight - stop capture
+DESCRIPTION:Then TEARDOWN PRACTICE: pull the OTA and counterweights\, lif
+ t the head off without touching alt/az\, and move it TO THE PORCH - that
+ 's where it lives for the rest of the trip. Time yourself\, you repeat t
+ his twice.
+BEGIN:VALARM
+TRIGGER:-PT15M
+ACTION:DISPLAY
+DESCRIPTION:Twilight - stop capture
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:pittsburg2026-025@stephen
+DTSTAMP:20260802T000000Z
+DTSTART:20260812T210000Z
+DTEND:20260812T211000Z
+SUMMARY:Assemble the rig ON THE PORCH
+DESCRIPTION:Head\, counterweights\, OTA\, balance RA and DEC\, cables dre
+ ssed. Comfortable and lit - this is where the why-wont-it-connect half-h
+ ours normally happen.
+BEGIN:VALARM
+TRIGGER:-PT15M
+ACTION:DISPLAY
+DESCRIPTION:Assemble the rig ON THE PORCH
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:pittsburg2026-026@stephen
+DTSTAMP:20260802T000000Z
+DTSTART:20260812T214500Z
+DTEND:20260812T215500Z
+SUMMARY:Pi up\, Ekos connected - START COOLING
+DESCRIPTION:All five devices verified. Porch is at ambient so -10C is an 
+ easy 22C delta. DEW HEATERS OFF - under a roof it cannot dew\, and heat 
+ fights the acclimation. The triplet needs these five hours to reach ambi
+ ent.
+BEGIN:VALARM
+TRIGGER:-PT5M
+ACTION:DISPLAY
+DESCRIPTION:Pi up\, Ekos connected - START COOLING
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:pittsburg2026-027@stephen
+DTSTAMP:20260802T000000Z
+DTSTART:20260812T221500Z
+DTEND:20260812T222500Z
+SUMMARY:Check the tripod outside
+DESCRIPTION:Still seated on the plate\, bagged\, level. Alt/az bolts unto
+ uched so alignment carries over.
+BEGIN:VALARM
+TRIGGER:-PT5M
+ACTION:DISPLAY
+DESCRIPTION:Check the tripod outside
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:pittsburg2026-028@stephen
+DTSTAMP:20260802T000000Z
+DTSTART:20260812T230000Z
+DTEND:20260812T231000Z
+SUMMARY:LOAD THE CAR - lake kit
+DESCRIPTION:6SE + fork + tripod + eyepieces + 32mm Plossl (LEAVE THE EQ W
+ EDGE HOME). Canon + Sigma with the 72mm UV/IR filter fitted + lens hood.
+  SAM + tripod\, wedge at 45. POWER\, one supply per system: LP-E17 batte
+ ries for the camera (all four\, charged) - USB power bank for the dew st
+ rap - lead-acid + FUSED alligator lead for the 6SE - 2xAA lithiums plus 
+ spares for the SAM. Power box and coupler stay in the truck as backup. U
+ SB dew strap. Power bank + hand warmers as backup. Spare SD cards. IR th
+ ermometer. Two headlamps + amber gel. Something to drop the tripod to 0.
+ 5m. Chairs\, layers\, bug spray\, ID.
+BEGIN:VALARM
+TRIGGER:-PT20M
+ACTION:DISPLAY
+DESCRIPTION:LOAD THE CAR - lake kit
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:pittsburg2026-029@stephen
+DTSTAMP:20260802T000000Z
+DTSTART:20260812T231500Z
+DTEND:20260812T232500Z
+SUMMARY:DEPART - moose drive north on Route 3
+DESCRIPTION:The 6SE's best targets are southern and only up 9:56 to midni
+ ght - exactly when you're at the lake. Leave it behind and M8\, M17\, M1
+ 6\, M22 and M11 do not happen this trip. Sunset 7:58.
+BEGIN:VALARM
+TRIGGER:-PT10M
+ACTION:DISPLAY
+DESCRIPTION:DEPART - moose drive north on Route 3
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:pittsburg2026-030@stephen
+DTSTAMP:20260802T000000Z
+DTSTART:20260813T001000Z
+DTEND:20260813T002000Z
+SUMMARY:Earth's shadow + Belt of Venus
+DESCRIPTION:Azimuth 112\, off your right heading north. Dark band with a 
+ pink edge rising out of the east. Gone by 8:35. ~1/10s\, f/5.6\, ISO 100
+ \, underexpose slightly.
+BEGIN:VALARM
+TRIGGER:-PT5M
+ACTION:DISPLAY
+DESCRIPTION:Earth's shadow + Belt of Venus
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:pittsburg2026-031@stephen
+DTSTAMP:20260802T000000Z
+DTSTART:20260813T003000Z
+DTEND:20260813T004000Z
+SUMMARY:Arrive the lake - set up
+DESCRIPTION:Civil twilight ends. Tripod and SAM out immediately.
+BEGIN:VALARM
+TRIGGER:-PT5M
+ACTION:DISPLAY
+DESCRIPTION:Arrive the lake - set up
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:pittsburg2026-032@stephen
+DTSTAMP:20260802T000000Z
+DTSTART:20260813T004500Z
+DTEND:20260813T005500Z
+SUMMARY:FOREGROUND FRAMES - only chance
+DESCRIPTION:Glow still on the water. f/2.8\, ISO 800\, 60-120s. These are
+  your blend layer and there is no second chance tonight.
+BEGIN:VALARM
+TRIGGER:-PT5M
+ACTION:DISPLAY
+DESCRIPTION:FOREGROUND FRAMES - only chance
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:pittsburg2026-033@stephen
+DTSTAMP:20260802T000000Z
+DTSTART:20260813T010000Z
+DTEND:20260813T011000Z
+SUMMARY:Polar align the SAM - frame to azimuth 204
+DESCRIPTION:Polaris is behind you over land. SAM latitude wedge should be
+  at 45.
+BEGIN:VALARM
+TRIGGER:-PT5M
+ACTION:DISPLAY
+DESCRIPTION:Polar align the SAM - frame to azimuth 204
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:pittsburg2026-034@stephen
+DTSTAMP:20260802T000000Z
+DTSTART:20260813T011500Z
+DTEND:20260813T012500Z
+SUMMARY:Focus\, check corners\, lock composition
+DESCRIPTION:Hard deadline isn't darkness\, it's being ready for it.
+BEGIN:VALARM
+TRIGGER:-PT5M
+ACTION:DISPLAY
+DESCRIPTION:Focus\, check corners\, lock composition
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:pittsburg2026-035@stephen
+DTSTAMP:20260802T000000Z
+DTSTART:20260813T015600Z
+DTEND:20260813T020600Z
+SUMMARY:ASTRONOMICAL DARK - shoot the core
+DESCRIPTION:Landscape\, 18mm. Also several at 35mm: Rho Oph + core + Trif
+ id in one frame. Rho Oph is at 13.2 deg and dying - shoot it FIRST.
+BEGIN:VALARM
+TRIGGER:-PT10M
+ACTION:DISPLAY
+DESCRIPTION:ASTRONOMICAL DARK - shoot the core
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:pittsburg2026-036@stephen
+DTSTAMP:20260802T000000Z
+DTSTART:20260813T023000Z
+DTEND:20260813T024000Z
+SUMMARY:RHO OPH DEADLINE - below 10 deg\, gone for the year
+DESCRIPTION:Last frames of Rho Oph now. Core at 13.6 and sliding toward f
+ rame centre.
+BEGIN:VALARM
+TRIGGER:-PT15M
+ACTION:DISPLAY
+DESCRIPTION:RHO OPH DEADLINE - below 10 deg\, gone for the year
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:pittsburg2026-037@stephen
+DTSTAMP:20260802T000000Z
+DTSTART:20260813T030000Z
+DTEND:20260813T031000Z
+SUMMARY:Switch to PORTRAIT
+DESCRIPTION:Band standing vertical out of the water. Core dead centre at 
+ 11.8 deg. This is the postcard.
+BEGIN:VALARM
+TRIGGER:-PT5M
+ACTION:DISPLAY
+DESCRIPTION:Switch to PORTRAIT
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:pittsburg2026-038@stephen
+DTSTAMP:20260802T000000Z
+DTSTART:20260813T032500Z
+DTEND:20260813T033500Z
+SUMMARY:CORE DEADLINE - 10 deg. South is finished
+DESCRIPTION:Last frames. Pack up.
+BEGIN:VALARM
+TRIGGER:-PT15M
+ACTION:DISPLAY
+DESCRIPTION:CORE DEADLINE - 10 deg. South is finished
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:pittsburg2026-039@stephen
+DTSTAMP:20260802T000000Z
+DTSTART:20260813T034500Z
+DTEND:20260813T035500Z
+SUMMARY:Depart the lake
+DESCRIPTION:Moose peep on the way back to the cabin.
+BEGIN:VALARM
+TRIGGER:-PT5M
+ACTION:DISPLAY
+DESCRIPTION:Depart the lake
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:pittsburg2026-040@stephen
+DTSTAMP:20260802T000000Z
+DTSTART:20260813T041000Z
+DTEND:20260813T042000Z
+SUMMARY:Back at the cabin
+DESCRIPTION:Check ntfy / dashboard. Pull the SD card\, copy to the deskto
+ p\, verify two or three frames opened and are sharp. Fresh card in.
+BEGIN:VALARM
+TRIGGER:-PT0M
+ACTION:DISPLAY
+DESCRIPTION:Back at the cabin
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:pittsburg2026-041@stephen
+DTSTAMP:20260802T000000Z
+DTSTART:20260813T041500Z
+DTEND:20260813T042500Z
+SUMMARY:Carry the scope out from the porch
+DESCRIPTION:Already at ambient\, camera already cold. Onto the tripod - a
+ lt/az untouched\, so this Polar align CHECK - the plate may have shifted
+  and the ground settles\, so expect a small adjustment. Not from scratch
+ . DEW HEATERS ON NOW\, low setting. Target 2-5C above ambient\, no more 
+ - err low on the triplet.
+BEGIN:VALARM
+TRIGGER:-PT5M
+ACTION:DISPLAY
+DESCRIPTION:Carry the scope out from the porch
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:pittsburg2026-042@stephen
+DTSTAMP:20260802T000000Z
+DTSTART:20260813T050000Z
+DTEND:20260813T051000Z
+SUMMARY:Scope on Cocoon IC 5146 + B168
+DESCRIPTION:Red core\, blue rim\, black dust river - the best colour targ
+ et of the trip. Transits 1:19 at 87.8 deg\, essentially zenith. WARNING:
+  near-zenith meridian flips are the awkward ones. Supervise it\, or star
+ t after 1:25 and skip the flip entirely.
+BEGIN:VALARM
+TRIGGER:-PT10M
+ACTION:DISPLAY
+DESCRIPTION:Scope on Cocoon IC 5146 + B168
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:pittsburg2026-043@stephen
+DTSTAMP:20260802T000000Z
+DTSTART:20260813T050000Z
+DTEND:20260813T051000Z
+SUMMARY:Canon meteor run - Cassiopeia/M31 field
+DESCRIPTION:20s\, f/1.8\, ISO 3200\, continuous. Radiant in the lower-lef
+ t corner. Dew heater on the lens.
+BEGIN:VALARM
+TRIGGER:-PT5M
+ACTION:DISPLAY
+DESCRIPTION:Canon meteor run - Cassiopeia/M31 field
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:pittsburg2026-044@stephen
+DTSTAMP:20260802T000000Z
+DTSTART:20260813T060000Z
+DTEND:20260813T061000Z
+SUMMARY:PERSEID PEAK HOURS
+DESCRIPTION:Radiant climbs 47 to 61 deg. Rates roughly triple over the ev
+ ening. Camera runs itself - both of you outside\, in chairs\, looking up
+ .
+BEGIN:VALARM
+TRIGGER:-PT15M
+ACTION:DISPLAY
+DESCRIPTION:PERSEID PEAK HOURS
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:pittsburg2026-045@stephen
+DTSTAMP:20260802T000000Z
+DTSTART:20260813T074500Z
+DTEND:20260813T075500Z
+SUMMARY:Astronomical twilight - stop capture
+DESCRIPTION:Park the mount\, ramp cooling off gradually\, pull cards. SCO
+ PE BACK ON THE PORCH\, not into the warm cabin - cold optics in warm hum
+ id air fog instantly.
+BEGIN:VALARM
+TRIGGER:-PT15M
+ACTION:DISPLAY
+DESCRIPTION:Astronomical twilight - stop capture
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:pittsburg2026-046@stephen
+DTSTAMP:20260802T000000Z
+DTSTART:20260813T210000Z
+DTEND:20260813T211000Z
+SUMMARY:Assemble the rig ON THE PORCH
+DESCRIPTION:Head\, counterweights\, OTA\, balance RA and DEC\, cables dre
+ ssed. Comfortable and lit - this is where the why-wont-it-connect half-h
+ ours normally happen.
+BEGIN:VALARM
+TRIGGER:-PT15M
+ACTION:DISPLAY
+DESCRIPTION:Assemble the rig ON THE PORCH
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:pittsburg2026-047@stephen
+DTSTAMP:20260802T000000Z
+DTSTART:20260813T214500Z
+DTEND:20260813T215500Z
+SUMMARY:Pi up\, Ekos connected - START COOLING
+DESCRIPTION:All five devices verified. Porch is at ambient so -10C is an 
+ easy 22C delta. DEW HEATERS OFF - under a roof it cannot dew\, and heat 
+ fights the acclimation. The triplet needs these five hours to reach ambi
+ ent.
+BEGIN:VALARM
+TRIGGER:-PT5M
+ACTION:DISPLAY
+DESCRIPTION:Pi up\, Ekos connected - START COOLING
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:pittsburg2026-048@stephen
+DTSTAMP:20260802T000000Z
+DTSTART:20260813T221500Z
+DTEND:20260813T222500Z
+SUMMARY:Check the tripod outside
+DESCRIPTION:Still seated on the plate\, bagged\, level. Alt/az bolts unto
+ uched so alignment carries over.
+BEGIN:VALARM
+TRIGGER:-PT5M
+ACTION:DISPLAY
+DESCRIPTION:Check the tripod outside
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:pittsburg2026-049@stephen
+DTSTAMP:20260802T000000Z
+DTSTART:20260813T230000Z
+DTEND:20260813T231000Z
+SUMMARY:LOAD THE CAR - lake kit
+DESCRIPTION:6SE + fork + tripod + eyepieces + 32mm Plossl (LEAVE THE EQ W
+ EDGE HOME). Canon + Sigma with the 72mm UV/IR filter fitted + lens hood.
+  SAM + tripod\, wedge at 45. POWER\, one supply per system: LP-E17 batte
+ ries for the camera (all four\, charged) - USB power bank for the dew st
+ rap - lead-acid + FUSED alligator lead for the 6SE - 2xAA lithiums plus 
+ spares for the SAM. Power box and coupler stay in the truck as backup. U
+ SB dew strap. Power bank + hand warmers as backup. Spare SD cards. IR th
+ ermometer. Two headlamps + amber gel. Something to drop the tripod to 0.
+ 5m. Chairs\, layers\, bug spray\, ID.
+BEGIN:VALARM
+TRIGGER:-PT20M
+ACTION:DISPLAY
+DESCRIPTION:LOAD THE CAR - lake kit
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:pittsburg2026-050@stephen
+DTSTAMP:20260802T000000Z
+DTSTART:20260813T231500Z
+DTEND:20260813T232500Z
+SUMMARY:DEPART - moose drive north on Route 3
+DESCRIPTION:The 6SE's best targets are southern and only up 9:56 to midni
+ ght - exactly when you're at the lake. Leave it behind and M8\, M17\, M1
+ 6\, M22 and M11 do not happen this trip. Sunset 7:58.
+BEGIN:VALARM
+TRIGGER:-PT10M
+ACTION:DISPLAY
+DESCRIPTION:DEPART - moose drive north on Route 3
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:pittsburg2026-051@stephen
+DTSTAMP:20260802T000000Z
+DTSTART:20260814T001000Z
+DTEND:20260814T002000Z
+SUMMARY:Earth's shadow + Belt of Venus
+DESCRIPTION:Azimuth 112\, off your right heading north. Dark band with a 
+ pink edge rising out of the east. Gone by 8:35. ~1/10s\, f/5.6\, ISO 100
+ \, underexpose slightly.
+BEGIN:VALARM
+TRIGGER:-PT5M
+ACTION:DISPLAY
+DESCRIPTION:Earth's shadow + Belt of Venus
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:pittsburg2026-052@stephen
+DTSTAMP:20260802T000000Z
+DTSTART:20260814T003000Z
+DTEND:20260814T004000Z
+SUMMARY:Arrive the lake - set up
+DESCRIPTION:Civil twilight ends. Tripod and SAM out immediately.
+BEGIN:VALARM
+TRIGGER:-PT5M
+ACTION:DISPLAY
+DESCRIPTION:Arrive the lake - set up
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:pittsburg2026-053@stephen
+DTSTAMP:20260802T000000Z
+DTSTART:20260814T004500Z
+DTEND:20260814T005500Z
+SUMMARY:FOREGROUND FRAMES - only chance
+DESCRIPTION:Glow still on the water. f/2.8\, ISO 800\, 60-120s. These are
+  your blend layer and there is no second chance tonight.
+BEGIN:VALARM
+TRIGGER:-PT5M
+ACTION:DISPLAY
+DESCRIPTION:FOREGROUND FRAMES - only chance
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:pittsburg2026-054@stephen
+DTSTAMP:20260802T000000Z
+DTSTART:20260814T010000Z
+DTEND:20260814T011000Z
+SUMMARY:Polar align the SAM - frame to azimuth 204
+DESCRIPTION:Polaris is behind you over land. SAM latitude wedge should be
+  at 45.
+BEGIN:VALARM
+TRIGGER:-PT5M
+ACTION:DISPLAY
+DESCRIPTION:Polar align the SAM - frame to azimuth 204
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:pittsburg2026-055@stephen
+DTSTAMP:20260802T000000Z
+DTSTART:20260814T011500Z
+DTEND:20260814T012500Z
+SUMMARY:Focus\, check corners\, lock composition
+DESCRIPTION:Hard deadline isn't darkness\, it's being ready for it.
+BEGIN:VALARM
+TRIGGER:-PT5M
+ACTION:DISPLAY
+DESCRIPTION:Focus\, check corners\, lock composition
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:pittsburg2026-056@stephen
+DTSTAMP:20260802T000000Z
+DTSTART:20260814T015600Z
+DTEND:20260814T020600Z
+SUMMARY:ASTRONOMICAL DARK - shoot the core
+DESCRIPTION:Landscape\, 18mm. Also several at 35mm: Rho Oph + core + Trif
+ id in one frame. Rho Oph is at 13.2 deg and dying - shoot it FIRST.
+BEGIN:VALARM
+TRIGGER:-PT10M
+ACTION:DISPLAY
+DESCRIPTION:ASTRONOMICAL DARK - shoot the core
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:pittsburg2026-057@stephen
+DTSTAMP:20260802T000000Z
+DTSTART:20260814T023000Z
+DTEND:20260814T024000Z
+SUMMARY:RHO OPH DEADLINE - below 10 deg\, gone for the year
+DESCRIPTION:Last frames of Rho Oph now. Core at 13.6 and sliding toward f
+ rame centre.
+BEGIN:VALARM
+TRIGGER:-PT15M
+ACTION:DISPLAY
+DESCRIPTION:RHO OPH DEADLINE - below 10 deg\, gone for the year
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:pittsburg2026-058@stephen
+DTSTAMP:20260802T000000Z
+DTSTART:20260814T030000Z
+DTEND:20260814T031000Z
+SUMMARY:Switch to PORTRAIT
+DESCRIPTION:Band standing vertical out of the water. Core dead centre at 
+ 11.8 deg. This is the postcard.
+BEGIN:VALARM
+TRIGGER:-PT5M
+ACTION:DISPLAY
+DESCRIPTION:Switch to PORTRAIT
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:pittsburg2026-059@stephen
+DTSTAMP:20260802T000000Z
+DTSTART:20260814T032500Z
+DTEND:20260814T033500Z
+SUMMARY:CORE DEADLINE - 10 deg. South is finished
+DESCRIPTION:Last frames. Pack up.
+BEGIN:VALARM
+TRIGGER:-PT15M
+ACTION:DISPLAY
+DESCRIPTION:CORE DEADLINE - 10 deg. South is finished
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:pittsburg2026-060@stephen
+DTSTAMP:20260802T000000Z
+DTSTART:20260814T034500Z
+DTEND:20260814T035500Z
+SUMMARY:Depart the lake
+DESCRIPTION:Moose peep on the way back to the cabin.
+BEGIN:VALARM
+TRIGGER:-PT5M
+ACTION:DISPLAY
+DESCRIPTION:Depart the lake
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:pittsburg2026-061@stephen
+DTSTAMP:20260802T000000Z
+DTSTART:20260814T041000Z
+DTEND:20260814T042000Z
+SUMMARY:Back at the cabin
+DESCRIPTION:Check ntfy / dashboard. Pull the SD card\, copy to the deskto
+ p\, verify two or three frames opened and are sharp. Fresh card in.
+BEGIN:VALARM
+TRIGGER:-PT0M
+ACTION:DISPLAY
+DESCRIPTION:Back at the cabin
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:pittsburg2026-062@stephen
+DTSTAMP:20260802T000000Z
+DTSTART:20260814T041500Z
+DTEND:20260814T042500Z
+SUMMARY:Carry the scope out from the porch
+DESCRIPTION:Already at ambient\, camera already cold. Onto the tripod - a
+ lt/az untouched\, so this Polar align CHECK - the plate may have shifted
+  and the ground settles\, so expect a small adjustment. Not from scratch
+ . DEW HEATERS ON NOW\, low setting. Target 2-5C above ambient\, no more 
+ - err low on the triplet.
+BEGIN:VALARM
+TRIGGER:-PT5M
+ACTION:DISPLAY
+DESCRIPTION:Carry the scope out from the porch
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:pittsburg2026-063@stephen
+DTSTAMP:20260802T000000Z
+DTSTART:20260814T050000Z
+DTEND:20260814T051000Z
+SUMMARY:Scope on Dark Shark LDN 1235 + vdB 152
+DESCRIPTION:Centre at Dec +71 47' with the long axis N-S and both cores l
+ and in one frame. Grey-brown dust shapes plus a blue reflection knot. Ou
+ ter dust clips on each - that's the accepted trade.
+BEGIN:VALARM
+TRIGGER:-PT10M
+ACTION:DISPLAY
+DESCRIPTION:Scope on Dark Shark LDN 1235 + vdB 152
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:pittsburg2026-064@stephen
+DTSTAMP:20260802T000000Z
+DTSTART:20260814T050000Z
+DTEND:20260814T051000Z
+SUMMARY:Canon meteor run - Cassiopeia/M31 field
+DESCRIPTION:20s\, f/1.8\, ISO 3200\, continuous. Radiant in the lower-lef
+ t corner. Dew heater on the lens.
+BEGIN:VALARM
+TRIGGER:-PT5M
+ACTION:DISPLAY
+DESCRIPTION:Canon meteor run - Cassiopeia/M31 field
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:pittsburg2026-065@stephen
+DTSTAMP:20260802T000000Z
+DTSTART:20260814T060000Z
+DTEND:20260814T061000Z
+SUMMARY:PERSEID PEAK HOURS
+DESCRIPTION:Radiant climbs 47 to 61 deg. Rates roughly triple over the ev
+ ening. Camera runs itself - both of you outside\, in chairs\, looking up
+ .
+BEGIN:VALARM
+TRIGGER:-PT15M
+ACTION:DISPLAY
+DESCRIPTION:PERSEID PEAK HOURS
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:pittsburg2026-066@stephen
+DTSTAMP:20260802T000000Z
+DTSTART:20260814T074500Z
+DTEND:20260814T075500Z
+SUMMARY:Astronomical twilight - stop capture
+DESCRIPTION:Park the mount\, ramp cooling off gradually\, pull cards. SCO
+ PE BACK ON THE PORCH\, not into the warm cabin - cold optics in warm hum
+ id air fog instantly.
+BEGIN:VALARM
+TRIGGER:-PT15M
+ACTION:DISPLAY
+DESCRIPTION:Astronomical twilight - stop capture
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:pittsburg2026-067@stephen
+DTSTAMP:20260802T000000Z
+DTSTART:20260813T210000Z
+DTEND:20260813T211000Z
+SUMMARY:Dinner at Buck Rub Pub
+DESCRIPTION:45.0658\, -71.3437. 2.9km SSW of the cabin\, ~5 min\, opposit
+ e direction from the moose drive. Rig already assembled on the porch thi
+ s afternoon. Pull the forecast and the Kp index while you have a table.
+BEGIN:VALARM
+TRIGGER:-PT20M
+ACTION:DISPLAY
+DESCRIPTION:Dinner at Buck Rub Pub
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:pittsburg2026-068@stephen
+DTSTAMP:20260802T000000Z
+DTSTART:20260813T203000Z
+DTEND:20260813T204000Z
+SUMMARY:Pack the creative kit
+DESCRIPTION:Second headlamp\, amber gel\, something to drop the tripod to
+  ~0.5m\, a marker for the subject's spot.
+BEGIN:VALARM
+TRIGGER:-PT10M
+ACTION:DISPLAY
+DESCRIPTION:Pack the creative kit
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:pittsburg2026-069@stephen
+DTSTAMP:20260802T000000Z
+DTSTART:20260814T030500Z
+DTEND:20260814T031500Z
+SUMMARY:CREATIVE SESSION - drop the tripod to knee height
+DESCRIPTION:Subject 5-7m out. 10s\, f/1.8\, ISO 3200\, UNTRACKED. Silhoue
+ ttes\, light-painted foreground\, headlamp beam. Light in a 1-2s PULSE f
+ rom the side\, never a hold. Shoot 20+ frames\, the failure rate is high
+ .
+BEGIN:VALARM
+TRIGGER:-PT5M
+ACTION:DISPLAY
+DESCRIPTION:CREATIVE SESSION - drop the tripod to knee height
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:pittsburg2026-070@stephen
+DTSTAMP:20260802T000000Z
+DTSTART:20260815T065500Z
+DTEND:20260815T070500Z
+SUMMARY:Doorway frames - ten minutes\, not a session
+DESCRIPTION:Draco's head passes the NW door at 37 deg\, the only recogniz
+ able thing that does so during your cabin hours. Radiant ~60 deg off\, n
+ ear-ideal for trail length.
+BEGIN:VALARM
+TRIGGER:-PT5M
+ACTION:DISPLAY
+DESCRIPTION:Doorway frames - ten minutes\, not a session
+END:VALARM
+END:VEVENT
+END:VCALENDAR

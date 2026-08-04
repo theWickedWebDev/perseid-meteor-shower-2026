@@ -1,0 +1,798 @@
+#!/usr/bin/env python3
+"""
+Snapshot the NWS forecast for the trip nights, log it, and rebuild forecast.html.
+
+Run once a day:
+
+    python3 log_forecast.py
+
+Writes three things:
+  forecast_history.json  — machine-readable history, one entry per run
+  FORECAST_LOG.md        — human-readable log, newest first
+  forecast.html          — trend chart of how each night's prediction has moved
+
+Pulls raw gridpoint data (hourly sky cover, PoP, dewpoint) rather than the worded
+forecast, because "40% chance of showers" says nothing about whether it's clear at
+10 PM and sky cover says everything.
+"""
+
+import json, os, re, urllib.request
+from datetime import datetime, timedelta, timezone
+
+SITE    = ("Lake spot", 45.2393, -71.1964)
+UA      = "perseid-meteor-shower-2026 (https://github.com/theWickedWebDev/perseid-meteor-shower-2026)"
+EDT     = timezone(timedelta(hours=-4))
+HIST    = "forecast_history.json"
+LOG     = "FORECAST_LOG.md"
+PAGE    = "forecast.html"
+
+NIGHTS  = [("Night 1", "2026-08-11"), ("Night 2", "2026-08-12"), ("Night 3", "2026-08-13")]
+# nights before the trip — they verify while you watch, so they calibrate how much a
+# forecast actually moves in this pattern. Tracked and tabled, not charted.
+LEADUP  = [(f"Lead-up {d[-2:]}", d) for d in
+           ("2026-08-05","2026-08-06","2026-08-07","2026-08-08","2026-08-09","2026-08-10")]
+ALL     = NIGHTS + LEADUP
+CORE_HR = (22, 23)          # 21:56–23:30 EDT — Milky Way core, at the lake
+LATE_HR = (1, 2, 3)         # 12:45–03:45 EDT — Perseid peak + refractor, at the cabin
+DARK    = (21, 4)           # 21:56–03:45 EDT — full astronomical dark
+GO      = 30                # go/no-go threshold, % cloud cover
+
+# Second opinion: Open-Meteo exposes individual models rather than a blend. ECMWF is the
+# most skillful global model and is genuinely independent of NWS's GFS/NAM-based product.
+# The point isn't more data — it's that MODEL AGREEMENT IS A CONFIDENCE SIGNAL. A narrow
+# spread means the atmosphere is predictable; a wide one means nobody knows yet.
+OM_MODELS = [("ecmwf_ifs025", "ECMWF"), ("gfs_seamless", "GFS"),
+             ("icon_seamless", "ICON"), ("gem_seamless", "GEM")]
+OM_URL = ("https://api.open-meteo.com/v1/forecast?latitude={la}&longitude={lo}"
+          "&hourly=cloud_cover&models={m}&timezone=America%2FNew_York&forecast_days=14")
+
+# validated categorical slots 1–3 (all-pairs, both modes) + dash as secondary encoding
+SERIES = [("#2a78d6", "#3987e5", "none"),
+          ("#eb6834", "#d95926", "7 4"),
+          ("#1baf7a", "#199e70", "2 4")]
+
+
+# ── fetch ────────────────────────────────────────────────────────────────
+def get(url):
+    req = urllib.request.Request(url, headers={"User-Agent": UA})
+    with urllib.request.urlopen(req, timeout=30) as r:
+        return json.load(r)
+
+
+def expand(series):
+    """NWS gives ISO intervals like 2026-08-04T06:00:00+00:00/PT6H. Flatten to hourly."""
+    out = {}
+    for v in series.get("values", []):
+        t, dur = v["validTime"].split("/")
+        start = datetime.fromisoformat(t)
+        m = re.match(r"P(?:(\d+)D)?T?(?:(\d+)H)?", dur)
+        hours = (int(m.group(1) or 0) * 24) + int(m.group(2) or 0) or 1
+        for h in range(hours):
+            out[(start + timedelta(hours=h)).astimezone(EDT).isoformat()] = v["value"]
+    return out
+
+
+def open_meteo():
+    """Per-model core-window cloud cover for each night. {night: {model: value}}"""
+    url = OM_URL.format(la=SITE[1], lo=SITE[2], m=",".join(m for m, _ in OM_MODELS))
+    try:
+        h = get(url)["hourly"]
+    except Exception as ex:
+        print(f"  open-meteo unavailable: {ex}")
+        return {}
+    times = h["time"]
+    out = {}
+    for label, day in ALL:
+        nxt = (datetime.strptime(day, "%Y-%m-%d") + timedelta(days=1)).strftime("%Y-%m-%d")
+        ic = [i for i, t in enumerate(times)
+              if any(t.startswith(f"{day}T{hh:02d}") for hh in CORE_HR)]
+        il = [i for i, t in enumerate(times)
+              if any(t.startswith(f"{nxt}T{hh:02d}") for hh in LATE_HR)]
+        # full night hour-by-hour, so structure is visible instead of averaged away
+        hrs = [(day, hh) for hh in range(DARK[0], 24)] + [(nxt, hh) for hh in range(0, DARK[1] + 1)]
+        per, perl, hourly = {}, {}, {}
+        for key, name in OM_MODELS:
+            col = h.get(f"cloud_cover_{key}") or []
+            vc = [col[i] for i in ic if i < len(col) and col[i] is not None]
+            vl = [col[i] for i in il if i < len(col) and col[i] is not None]
+            if vc:
+                per[name] = round(sum(vc) / len(vc))
+            if vl:
+                perl[name] = round(sum(vl) / len(vl))
+            row = []
+            for dd, hh in hrs:
+                try:
+                    j = times.index(f"{dd}T{hh:02d}:00")
+                    row.append(col[j] if j < len(col) else None)
+                except ValueError:
+                    row.append(None)
+            if any(v is not None for v in row):
+                hourly[name] = row
+        if per or perl or hourly:
+            out[label] = {"core": per, "late": perl, "hourly": hourly,
+                          "hours": [f"{hh:02d}" for _, hh in hrs]}
+    return out
+
+
+def snapshot():
+    p = get(f"https://api.weather.gov/points/{SITE[1]},{SITE[2]}")["properties"]
+    grid = get(p["forecastGridData"])["properties"]
+    sky, pop, dew = (expand(grid[k]) for k in
+                     ("skyCover", "probabilityOfPrecipitation", "dewpoint"))
+    om = open_meteo()
+
+    stamp = datetime.now(EDT)
+    entry = {"taken": stamp.isoformat(),
+             "issued": grid.get("updateTime"),          # when NWS published this package
+             "grid": f"{p['gridId']} {p['gridX']},{p['gridY']}",
+             "nights": {}}
+
+    for label, day in ALL:
+        d0 = datetime.strptime(day, "%Y-%m-%d").replace(tzinfo=EDT)
+        hrs = [d0.replace(hour=h) for h in range(DARK[0], 24)] + \
+              [(d0 + timedelta(days=1)).replace(hour=h) for h in range(0, DARK[1] + 1)]
+        rows = [{"h": h.strftime("%H:%M"),
+                 "sky": sky.get(h.isoformat()),
+                 "pop": pop.get(h.isoformat()),
+                 "dew": dew.get(h.isoformat())} for h in hrs]
+        have = [r["sky"] for r in rows if r["sky"] is not None]
+        core = [r["sky"] for r in rows
+                if r["sky"] is not None and int(r["h"][:2]) in CORE_HR]
+        late = [r["sky"] for r in rows
+                if r["sky"] is not None and int(r["h"][:2]) in LATE_HR]
+        entry["nights"][label] = {
+            "date": day,
+            "lead": (d0.date() - stamp.date()).days,
+            "core": round(sum(core) / len(core)) if core else None,
+            "late": round(sum(late) / len(late)) if late else None,
+            "dark": round(sum(have) / len(have)) if have else None,
+            "pop":  max([r["pop"] for r in rows if r["pop"] is not None], default=None),
+            "flat": len(set(have)) == 1 if have else None,
+            "models": (om.get(label) or {}).get("core", {}),
+            "models_late": (om.get(label) or {}).get("late", {}),
+            "models_hourly": (om.get(label) or {}).get("hourly", {}),
+            "hour_labels": (om.get(label) or {}).get("hours", []),
+            "rows": rows,
+        }
+    return entry
+
+
+# ── markdown log ─────────────────────────────────────────────────────────
+def write_log(hist):
+    head = ("# Forecast Log — Pittsburg NH, Aug 11–14 2026\n\n"
+            f"Chart of how these have moved: **[forecast.html](forecast.html)**\n\n"
+            "Run `python3 log_forecast.py` once a day. Newest entry first.\n\n"
+            "**Watch how a given night moves as lead time shortens.** A night that holds steady "
+            "across several days is a real signal; one that swings 40 points between runs is "
+            "telling you the model doesn't know yet.\n\n"
+            "Sky cover is the number that matters — **PoP is not a cloud forecast.** An overcast "
+            "rainless night reads 0% precipitation and is a total loss.\n\n"
+            "**Decision point: Aug 8.** Pivot night is **Aug 12/13** — Perseid maximum and new "
+            f"moon. Go if the core window looks under ~{GO}% cloud.\n\n---\n\n")
+
+    out = [head]
+    for e in reversed(hist):
+        t = datetime.fromisoformat(e["taken"])
+        out.append(f"## {t:%a %d %b %Y, %H:%M} EDT\n\n"
+                   f"`api.weather.gov` gridpoint **{e['grid']}** · {SITE[0]}\n\n")
+        for label, _ in NIGHTS:
+            n = e["nights"][label]
+            d = datetime.strptime(n["date"], "%Y-%m-%d")
+            out.append(f"### {label} · {d:%a %d %b} — lead {n['lead']} day"
+                       f"{'s' if n['lead'] != 1 else ''}\n\n")
+            if n["core"] is None and n["dark"] is None:
+                out.append("_Outside the forecast window — no data yet._\n\n")
+                continue
+            out.append(f"**Core window mean sky cover: {n['core']}%** · full-dark "
+                       f"{n['dark']}% · max PoP {n['pop']}%\n\n")
+            if n["flat"]:
+                out.append("> ⚠️ Every hour reads the same value — the model isn't resolving "
+                           "hours at this lead time. One coarse long-range number stretched "
+                           "across the night, not an hourly forecast. Pattern context only.\n\n")
+            out.append("| Hour (EDT) | Sky | PoP | Dewpoint |\n|---|---|---|---|\n")
+            for r in n["rows"]:
+                if r["sky"] is None and r["pop"] is None:
+                    continue
+                dp = f"{r['dew']*9/5+32:.0f}°F" if r["dew"] is not None else "—"
+                out.append(f"| {r['h']} | {r['sky'] if r['sky'] is not None else '—'}% | "
+                           f"{r['pop'] if r['pop'] is not None else '—'}% | {dp} |\n")
+            out.append("\n")
+        out.append("---\n\n")
+    open(LOG, "w").write("".join(out))
+
+
+# ── chart page ───────────────────────────────────────────────────────────
+def svg_chart(hist):
+    W, H = 720, 320
+    L, R, T, B = 46, 108, 18, 42
+    pw, ph = W - L - R, H - T - B
+
+    xs = [datetime.fromisoformat(e["taken"]) for e in hist]
+    n = len(xs)
+    def px(i): return L + (pw / 2 if n == 1 else pw * i / (n - 1))
+    def py(v): return T + ph * (1 - v / 100)
+
+    p = [f'<svg viewBox="0 0 {W} {H}" role="img" aria-label="Predicted core-window sky cover '
+         f'for each trip night, by forecast date" preserveAspectRatio="xMidYMid meet">']
+
+    # go-zone band
+    p.append(f'<rect class="band" x="{L}" y="{py(GO):.1f}" width="{pw}" '
+             f'height="{T+ph-py(GO):.1f}"/>')
+    p.append(f'<text class="bandlab" x="{L+6}" y="{T+ph-8:.1f}">under {GO}% — go</text>')
+
+    # gridlines + y labels
+    for v in (0, 25, 50, 75, 100):
+        p.append(f'<line class="grid" x1="{L}" y1="{py(v):.1f}" x2="{L+pw}" y2="{py(v):.1f}"/>')
+        p.append(f'<text class="ax" x="{L-8}" y="{py(v)+4:.1f}" text-anchor="end">{v}%</text>')
+
+    # x labels
+    for i, d in enumerate(xs):
+        p.append(f'<text class="ax" x="{px(i):.1f}" y="{T+ph+18:.0f}" '
+                 f'text-anchor="middle">{d:%d %b}</text>')
+        p.append(f'<text class="ax dim" x="{px(i):.1f}" y="{T+ph+32:.0f}" '
+                 f'text-anchor="middle">{d:%H:%M}</text>')
+
+    # model spread as vertical range bars — uncertainty at each forecast run
+    for si, (label, _) in enumerate(NIGHTS):
+        for i, e in enumerate(hist):
+            r = mrange(e["nights"][label])
+            if not r:
+                continue
+            lo, hi, _ = r
+            off = (si - 1) * 4          # nudge so the three don't overlap exactly
+            p.append(f'<line class="rng{si}" x1="{px(i)+off:.1f}" y1="{py(lo):.1f}" '
+                     f'x2="{px(i)+off:.1f}" y2="{py(hi):.1f}"/>')
+
+    # series
+    for si, (label, _) in enumerate(NIGHTS):
+        pts = [(i, e["nights"][label]["core"]) for i, e in enumerate(hist)
+               if e["nights"][label]["core"] is not None]
+        if not pts:
+            continue
+        dash = SERIES[si][2]
+        da = '' if dash == "none" else f' stroke-dasharray="{dash}"'
+        if len(pts) > 1:
+            d = " ".join(f"{'M' if k == 0 else 'L'}{px(i):.1f},{py(v):.1f}"
+                         for k, (i, v) in enumerate(pts))
+            p.append(f'<path class="s{si}" d="{d}" fill="none"{da}/>')
+        for i, v in pts:
+            p.append(f'<circle class="s{si} dot" cx="{px(i):.1f}" cy="{py(v):.1f}" r="4.5"/>')
+        li, lv = pts[-1]
+        p.append(f'<text class="s{si} lab" x="{px(li)+12:.1f}" y="{py(lv)+4:.1f}">'
+                 f'{label} · {lv}%</text>')
+
+    p.append(f'<line class="axis" x1="{L}" y1="{T+ph}" x2="{L+pw}" y2="{T+ph}"/>')
+    p.append("</svg>")
+    return "\n".join(p)
+
+
+def mrange(nd):
+    """(lo, hi, spread) across models for a night, or None."""
+    m = nd.get("models") or {}
+    if not m:
+        return None
+    lo, hi = min(m.values()), max(m.values())
+    return lo, hi, hi - lo
+
+
+def agreement_svg(latest):
+    """Small multiples: where each model sits for each night, and how wide the spread is.
+
+    Models are samples of a distribution, not categorical identities — so one hue plus
+    direct labels, not four competing colours. The range bar is the actual message.
+    """
+    rowsH, W, PAD = 62, 720, 92
+    nights = [(l, latest["nights"][l]) for l, _ in NIGHTS]
+    H = rowsH * len(nights) + 26
+    tw = W - PAD - 118
+    def x(v): return PAD + tw * v / 100
+
+    p = [f'<svg viewBox="0 0 {W} {H}" role="img" aria-label="Spread between forecast models '
+         f'for each night" preserveAspectRatio="xMidYMid meet">']
+    p.append(f'<rect class="band" x="{PAD}" y="14" width="{x(GO)-PAD:.1f}" '
+             f'height="{H-30}"/>')
+    for v in (0, 25, 50, 75, 100):
+        p.append(f'<line class="grid" x1="{x(v):.1f}" y1="14" x2="{x(v):.1f}" y2="{H-16}"/>')
+        p.append(f'<text class="ax" x="{x(v):.1f}" y="{H-4}" text-anchor="middle">{v}%</text>')
+
+    for i, (label, nd) in enumerate(nights):
+        y = 34 + i * rowsH
+        p.append(f'<text class="nlab" x="0" y="{y+4}">{label}</text>')
+        mods = nd.get("models") or {}
+        if not mods:
+            p.append(f'<text class="ax" x="{PAD}" y="{y+4}">no model data</text>')
+            continue
+        lo, hi = min(mods.values()), max(mods.values())
+        p.append(f'<line class="rng" x1="{x(lo):.1f}" y1="{y}" x2="{x(hi):.1f}" y2="{y}"/>')
+        for name, v in sorted(mods.items(), key=lambda kv: kv[1]):
+            p.append(f'<circle class="mdot" cx="{x(v):.1f}" cy="{y}" r="5"/>')
+            p.append(f'<text class="mlab" x="{x(v):.1f}" y="{y-11}" text-anchor="middle">'
+                     f'{name}</text>')
+            p.append(f'<text class="mval" x="{x(v):.1f}" y="{y+18}" text-anchor="middle">'
+                     f'{v}</text>')
+        nws = nd.get("core")
+        if nws is not None:
+            p.append(f'<path class="nws" d="M{x(nws):.1f},{y-9} L{x(nws)+6:.1f},{y} '
+                     f'L{x(nws):.1f},{y+9} L{x(nws)-6:.1f},{y} Z"/>')
+        spread = hi - lo
+        verd = "agree" if spread < 20 else "some spread" if spread < 40 else "no consensus"
+        cls  = "good" if spread < 20 else "warn" if spread < 40 else "bad"
+        p.append(f'<text class="spread {cls}" x="{W-112}" y="{y-2}">±{spread}</text>')
+        p.append(f'<text class="spreadlab {cls}" x="{W-112}" y="{y+12}">{verd}</text>')
+    p.append("</svg>")
+    return "\n".join(p)
+
+
+def hourly_strips(latest):
+    """Hour-by-hour cloud cover per night, per source. Structure, not averages.
+
+    Opacity of the ink colour encodes cloud — transparent is clear sky, solid is
+    overcast — so it reads identically in light, dark and night modes.
+    """
+    out = []
+    for label, _ in NIGHTS:
+        nd = latest["nights"][label]
+        hrs = nd.get("hour_labels") or []
+        mh = nd.get("models_hourly") or {}
+        nws = {r["h"][:2]: r["sky"] for r in (nd.get("rows") or [])}
+        if not hrs:
+            out.append(f'<div class="striprow"><b>{label}</b>'
+                       f'<span class="dim">no hourly data</span></div>')
+            continue
+        d = datetime.strptime(nd["date"], "%Y-%m-%d")
+        cw, cell, gap = 34, 34, 2
+        W = len(hrs) * (cell + gap) + 74
+        rows = [("NWS", [nws.get(h) for h in hrs])] + \
+               [(k, v) for k, v in sorted(mh.items())]
+        H = len(rows) * 26 + 34
+        p = [f'<svg viewBox="0 0 {W} {H}" role="img" '
+             f'aria-label="Hour by hour cloud cover for {label}">']
+        # core-window bracket
+        ci = [i for i, h in enumerate(hrs) if int(h) in CORE_HR]
+        if ci:
+            x0 = 70 + ci[0] * (cell + gap) - 1
+            x1 = 70 + (ci[-1] + 1) * (cell + gap) - gap + 1
+            p.append(f'<rect class="corebox" x="{x0}" y="12" width="{x1-x0}" '
+                     f'height="{H-30}" rx="3"/>')
+            p.append(f'<text class="corelab" x="{(x0+x1)/2:.0f}" y="8" '
+                     f'text-anchor="middle">CORE</text>')
+        for i, h in enumerate(hrs):
+            p.append(f'<text class="hlab" x="{70 + i*(cell+gap) + cell/2:.0f}" y="{H-6}" '
+                     f'text-anchor="middle">{h}</text>')
+        for r, (name, vals) in enumerate(rows):
+            y = 18 + r * 26
+            p.append(f'<text class="srclab" x="64" y="{y+14}" text-anchor="end">{name}</text>')
+            for i, v in enumerate(vals):
+                x = 70 + i * (cell + gap)
+                if v is None:
+                    p.append(f'<rect class="nodata" x="{x}" y="{y}" width="{cell}" '
+                             f'height="20" rx="2"/>')
+                    continue
+                p.append(f'<rect class="cloud" x="{x}" y="{y}" width="{cell}" height="20" '
+                         f'rx="2" style="opacity:{max(v,0)/100:.2f}"/>')
+                p.append(f'<rect class="cellb" x="{x}" y="{y}" width="{cell}" height="20" rx="2"/>')
+                p.append(f'<text class="cellv" x="{x+cell/2:.0f}" y="{y+14}" '
+                         f'text-anchor="middle">{v}</text>')
+        p.append("</svg>")
+        out.append(f'<div class="striprow"><div class="striphead"><b>{label}</b>'
+                   f'<span class="dim">{d:%a %d %b}</span></div>{"".join(p)}</div>')
+    return "".join(out)
+
+
+def delta_table(hist):
+    if len(hist) < 2:
+        return ('<p class="note">Only one snapshot so far — run this again tomorrow and the '
+                'movement column appears.</p>')
+    rows = []
+    for label, _ in NIGHTS:
+        vals = [(datetime.fromisoformat(e["taken"]), e["nights"][label]["core"])
+                for e in hist if e["nights"][label]["core"] is not None]
+        if not vals:
+            rows.append(f"<tr><td>{label}</td><td colspan='4' class='dim'>no data yet</td></tr>")
+            continue
+        first, last = vals[0][1], vals[-1][1]
+        d = last - first
+        swing = max(v for _, v in vals) - min(v for _, v in vals)
+        arrow = "→" if d == 0 else ("↑" if d > 0 else "↓")
+        cls = "worse" if d > 5 else ("better" if d < -5 else "")
+        sp0 = next((mrange(e["nights"][label]) for e in hist
+                    if mrange(e["nights"][label])), None)
+        spN = next((mrange(e["nights"][label]) for e in reversed(hist)
+                    if mrange(e["nights"][label])), None)
+        if spN:
+            tight = "" if not sp0 else ("good" if spN[2] < sp0[2] - 5 else
+                                        "bad" if spN[2] > sp0[2] + 5 else "")
+            spcell = (f"<td class='n {tight}'>±{sp0[2]} → ±{spN[2]}</td>" if sp0
+                      else f"<td class='n'>±{spN[2]}</td>")
+        else:
+            spcell = "<td class='n dim'>—</td>"
+        rows.append(f"<tr><td>{label}</td><td class='n'>{first}%</td><td class='n'>{last}%</td>"
+                    f"<td class='n {cls}'>{arrow} {abs(d)}</td><td class='n'>{swing}</td>"
+                    f"{spcell}</tr>")
+    return ("<table><thead><tr><th>Night</th><th>First</th><th>Latest</th>"
+            "<th>Change</th><th>Range</th><th>Model spread</th></tr></thead><tbody>"
+            + "".join(rows) + "</tbody></table>")
+
+
+def calibration(hist):
+    """How much has a night's forecast actually moved as its lead time shrank?"""
+    if len(hist) < 2:
+        return ('<p class="note">Needs at least two runs. Once a few accumulate, this shows how '
+                'far a night\'s forecast typically travels between day 5 and day 1 — your own '
+                'empirical answer to how much the day-4 number is worth.</p>')
+    rows, moves = [], []
+    for label, day in LEADUP:
+        vals = [(e["nights"][label]["lead"], e["nights"][label]["core"])
+                for e in hist if e["nights"].get(label, {}).get("core") is not None]
+        if len(vals) < 2:
+            continue
+        d = datetime.strptime(day, "%Y-%m-%d")
+        lo, hi = min(v for _, v in vals), max(v for _, v in vals)
+        first, last = vals[0][1], vals[-1][1]
+        moves.append(hi - lo)
+        rows.append(f"<tr><td>{d:%a %d %b}</td><td class='n'>{vals[0][0]}d → {vals[-1][0]}d</td>"
+                    f"<td class='n'>{first}%</td><td class='n'>{last}%</td>"
+                    f"<td class='n'>{hi-lo}</td></tr>")
+    if not rows:
+        return ('<p class="note">Not enough runs yet for the lead-up nights to show movement.</p>')
+    avg = sum(moves) / len(moves)
+    return (f'<p style="margin-bottom:.8rem"><b style="color:var(--ink)">Average swing so far: '
+            f'{avg:.0f} points.</b> That is how much a night\'s core-window forecast has actually '
+            f'moved while you watched it — the honest measure of what a day-4 number is worth in '
+            f'this pattern.</p>'
+            '<div class="scroll"><table><thead><tr><th>Night</th><th>Lead</th><th>First</th>'
+            '<th>Latest</th><th>Swing</th></tr></thead><tbody>' + "".join(rows) +
+            '</tbody></table></div>')
+
+
+def write_page(hist):
+    latest = hist[-1]
+    t = datetime.fromisoformat(latest["taken"])
+    issued = (datetime.fromisoformat(latest["issued"]).astimezone(EDT).strftime("%a %d %b %H:%M")
+              if latest.get("issued") else "unknown")
+    cards = []
+    for si, (label, _) in enumerate(NIGHTS):
+        nd = latest["nights"][label]
+        d = datetime.strptime(nd["date"], "%Y-%m-%d")
+        v = nd["core"]
+        verdict = ("no data" if v is None else
+                   "GO" if v <= GO else "marginal" if v <= 55 else "poor")
+        vc = "dim" if v is None else ("good" if v <= GO else "warn" if v <= 55 else "bad")
+        lt = nd.get("late")
+        ml = nd.get("models_late") or {}
+        ltxt = ("—" if lt is None else f"{lt}%")
+        lrange = (f" · models {min(ml.values())}–{max(ml.values())}%" if ml else "")
+        r = mrange(nd)
+        if r:
+            lo, hi, sp = r
+            scls = "good" if sp < 20 else "warn" if sp < 40 else "bad"
+            mline = (f'<span class="mrange">models <b>{lo}–{hi}%</b> '
+                     f'<span class="{scls}">±{sp}</span></span>')
+        else:
+            mline = '<span class="mrange dim">no model data</span>'
+        cards.append(
+            f'<div class="ncard"><span class="swatch s{si}"></span>'
+            f'<b>{label}</b><span class="dim">{d:%a %d %b} · lead {nd["lead"]}d</span>'
+            f'<span class="big {vc}">{"—" if v is None else str(v)+"%"}</span>'
+            f'<span class="verdict {vc}">NWS · {verdict}</span>{mline}'
+            f'<span class="mrange">1–4 AM <b>{ltxt}</b>{lrange}</span></div>')
+
+    def band(v):
+        return "good" if v <= GO else "warn" if v <= 55 else "bad"
+
+    built = []
+    for i, e in enumerate(hist):                      # chronological, so deltas look backwards
+        et = datetime.fromisoformat(e["taken"])
+        cells = []
+        for l, _ in NIGHTS:
+            v = e["nights"][l]["core"]
+            if v is None:
+                cells.append('<td class="n dim">—</td>')
+                continue
+            prev = next((hist[j]["nights"][l]["core"] for j in range(i - 1, -1, -1)
+                         if hist[j]["nights"][l]["core"] is not None), None)
+            if prev is None:
+                delta = '<span class="delta dim">new</span>'
+            elif v == prev:
+                delta = '<span class="delta dim">→ 0</span>'
+            else:
+                d = v - prev
+                # less cloud is better, so a fall is good
+                delta = (f'<span class="delta {"bad" if d > 0 else "good"}">'
+                         f'{"↑" if d > 0 else "↓"} {abs(d)}</span>')
+            cells.append(f'<td class="n"><span class="val {band(v)}">{v}%</span>{delta}</td>')
+        built.append(f"<tr><td>{et:%d %b %H:%M}</td>{''.join(cells)}</tr>")
+    rowsrc = list(reversed(built))                    # newest first for display
+
+    html = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Forecast trend · Pittsburg Aug 11–14</title>
+<meta name="color-scheme" content="dark light">
+<style>
+:root{{
+  --ground:#F1F3F7; --surface:#FFFFFF; --ink:#171C26; --body:#3B4453; --muted:#6C7789;
+  --rule:#D3D9E4; --accent:#B5721A; --good:#2E6B4F; --warn:#B5721A; --bad:#B03A2C;
+  --band:rgba(46,107,79,.09);
+  --s0:#2a78d6; --s1:#eb6834; --s2:#1baf7a;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+  --serif:ui-serif,"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+}}
+@media (prefers-color-scheme:dark){{:root{{
+  --ground:#0A0D14; --surface:#121722; --ink:#E7ECF5; --body:#BAC4D4; --muted:#7A8698;
+  --rule:#232B39; --accent:#E3A445; --good:#6FBF95; --warn:#E3A445; --bad:#E8705C;
+  --band:rgba(111,191,149,.10);
+  --s0:#3987e5; --s1:#d95926; --s2:#199e70;
+}}}}
+:root[data-theme="light"]{{
+  --ground:#F1F3F7; --surface:#FFFFFF; --ink:#171C26; --body:#3B4453; --muted:#6C7789;
+  --rule:#D3D9E4; --accent:#B5721A; --good:#2E6B4F; --warn:#B5721A; --bad:#B03A2C;
+  --band:rgba(46,107,79,.09); --s0:#2a78d6; --s1:#eb6834; --s2:#1baf7a;
+}}
+:root[data-theme="dark"]{{
+  --ground:#0A0D14; --surface:#121722; --ink:#E7ECF5; --body:#BAC4D4; --muted:#7A8698;
+  --rule:#232B39; --accent:#E3A445; --good:#6FBF95; --warn:#E3A445; --bad:#E8705C;
+  --band:rgba(111,191,149,.10); --s0:#3987e5; --s1:#d95926; --s2:#199e70;
+}}
+:root[data-night="on"]{{
+  --ground:#000; --surface:#0A0000; --ink:#FF4A22; --body:#C8351A; --muted:#7E2210;
+  --rule:#3A0F06; --accent:#FF6A34; --good:#FF6A34; --warn:#C8351A; --bad:#7E2210;
+  --band:rgba(255,106,52,.10);
+  --s0:#FF6A34; --s1:#FF6A34; --s2:#FF6A34;
+}}
+*{{box-sizing:border-box}}
+body{{margin:0;background:var(--ground);color:var(--body);font-family:var(--sans);
+  line-height:1.6;padding-bottom:3rem}}
+.wrap{{max-width:50rem;margin:0 auto;padding:0 clamp(1rem,3.5vw,1.6rem)}}
+h1{{font-family:var(--serif);color:var(--ink);font-size:clamp(1.5rem,5vw,2rem);
+  margin:2rem 0 .3rem;line-height:1.15}}
+h2{{font-family:var(--serif);color:var(--ink);font-size:1.15rem;margin:2.2rem 0 .8rem}}
+.bar{{position:sticky;top:0;z-index:9;background:var(--ground);border-bottom:1px solid var(--rule)}}
+.bar-in{{max-width:50rem;margin:0 auto;padding:.5rem clamp(1rem,3.5vw,1.6rem);
+  display:flex;gap:.5rem;align-items:center}}
+.bar a{{font-family:var(--mono);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--muted);text-decoration:none;margin-right:auto}}
+.bar a:hover{{color:var(--accent)}}
+.btn{{font-family:var(--mono);font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;
+  background:transparent;color:var(--body);border:1px solid var(--rule);padding:.4rem .65rem;
+  border-radius:3px;cursor:pointer}}
+.btn:hover{{border-color:var(--accent);color:var(--accent)}}
+.eyebrow{{font-family:var(--mono);font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--muted)}}
+.card{{background:var(--surface);border:1px solid var(--rule);border-radius:4px;padding:1.1rem}}
+.cards{{display:grid;gap:.7rem;grid-template-columns:1fr;margin:1rem 0}}
+@media(min-width:36rem){{.cards{{grid-template-columns:repeat(3,1fr)}}}}
+.ncard{{background:var(--surface);border:1px solid var(--rule);border-radius:4px;padding:.8rem;
+  display:flex;flex-direction:column;gap:.15rem}}
+.ncard b{{color:var(--ink)}}
+.swatch{{width:26px;height:3px;border-radius:2px;display:block;margin-bottom:.35rem}}
+.swatch.s0{{background:var(--s0)}} .swatch.s1{{background:var(--s1)}} .swatch.s2{{background:var(--s2)}}
+.big{{font-family:var(--mono);font-size:1.7rem;line-height:1.1;margin-top:.3rem;
+  font-variant-numeric:tabular-nums}}
+.verdict{{font-family:var(--mono);font-size:.66rem;letter-spacing:.12em;text-transform:uppercase}}
+.mrange{{font-family:var(--mono);font-size:.72rem;margin-top:.45rem;padding-top:.4rem;
+  border-top:1px solid var(--rule);color:var(--muted)}}
+.mrange b{{color:var(--body)}}
+.good{{color:var(--good)}} .warn{{color:var(--warn)}} .bad{{color:var(--bad)}} .dim{{color:var(--muted)}}
+svg{{width:100%;height:auto;display:block}}
+.band{{fill:var(--band)}}
+.bandlab{{fill:var(--good);font-family:var(--mono);font-size:9px;letter-spacing:.08em;
+  text-transform:uppercase;opacity:.85}}
+.grid{{stroke:var(--rule);stroke-width:1}}
+.axis{{stroke:var(--rule);stroke-width:1}}
+.ax{{fill:var(--muted);font-family:var(--mono);font-size:10px}}
+.ax.dim{{opacity:.6;font-size:9px}}
+.striprow{{margin-bottom:1.4rem}}
+.striphead{{display:flex;gap:.6rem;align-items:baseline;margin-bottom:.3rem}}
+.striphead b{{color:var(--ink)}}
+.cloud{{fill:var(--ink)}}
+.cellb{{fill:none;stroke:var(--rule);stroke-width:1}}
+.nodata{{fill:none;stroke:var(--rule);stroke-width:1;stroke-dasharray:2 2}}
+.cellv{{fill:var(--muted);font-family:var(--mono);font-size:9px;
+  paint-order:stroke;stroke:var(--surface);stroke-width:2.5px}}
+.hlab{{fill:var(--muted);font-family:var(--mono);font-size:9px}}
+.srclab{{fill:var(--body);font-family:var(--mono);font-size:10px}}
+.corebox{{fill:none;stroke:var(--accent);stroke-width:1.5;opacity:.8}}
+.corelab{{fill:var(--accent);font-family:var(--mono);font-size:8px;letter-spacing:.14em}}
+.rng0{{stroke:var(--s0);stroke-width:5;opacity:.22;stroke-linecap:round}}
+.rng1{{stroke:var(--s1);stroke-width:5;opacity:.22;stroke-linecap:round}}
+.rng2{{stroke:var(--s2);stroke-width:5;opacity:.22;stroke-linecap:round}}
+path.s0{{stroke:var(--s0);stroke-width:2;stroke-linejoin:round;stroke-linecap:round}}
+path.s1{{stroke:var(--s1);stroke-width:2;stroke-linejoin:round;stroke-linecap:round}}
+path.s2{{stroke:var(--s2);stroke-width:2;stroke-linejoin:round;stroke-linecap:round}}
+circle.s0{{fill:var(--s0)}} circle.s1{{fill:var(--s1)}} circle.s2{{fill:var(--s2)}}
+circle.dot{{stroke:var(--surface);stroke-width:2}}
+text.lab{{font-family:var(--mono);font-size:10px;font-weight:600}}
+text.s0{{fill:var(--s0)}} text.s1{{fill:var(--s1)}} text.s2{{fill:var(--s2)}}
+table{{border-collapse:collapse;width:100%;font-size:.9rem}}
+th,td{{text-align:left;padding:.45rem .6rem;border-bottom:1px solid var(--rule);white-space:nowrap}}
+th{{font-family:var(--mono);font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--muted);font-weight:400}}
+td.n{{font-family:var(--mono);font-variant-numeric:tabular-nums}}
+td.better{{color:var(--good);font-weight:600}} td.worse{{color:var(--bad);font-weight:600}}
+.val{{font-weight:600}}
+.rng{{stroke:var(--muted);stroke-width:3;stroke-linecap:round;opacity:.45}}
+.mdot{{fill:var(--accent);stroke:var(--surface);stroke-width:2}}
+.nws{{fill:none;stroke:var(--ink);stroke-width:2}}
+.nlab{{fill:var(--ink);font-family:var(--mono);font-size:11px;font-weight:600}}
+.mlab{{fill:var(--muted);font-family:var(--mono);font-size:9px;letter-spacing:.04em}}
+.mval{{fill:var(--body);font-family:var(--mono);font-size:10px;font-variant-numeric:tabular-nums}}
+.spread{{font-family:var(--mono);font-size:15px;font-weight:700;font-variant-numeric:tabular-nums}}
+.spreadlab{{font-family:var(--mono);font-size:8.5px;letter-spacing:.1em;text-transform:uppercase}}
+text.good{{fill:var(--good)}} text.warn{{fill:var(--warn)}} text.bad{{fill:var(--bad)}}
+.delta{{display:inline-block;margin-left:.4rem;font-size:.76rem;font-weight:600;
+  letter-spacing:.02em}}
+.note{{color:var(--muted);font-size:.9rem;margin:.6rem 0 0}}
+.scroll{{overflow-x:auto}}
+@media (prefers-reduced-motion:reduce){{*{{transition:none!important}}}}
+</style>
+</head>
+<body>
+<div class="bar"><div class="bar-in">
+  <a href="index.html">← Trip plan</a>
+  <button class="btn" id="theme" type="button">Theme</button>
+  <button class="btn" id="night" type="button" aria-pressed="false">Night</button>
+</div></div>
+
+<div class="wrap">
+  <div class="eyebrow" style="margin-top:2rem">Fetched {t:%a %d %b, %H:%M} EDT · forecast issued
+    {issued} · gridpoint {latest['grid']}</div>
+  <h1>Forecast trend</h1>
+  <p style="max-width:62ch"><b>The chart and the go/no-go use the core window, 10–11:30 PM</b> —
+  the Milky Way core over the lake. That's the only irreplaceable thing on the trip and it lasts
+  90 minutes, so it decides whether to drive up at all. The cards also carry
+  <b>1–4 AM</b>, which is the Perseid peak and the refractor back at the cabin — a night can be
+  clear for one and clouded for the other. Each point is one forecast run — so the lines show <b>how the prediction for a
+  given night has moved as the lead time shortened</b>, not the weather itself.</p>
+
+  <div class="cards">{"".join(cards)}</div>
+
+  <div class="card">
+    {svg_chart(hist)}
+    <p class="note">Lower is better. The <b>dot and line</b> are the NWS forecast; the
+    <b>pale vertical bar</b> behind each is the spread across ECMWF, GFS and GEM at that moment.
+    <b style="color:var(--ink)">Watch the bars get shorter</b> — that's consensus forming, and
+    it matters more than where any single line sits. Line style distinguishes the nights as well
+    as colour.</p>
+  </div>
+
+  <h2>How much each night has moved</h2>
+  <div class="card"><div class="scroll">{delta_table(hist)}</div></div>
+
+  <h2>Hour by hour</h2>
+  <div class="card">
+    <p style="max-width:62ch">A mean hides structure. 90% at 10 PM and 10% at 11 PM averages to
+    "50%, marginal" — when what you actually have is a clouded first half and a clear second.
+    <b style="color:var(--ink)">Darker cell = more cloud.</b> Rows are sources, so you can see
+    both how the night is shaped and whether the models agree about the shape.</p>
+    <div style="margin-top:1.2rem" class="scroll">{hourly_strips(latest)}</div>
+    <p class="note">Hours are EDT, 9 PM through 4 AM. The amber box is the core window —
+    the only part that decides go/no-go. Dashed cells are outside a model's range.</p>
+  </div>
+
+  <h2>Do the models agree?</h2>
+  <div class="card">
+    <p style="max-width:62ch">Open-Meteo exposes individual models rather than a blend.
+    <b style="color:var(--ink)">ECMWF is the most skillful global model and is genuinely
+    independent</b> of the NWS product above, which is built on GFS and NAM. So this isn't just
+    more data — <b style="color:var(--ink)">the width of the spread is itself the confidence
+    signal.</b></p>
+    <div style="margin-top:1rem">{agreement_svg(latest)}</div>
+    <p class="note">Dots are models, the bar is their range, the <b style="color:var(--ink)">◇
+    diamond</b> is the NWS value. Shaded zone is under {GO}%.
+    <b class="good">±&lt;20 they agree</b> — the forecast means something.
+    <b class="warn">±20–40 some spread.</b>
+    <b class="bad">±40+ no consensus</b> — nobody knows yet, and a discouraging number from any
+    single source is worth very little.</p>
+  </div>
+
+  <h2>Calibration — the nights before the trip</h2>
+  <div class="card">
+    <p style="max-width:60ch; margin-bottom:.9rem">Aug 5–10 are tracked too. They happen while
+    you're watching, so they measure how far a forecast for <em>this pattern</em> actually
+    travels as the lead time shrinks — rather than relying on general claims about model skill.</p>
+    {calibration(hist)}
+  </div>
+
+  <h2>Every reading</h2>
+  <div class="card"><div class="scroll"><table>
+    <thead><tr><th>Forecast run</th><th>Night 1</th><th>Night 2</th><th>Night 3</th></tr></thead>
+    <tbody>{"".join(rowsrc)}</tbody></table></div>
+    <p class="note">Core-window mean cloud cover. <b class="good">Green ≤30%</b> ·
+    <b class="warn">amber ≤55%</b> · <b class="bad">red above</b>. The arrow is the change since
+    that night's previous reading — <b class="good">↓ green is improving</b> (less cloud),
+    <b class="bad">↑ red is deteriorating</b>. Full hourly detail in
+    <span style="font-family:var(--mono)">FORECAST_LOG.md</span>.</p>
+  </div>
+
+  <h2>What the percentage means</h2>
+  <div class="card">
+    <p><b style="color:var(--ink)">Percent of the sky covered by cloud</b>, averaged across the
+    10 PM and 11 PM readings. <b style="color:var(--ink)">It is not a probability.</b> Sky cover
+    57% means 57% of the dome has cloud in it; PoP 32% means a 32% chance of measurable rain.
+    Different quantities — and only the first one matters here.</p>
+    <div class="scroll" style="margin-top:.9rem"><table>
+      <thead><tr><th>Sky cover</th><th>NWS wording</th><th>For you</th></tr></thead>
+      <tbody>
+        <tr><td class="n">0–12%</td><td>Clear</td><td class="good">Everything works</td></tr>
+        <tr><td class="n">13–37%</td><td>Mostly clear</td><td class="good">Shootable — might lose a few frames</td></tr>
+        <tr><td class="n">38–62%</td><td>Partly cloudy</td><td class="warn">Broken. You'd get gaps — OH_SHIT territory</td></tr>
+        <tr><td class="n">63–87%</td><td>Mostly cloudy</td><td class="bad">Occasional sucker holes</td></tr>
+        <tr><td class="n">88–100%</td><td>Overcast</td><td class="bad">Nothing</td></tr>
+      </tbody></table></div>
+    <p class="note" style="margin-top:.9rem">The go threshold sits at {GO}% because that's the top
+    of "mostly clear."</p>
+    <p style="margin-top:.9rem"><b style="color:var(--ink)">One real limitation:</b> sky cover is a
+    whole-dome average and can't tell you <em>where</em> the cloud is. 57% could be uniform thin
+    overcast — nothing shootable — or half the sky clear and half socked in. If the clear half
+    happens to be the southwest at 10 PM, that reads "partly cloudy" and is a perfectly good
+    night. Another reason a middling number four days out isn't grounds to cancel.</p>
+  </div>
+
+  <h2>Reading it</h2>
+  <div class="card">
+    <p><b style="color:var(--ink)">Sky cover, not PoP.</b> Probability of precipitation is not a
+    cloud forecast — an overcast rainless night reads 0% and is a total loss, while a 40%
+    convective afternoon can be clear by 10 PM.</p>
+    <p style="margin-top:.7rem"><b style="color:var(--ink)">Decision point Aug 8.</b> Pivot night
+    is <b style="color:var(--accent)">Night 2, Aug 12/13</b> — Perseid maximum and new moon, the
+    only night carrying something the others don't. Go if its core window is under ~{GO}%.</p>
+    <p style="margin-top:.7rem"><b style="color:var(--ink)">One point per forecast package.</b>
+    GYX publishes roughly twice a day — morning and mid-afternoon — plus amendments. The logger
+    keys on the package's own issuance time, so re-running it before a new one lands adds
+    nothing. Each point on the chart is a genuinely separate forecast.</p>
+    <p style="margin-top:.7rem"><b style="color:var(--ink)">Weight it asymmetrically.</b> Day-4
+    optimism is worth acting on; day-4 pessimism is weak evidence with four model cycles still
+    to run.</p>
+  </div>
+</div>
+
+<script>
+(function(){{
+  var r=document.documentElement,t=document.getElementById('theme'),n=document.getElementById('night');
+  t.addEventListener('click',function(){{
+    var c=r.getAttribute('data-theme')||(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');
+    r.setAttribute('data-theme',c==='dark'?'light':'dark');
+  }});
+  n.addEventListener('click',function(){{
+    var on=r.getAttribute('data-night')==='on';
+    if(on){{r.removeAttribute('data-night');n.setAttribute('aria-pressed','false');}}
+    else{{r.setAttribute('data-night','on');n.setAttribute('aria-pressed','true');}}
+  }});
+}})();
+</script>
+</body>
+</html>
+"""
+    open(PAGE, "w").write(html)
+
+
+def main():
+    hist = json.load(open(HIST)) if os.path.exists(HIST) else []
+    new = snapshot()
+    # one entry per FORECAST ISSUANCE, not per run. GYX publishes ~twice a day, so
+    # running the script again before a new package lands would otherwise log the
+    # same numbers twice and fake a stability that isn't there.
+    # Skip only if BOTH the NWS package and every model reading are unchanged. The models
+    # refresh more often than the NWS issuance, so keying on issuance alone would silently
+    # discard fresh ECMWF/GFS/GEM data.
+    def fingerprint(e):
+        return (e.get("issued"),
+                tuple(sorted((l, tuple(sorted((e["nights"][l].get("models") or {}).items())))
+                             for l, _ in ALL if l in e["nights"])))
+    if hist and fingerprint(hist[-1]) == fingerprint(new):
+        print("no new NWS package and no model changes — nothing logged")
+        return
+    hist.append(new)
+    hist.sort(key=lambda e: e["taken"])
+    json.dump(hist, open(HIST, "w"), indent=1)
+    write_log(hist)
+    write_page(hist)
+    print(f"snapshot {len(hist)} → {HIST}, {LOG}, {PAGE}")
+
+
+if __name__ == "__main__":
+    main()

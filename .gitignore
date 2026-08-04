@@ -1,0 +1,9 @@
+# cron output — noisy, regenerated constantly
+forecast_cron.log
+
+# mock data for previewing the forecast page; not real, would confuse anyone reading the repo
+forecast_preview.html
+
+__pycache__/
+*.pyc
+.DS_Store
