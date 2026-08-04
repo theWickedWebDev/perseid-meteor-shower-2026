@@ -66,17 +66,34 @@ def grab(path):
 
 
 def estimate(path):
-    """(cloud_pct, is_night). Cloud is None at night."""
+    """(cloud_pct, is_night, stats). Cloud is None at night — but record the raw
+    statistics anyway so a night method can be calibrated once real night frames exist.
+
+    The likely night signal is the inverse of the daytime one: ground light bounces off
+    cloud base and comes back down, so an overcast sky reads BRIGHTER than a clear one.
+    Texture matters too — clear sky is smooth, broken cloud has structure. And if the
+    camera switches to IR at night the image goes monochrome, which kills R/B entirely;
+    `sat` detects that.
+    """
     import numpy as np
     from PIL import Image
     im = np.asarray(Image.open(path).convert("RGB")).astype(float)
     H, W = im.shape[:2]
     sky = im[int(CAL["y0"] * H):int(CAL["y1"] * H),
              int(CAL["x0"] * W):int(CAL["x1"] * W)]
-    if sky.mean() < CAL["dark"]:
-        return None, True
+    lum = sky.mean(axis=2)
+    mx, mn = sky.max(axis=2), sky.min(axis=2)
+    stats = {
+        "lum": round(float(lum.mean()), 1),        # overall sky brightness
+        "lum_sd": round(float(lum.std()), 1),      # texture — smooth vs structured
+        "lum_p90": round(float(np.percentile(lum, 90)), 1),
+        "sat": round(float((mx - mn).mean()), 1),  # ~0 means monochrome, i.e. IR mode
+        "rb": round(float((sky[:, :, 0] / np.maximum(sky[:, :, 2], 1)).mean()), 3),
+    }
+    if lum.mean() < CAL["dark"]:
+        return None, True, stats
     rb = sky[:, :, 0] / np.maximum(sky[:, :, 2], 1)
-    return round(float((rb > CAL["rb"]).mean() * 100)), False
+    return round(float((rb > CAL["rb"]).mean() * 100)), False, stats
 
 
 def forecast_now(hour_iso):
@@ -111,7 +128,7 @@ def main():
         print(f"grab failed: {ex}")
         return
 
-    cloud, night = estimate(raw)
+    cloud, night, stats = estimate(raw)
 
     # shrink for the repo — full frames are ~300 KB each and we keep dozens
     try:
@@ -120,7 +137,7 @@ def main():
     except Exception:
         pass
 
-    entry = {"time": now.isoformat(), "cloud": cloud, "night": night,
+    entry = {"time": now.isoformat(), "cloud": cloud, "night": night, "stats": stats,
              "shot": raw, "models": forecast_now(now.strftime("%Y-%m-%dT%H:00"))}
 
     log = json.load(open(LOG)) if os.path.exists(LOG) else []
@@ -139,7 +156,10 @@ def main():
     json.dump(log, open(LOG, "w"), indent=1)
 
     if night:
-        print(f"{stamp}  night — too dark to estimate")
+        ms = entry["models"]
+        exp = (f"  models said {min(ms.values())}–{max(ms.values())}%" if ms else "")
+        print(f"{stamp}  NIGHT  lum {stats['lum']} sd {stats['lum_sd']} "
+              f"sat {stats['sat']}{exp}")
     else:
         ms = entry["models"]
         err = (f"  models {min(ms.values())}–{max(ms.values())}%" if ms else "")

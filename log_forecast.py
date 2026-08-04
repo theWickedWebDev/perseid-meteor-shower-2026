@@ -43,6 +43,11 @@ GO      = 30                # go/no-go threshold, % cloud cover
 # spread means the atmosphere is predictable; a wide one means nobody knows yet.
 OM_MODELS = [("ecmwf_ifs025", "ECMWF"), ("gfs_seamless", "GFS"),
              ("icon_seamless", "ICON"), ("gem_seamless", "GEM")]
+# Open-Meteo publishes per-dataset run metadata. The slugs differ from the model
+# parameter names used in the forecast call, and not every dataset stays current —
+# anything older than 48 h is treated as unknown rather than printed as fact.
+OM_META = [("ECMWF", "ecmwf_ifs025"), ("GFS", "ncep_gfs013"), ("ICON", "dwd_icon")]
+
 OM_URL = ("https://api.open-meteo.com/v1/forecast?latitude={la}&longitude={lo}"
           "&hourly=cloud_cover&models={m}&timezone=America%2FNew_York&forecast_days=14")
 
@@ -69,6 +74,22 @@ def expand(series):
         hours = (int(m.group(1) or 0) * 24) + int(m.group(2) or 0) or 1
         for h in range(hours):
             out[(start + timedelta(hours=h)).astimezone(EDT).isoformat()] = v["value"]
+    return out
+
+
+def model_runs():
+    """{name: (init_utc, avail_local)} for each model whose metadata is current."""
+    out = {}
+    for name, slug in OM_META:
+        try:
+            d = get(f"https://api.open-meteo.com/data/{slug}/static/meta.json")
+            init = datetime.fromtimestamp(d["last_run_initialisation_time"], timezone.utc)
+            avail = datetime.fromtimestamp(d["last_run_availability_time"], timezone.utc)
+            if (datetime.now(timezone.utc) - avail).total_seconds() > 48 * 3600:
+                continue                      # dataset has gone stale — don't claim a run time
+            out[name] = (init.strftime("%HZ"), avail.astimezone(EDT).strftime("%d %b %H:%M"))
+        except Exception:
+            pass
     return out
 
 
@@ -120,10 +141,12 @@ def snapshot():
     sky, pop, dew = (expand(grid[k]) for k in
                      ("skyCover", "probabilityOfPrecipitation", "dewpoint"))
     om = open_meteo()
+    runs = model_runs()
 
     stamp = datetime.now(EDT)
     entry = {"taken": stamp.isoformat(),
              "issued": grid.get("updateTime"),          # when NWS published this package
+             "runs": runs,                              # model init + availability times
              "grid": f"{p['gridId']} {p['gridX']},{p['gridY']}",
              "nights": {}}
 
@@ -528,6 +551,11 @@ def write_page(hist):
     t = datetime.fromisoformat(latest["taken"])
     issued = (datetime.fromisoformat(latest["issued"]).astimezone(EDT).strftime("%a %d %b %H:%M")
               if latest.get("issued") else "unknown")
+    rr = latest.get("runs") or {}
+    runline = ("".join(f' · <b>{n}</b> <span style="font-family:var(--mono)">{i}</span> run, '
+                       f'published <span style="font-family:var(--mono)">{a}</span>'
+                       for n, (i, a) in sorted(rr.items()))
+               + (" · <b>GEM</b> run time unknown" if "GEM" not in rr else "")) if rr else ""
     cards = []
     for si, (label, _) in enumerate(NIGHTS):
         nd = latest["nights"][label]
@@ -861,10 +889,13 @@ text.good{{fill:var(--good)}} text.warn{{fill:var(--warn)}} text.bad{{fill:var(-
   <div style="margin-top:2.5rem;padding-top:1.2rem;border-top:1px solid var(--rule);
               color:var(--muted);font-size:.84rem">
     <a href="index.html" style="color:var(--accent)">← Trip plan</a>
-    <br><span style="font-family:var(--mono)">Last updated {t:%a %d %b %Y, %H:%M} EDT</span>
+    <br><span style="font-family:var(--mono)">Page built {t:%a %d %b %Y, %H:%M} EDT</span>
     · rebuilt hourly from <span style="font-family:var(--mono)">api.weather.gov</span>,
     Open-Meteo and the lake webcam.
-    <br>Forecast package issued {issued} EDT.
+    <br><b>Data vintages</b> — NWS package issued <span style="font-family:var(--mono)">{issued}</span>
+    EDT{runline}
+    <br><span style="opacity:.75">Each model is a snapshot of a different run, so a little of any
+    apparent disagreement is just run age rather than genuine divergence.</span>
   </div>
 </div>
 

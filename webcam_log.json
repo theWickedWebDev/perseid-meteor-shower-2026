@@ -3,6 +3,13 @@
   "time": "2026-08-04T14:00:00-04:00",
   "cloud": 0,
   "night": false,
+  "stats": {
+   "lum": 191.7,
+   "lum_sd": 17.4,
+   "lum_p90": 217.3,
+   "sat": 48.0,
+   "rb": 0.778
+  },
   "shot": "webcam/2026-08-04T14.jpg",
   "models": {
    "ECMWF": 1,

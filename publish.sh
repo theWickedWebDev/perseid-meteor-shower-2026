@@ -5,6 +5,7 @@ cd /home/stephen/pittsburg-trip || exit 1
 
 /usr/bin/python3 webcam.py
 /usr/bin/python3 log_forecast.py
+/usr/bin/python3 preview_forecast.py >/dev/null   # keep the mock preview in step (gitignored)
 
 if [ -z "$(git status --porcelain)" ]; then
     echo "$(date '+%F %T')  no changes"
