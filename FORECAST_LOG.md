@@ -2,7 +2,7 @@
 
 Chart of how these have moved: **[forecast.html](forecast.html)**
 
-Run `python3 log_forecast.py` once a day. Newest entry first.
+Updated hourly by cron. Newest entry first.
 
 **Watch how a given night moves as lead time shortens.** A night that holds steady across several days is a real signal; one that swings 40 points between runs is telling you the model doesn't know yet.
 

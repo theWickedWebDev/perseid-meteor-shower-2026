@@ -57,14 +57,19 @@ narrow is the actual go/no-go signal.
 
 ## Tooling
 
+`publish.sh` runs hourly from cron and does the whole loop — grab a webcam frame, refresh the
+forecast if there's a new package, rebuild the pages, commit, push. **The site updates itself.**
+
 ```bash
-python3 log_forecast.py     # snapshot the forecast, rebuild FORECAST_LOG.md + forecast.html
+./publish.sh                # the hourly job; safe to run by hand
+python3 webcam.py           # webcam frame + cloud estimate + model comparison
+python3 log_forecast.py     # forecast snapshot, rebuild FORECAST_LOG.md + forecast.html
 python3 make_calendar.py    # regenerate pittsburg-2026.ics (schedule with phone alarms)
-python3 preview_forecast.py # render forecast_preview.html from mock data, to see the shape
+python3 preview_forecast.py # forecast_preview.html from mock data, to preview the full UI
 ```
 
-`log_forecast.py` runs from cron three times a day and records only when NWS issues a new
-package *or* a model refreshes, so each point on the chart is a genuinely separate forecast.
+A forecast point is only recorded when NWS issues a new package *or* a model refreshes, so
+each point on the chart is a genuinely separate forecast rather than a repeated reading.
 
 ## A note on what's here
 

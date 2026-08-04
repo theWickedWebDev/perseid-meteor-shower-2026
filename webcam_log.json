@@ -5,10 +5,10 @@
   "night": false,
   "stats": {
    "lum": 185.5,
-   "lum_sd": 16.0,
+   "lum_sd": 15.9,
    "lum_p90": 210.0,
-   "sat": 49.1,
-   "rb": 0.767
+   "sat": 49.3,
+   "rb": 0.766
   },
   "shot": "webcam/2026-08-04T14.jpg",
   "models": {

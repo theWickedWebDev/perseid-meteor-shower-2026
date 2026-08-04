@@ -2,7 +2,7 @@
 """
 Snapshot the NWS forecast for the trip nights, log it, and rebuild forecast.html.
 
-Run once a day:
+Runs hourly from cron via publish.sh. Manual run:
 
     python3 log_forecast.py
 
@@ -198,7 +198,7 @@ def snapshot():
 def write_log(hist):
     head = ("# Forecast Log — Pittsburg NH, Aug 11–14 2026\n\n"
             f"Chart of how these have moved: **[forecast.html](forecast.html)**\n\n"
-            "Run `python3 log_forecast.py` once a day. Newest entry first.\n\n"
+            "Updated hourly by cron. Newest entry first.\n\n"
             "**Watch how a given night moves as lead time shortens.** A night that holds steady "
             "across several days is a real signal; one that swings 40 points between runs is "
             "telling you the model doesn't know yet.\n\n"
@@ -513,8 +513,8 @@ def hourly_strips(latest):
 
 def delta_table(hist):
     if len(hist) < 2:
-        return ('<p class="note">Only one snapshot so far — run this again tomorrow and the '
-                'movement column appears.</p>')
+        return ('<p class="note">Only one snapshot so far. The movement column fills in once a '
+                'second forecast package lands — see the next-check time at the top.</p>')
     rows = []
     for label, _ in NIGHTS:
         vals = [(datetime.fromisoformat(e["taken"]), e["nights"][label]["core"])
@@ -549,9 +549,9 @@ def delta_table(hist):
 def calibration(hist):
     """How much has a night's forecast actually moved as its lead time shrank?"""
     if len(hist) < 2:
-        return ('<p class="note">Needs at least two runs. Once a few accumulate, this shows how '
-                'far a night\'s forecast typically travels between day 5 and day 1 — your own '
-                'empirical answer to how much the day-4 number is worth.</p>')
+        return ('<p class="note">Fills in over the next day or two, once these nights have been '
+                'forecast more than once — then it shows how far a forecast actually travels '
+                'between day 5 and day 1.</p>')
     rows, moves = [], []
     for label, day in LEADUP:
         vals = [(e["nights"][label]["lead"], e["nights"][label]["core"])
@@ -566,7 +566,8 @@ def calibration(hist):
                     f"<td class='n'>{first}%</td><td class='n'>{last}%</td>"
                     f"<td class='n'>{hi-lo}</td></tr>")
     if not rows:
-        return ('<p class="note">Not enough runs yet for the lead-up nights to show movement.</p>')
+        return ('<p class="note">Not enough readings yet for the lead-up nights to show '
+                'movement — check back tomorrow.</p>')
     avg, mx = sum(moves) / len(moves), max(moves)
     return (f'<p style="margin-bottom:.8rem"><b style="color:var(--ink)">Worst swing so far: '
             f'{mx} points</b> (typical {avg:.0f}). You are asking how <em>wrong</em> a forecast '
