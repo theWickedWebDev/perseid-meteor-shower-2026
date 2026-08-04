@@ -134,6 +134,10 @@ text.good{fill:var(--good)} text.warn{fill:var(--warn)} text.bad{fill:var(--bad)
   letter-spacing:.02em}
 .note{color:var(--muted);font-size:.85rem;margin:.6rem 0 0}
 .lede{color:var(--body);font-size:.94rem;max-width:64ch;margin:0 0 .2rem}
+.next{margin:.5rem 0 .9rem;padding:.5rem .75rem;background:var(--surface);
+  border:1px solid var(--rule);border-left:3px solid var(--accent);border-radius:3px;
+  font-family:var(--mono);font-size:.78rem}
+.next b{color:var(--accent)}
 .scroll{overflow-x:auto}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
@@ -146,9 +150,10 @@ text.good{fill:var(--good)} text.warn{fill:var(--warn)} text.bad{fill:var(--bad)
 </div></div>
 
 <div class="wrap">
-  <div class="eyebrow" style="margin-top:2rem">Fetched Tue 04 Aug, 14:51 EDT · forecast issued
+  <div class="eyebrow" style="margin-top:2rem">Fetched Tue 04 Aug, 17:53 EDT · forecast issued
     Tue 04 Aug 14:19 · gridpoint GYX 28,125</div>
   <h1>Forecast trend</h1>
+  <div class="next"><b>Next check 15:05</b> <span class="dim">— in 12 min, then hourly</span><span class="dim"> · next model data: ECMWF ~15:06 · ICON ~17:53 · GFS ~19:52</span></div>
   <p class="lede">Cloud cover. <b>Core window 10–11:30 PM</b> decides go/no-go; <b>1–4 AM</b> is
   Perseids and the scope. Each point is one forecast run.<br>
   <b style="color:var(--accent)">Decide Aug 8 on Night 2</b> — Perseid max and new moon.
@@ -171,7 +176,7 @@ text.good{fill:var(--good)} text.warn{fill:var(--warn)} text.bad{fill:var(--bad)
 <line class="grid" x1="46" y1="18.0" x2="612" y2="18.0"/>
 <text class="ax" x="38" y="22.0" text-anchor="end">100%</text>
 <text class="ax" x="329.0" y="296" text-anchor="middle">04 Aug</text>
-<text class="ax dim" x="329.0" y="310" text-anchor="middle">14:51</text>
+<text class="ax dim" x="329.0" y="310" text-anchor="middle">14:52</text>
 <line class="rng0" x1="325.0" y1="218.2" x2="325.0" y2="64.8"/>
 <line class="rng1" x1="329.0" y1="179.2" x2="329.0" y2="38.8"/>
 <line class="rng2" x1="333.0" y1="231.2" x2="333.0" y2="18.0"/>
@@ -278,7 +283,7 @@ text.good{fill:var(--good)} text.warn{fill:var(--warn)} text.bad{fill:var(--bad)
   <h2>Every reading</h2>
   <div class="card"><div class="scroll"><table>
     <thead><tr><th>Forecast run</th><th>Night 1</th><th>Night 2</th><th>Night 3</th></tr></thead>
-    <tbody><tr><td>04 Aug 14:51</td><td class="n"><span class="val warn">51%</span><span class="delta dim">new</span></td><td class="n dim">—</td><td class="n dim">—</td></tr></tbody></table></div>
+    <tbody><tr><td>04 Aug 14:52</td><td class="n"><span class="val warn">51%</span><span class="delta dim">new</span></td><td class="n dim">—</td><td class="n dim">—</td></tr></tbody></table></div>
     <p class="note">Core-window mean cloud cover. <b class="good">Green ≤30%</b> ·
     <b class="warn">amber ≤55%</b> · <b class="bad">red above</b>. The arrow is the change since
     that night's previous reading — <b class="good">↓ green is improving</b> (less cloud),
@@ -305,7 +310,7 @@ text.good{fill:var(--good)} text.warn{fill:var(--warn)} text.bad{fill:var(--bad)
   <div style="margin-top:2.5rem;padding-top:1.2rem;border-top:1px solid var(--rule);
               color:var(--muted);font-size:.84rem">
     <a href="index.html" style="color:var(--accent)">← Trip plan</a>
-    <br><span style="font-family:var(--mono)">Page built Tue 04 Aug 2026, 14:51 EDT</span>
+    <br><span style="font-family:var(--mono)">Page built Tue 04 Aug 2026, 17:53 EDT</span>
     · rebuilt hourly from <span style="font-family:var(--mono)">api.weather.gov</span>,
     Open-Meteo and the lake webcam.
     <br><b>Data vintages</b> — NWS package issued <span style="font-family:var(--mono)">Tue 04 Aug 14:19</span>

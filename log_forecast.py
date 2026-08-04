@@ -93,7 +93,8 @@ def model_runs():
             avail = datetime.fromtimestamp(d["last_run_availability_time"], timezone.utc)
             if (datetime.now(timezone.utc) - avail).total_seconds() > 48 * 3600:
                 continue                      # dataset has gone stale — don't claim a run time
-            out[name] = (init.strftime("%HZ"), avail.astimezone(EDT).strftime("%d %b %H:%M"))
+            out[name] = (init.strftime("%HZ"), avail.astimezone(EDT).strftime("%d %b %H:%M"),
+                         avail.timestamp())
         except Exception:
             pass
     return out
@@ -586,9 +587,30 @@ def write_page(hist):
     issued = (datetime.fromisoformat(latest["issued"]).astimezone(EDT).strftime("%a %d %b %H:%M")
               if latest.get("issued") else "unknown")
     rr = latest.get("runs") or {}
+
+    # what lands next, and when. The hourly check is certain; model refreshes are
+    # projected from the last publish time — these models run on a 6-hourly cycle.
+    now = datetime.now(EDT)
+    nxt_check = (now.replace(minute=5, second=0, microsecond=0)
+                 + timedelta(hours=1 if now.minute >= 5 else 0))
+    mins = int((nxt_check - now).total_seconds() // 60)
+    upcoming = []
+    for n, v in sorted(rr.items()):
+        if len(v) < 3:
+            continue
+        t = datetime.fromtimestamp(v[2], timezone.utc).astimezone(EDT)
+        while t <= now:
+            t += timedelta(hours=6)
+        upcoming.append((t, n))
+    upcoming.sort()
+    nextmodels = " · ".join(f"{n} ~{t:%H:%M}" for t, n in upcoming[:3])
+    nextline = (f'<div class="next"><b>Next check {nxt_check:%H:%M}</b> '
+                f'<span class="dim">— in {mins} min, then hourly</span>'
+                + (f'<span class="dim"> · next model data: {nextmodels}</span>'
+                   if nextmodels else "") + '</div>')
     runline = ("".join(f' · <b>{n}</b> <span style="font-family:var(--mono)">{i}</span> run, '
                        f'published <span style="font-family:var(--mono)">{a}</span>'
-                       for n, (i, a) in sorted(rr.items()))
+                       for n, (i, a, *_) in sorted(rr.items()))
                + (" · <b>GEM</b> run time unknown" if "GEM" not in rr else "")) if rr else ""
     cards = []
     for si, (label, _) in enumerate(NIGHTS):
@@ -787,6 +809,10 @@ text.good{{fill:var(--good)}} text.warn{{fill:var(--warn)}} text.bad{{fill:var(-
   letter-spacing:.02em}}
 .note{{color:var(--muted);font-size:.85rem;margin:.6rem 0 0}}
 .lede{{color:var(--body);font-size:.94rem;max-width:64ch;margin:0 0 .2rem}}
+.next{{margin:.5rem 0 .9rem;padding:.5rem .75rem;background:var(--surface);
+  border:1px solid var(--rule);border-left:3px solid var(--accent);border-radius:3px;
+  font-family:var(--mono);font-size:.78rem}}
+.next b{{color:var(--accent)}}
 .scroll{{overflow-x:auto}}
 @media (prefers-reduced-motion:reduce){{*{{transition:none!important}}}}
 </style>
@@ -802,6 +828,7 @@ text.good{{fill:var(--good)}} text.warn{{fill:var(--warn)}} text.bad{{fill:var(-
   <div class="eyebrow" style="margin-top:2rem">Fetched {t:%a %d %b, %H:%M} EDT · forecast issued
     {issued} · gridpoint {latest['grid']}</div>
   <h1>Forecast trend</h1>
+  {nextline}
   <p class="lede">Cloud cover. <b>Core window 10–11:30 PM</b> decides go/no-go; <b>1–4 AM</b> is
   Perseids and the scope. Each point is one forecast run.<br>
   <b style="color:var(--accent)">Decide Aug 8 on Night 2</b> — Perseid max and new moon.
