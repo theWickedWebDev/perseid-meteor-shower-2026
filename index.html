@@ -104,6 +104,9 @@ a{color:var(--accent)}
 }
 .btn:hover{border-color:var(--accent); color:var(--accent)}
 .btn[aria-pressed="true"]{background:var(--accent); border-color:var(--accent); color:var(--ground)}
+a.btn{text-decoration:none; display:inline-block}
+a.live-link{border-color:var(--accent); color:var(--accent); font-weight:600}
+a.live-link:hover{background:var(--accent); color:var(--ground)}
 
 /* ─── header ─────────────────────────────────────────── */
 .head{padding:2.6rem 0 .4rem}
@@ -219,6 +222,7 @@ summary .hr{font-family:var(--mono); color:var(--accent); font-variant-numeric:t
 <div class="bar">
   <div class="bar-in">
     <span class="bar-title">Pittsburg · Aug 11–14</span>
+    <a class="btn live-link" href="forecast.html">Forecast &amp; webcam →</a>
     <button class="btn" id="theme" type="button">Theme</button>
     <button class="btn" id="night" type="button" aria-pressed="false">Night</button>
   </div>
