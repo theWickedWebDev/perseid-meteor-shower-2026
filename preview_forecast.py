@@ -168,9 +168,70 @@ def mock_webcam():
     return out
 
 
+def mock_satellite():
+    """A night that clears from the north-west — the case the compass exists to show.
+
+    Past 12 h is invented "observation": socked in at dusk, the north opening around 23:00
+    while the core direction stays shut, then everything breaking through by 02:00. Forward
+    12 h is invented HRRR with a second band arriving late.
+    """
+    from datetime import datetime as dt
+    OCT = ("N", "NE", "E", "SE", "S", "SW", "W", "NW")
+    # (hour offset from start, per-octant values in OCT order)
+    story = [
+        (100, 100, 100, 100, 100, 100, 100, 100),
+        (100, 100, 100, 100,  95, 100, 100, 100),
+        ( 89,  95, 100, 100,  95, 100,  95,  89),
+        ( 67,  85,  95, 100,  95, 100,  89,  72),
+        ( 45,  70,  90,  95,  95, 100,  78,  55),
+        ( 22,  55,  80,  90,  90,  95,  60,  33),
+        (  8,  35,  70,  85,  85,  92,  45,  15),
+        (  0,  18,  55,  75,  80,  89,  30,   5),
+        (  0,   8,  35,  60,  70,  75,  15,   0),
+        (  0,   0,  20,  40,  50,  48,   5,   0),
+        (  0,   0,   8,  20,  25,  18,   0,   0),
+        (  0,   0,   0,   8,  10,   4,   0,   0),
+    ]
+    fcst = [
+        (  0,   0,   0,   5,   8,   2,   0,   0),
+        (  0,   0,   0,   0,   5,   0,   0,   0),
+        (  0,   0,   0,   0,   0,   0,   0,   0),
+        (  0,   0,   0,   0,   0,   0,   0,   0),
+        (  0,   0,   0,   0,   0,   0,   5,   8),
+        (  5,   0,   0,   0,   0,   8,  20,  25),
+        ( 18,   8,   0,   0,   5,  25,  45,  50),
+        ( 40,  22,   5,   0,  15,  48,  70,  72),
+        ( 65,  45,  18,   8,  35,  70,  88,  90),
+        ( 82,  68,  38,  20,  58,  85,  95,  95),
+        ( 92,  85,  60,  40,  78,  95, 100, 100),
+        ( 98,  95,  80,  62,  90, 100, 100, 100),
+    ]
+    start = BASE.replace(hour=17, minute=0) - timedelta(hours=len(story) - 1)
+    past = []
+    for k, row in enumerate(story):
+        o = dict(zip(OCT, row))
+        t = start + timedelta(hours=k)
+        past.append({"time": t.isoformat(), "scan": t.isoformat(),
+                     "cloud": round(sum(row) / len(row)), "octants": o,
+                     "slot": {"near": o["S"], "mid": o["SW"], "far": o["W"]},
+                     "upwind": o["NW"], "wind_from": 300, "pixel": 1,
+                     "prob": round(sum(row) / len(row) / 100, 2), "off_km": 0.46,
+                     "models": {"ECMWF": max(0, o["S"] - 12), "GFS": min(100, o["S"] + 18),
+                                "GEM": max(0, o["S"] - 25), "ICON": o["S"],
+                                "AIFS": min(100, o["S"] + 9), "JMA": max(0, o["S"] - 6)}})
+    fut = []
+    for k, row in enumerate(fcst):
+        t = start + timedelta(hours=len(story) + k)
+        fut.append({"time": t.isoformat(), "octants": dict(zip(OCT, row)),
+                    "cloud": round(sum(row) / len(row)), "kind": "forecast",
+                    "model": "ncep_hrrr_conus"})
+    return past, fut
+
+
 if __name__ == "__main__":
     lf.PAGE = "forecast_preview.html"
     lf.WEBCAM_OVERRIDE = mock_webcam()
+    lf.SAT_OVERRIDE, lf.FCST_OVERRIDE = mock_satellite()
     lf.write_page(build())
 
     s = open(lf.PAGE).read()

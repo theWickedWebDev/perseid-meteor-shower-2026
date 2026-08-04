@@ -761,11 +761,14 @@ def compass_film(sat):
     octants, a blur rather than a direction.
     """
     past = [e for e in (sat or []) if e.get("octants")][-12:]
-    try:
-        import satellite as satmod
-        future = satmod.octant_forecast(12)
-    except Exception:
-        future = []
+    if FCST_OVERRIDE is not None:
+        future = FCST_OVERRIDE
+    else:
+        try:
+            import satellite as satmod
+            future = satmod.octant_forecast(12)
+        except Exception:
+            future = []
     frames = [{"time": e["time"], "octants": e["octants"], "cloud": e.get("cloud"),
                "kind": "observed"} for e in past] + future
     if len(frames) < 2:
@@ -1145,10 +1148,14 @@ def calibration(hist, wlog=None, sat=None):
 
 
 WEBCAM_OVERRIDE = None      # preview_forecast.py sets this to render mock frames
+SAT_OVERRIDE = None         # ...and this, for the satellite panels
+FCST_OVERRIDE = None        # ...and this, for the forward half of the compass film
 
 
 def _satlog():
     """Hourly satellite cloud over the site. Empty list if it has not run yet."""
+    if SAT_OVERRIDE is not None:
+        return SAT_OVERRIDE
     try:
         return json.load(open("satellite_log.json"))
     except Exception:
