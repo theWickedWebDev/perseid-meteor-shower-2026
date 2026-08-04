@@ -316,8 +316,22 @@ def agreement_svg(latest):
 
     Models are samples of a distribution, not categorical identities — so one hue plus
     direct labels, not four competing colours. The range bar is the actual message.
+
+    Labels are placed in tiers: when two models land close together their names would
+    collide, so each is pushed to the next free row with a leader line back to its dot.
     """
-    rowsH, W, PAD = 62, 720, 92
+    def tier(xs, minsep):
+        """Greedy row assignment — lowest row where this x clears the last one placed."""
+        rows, out = [], []
+        for x in xs:
+            for t, last in enumerate(rows):
+                if x - last >= minsep:
+                    rows[t] = x; out.append(t); break
+            else:
+                rows.append(x); out.append(len(rows) - 1)
+        return out
+
+    rowsH, W, PAD = 92, 720, 92
     nights = [(l, latest["nights"][l]) for l, _ in NIGHTS]
     H = rowsH * len(nights) + 26
     tw = W - PAD - 118
@@ -325,14 +339,13 @@ def agreement_svg(latest):
 
     p = [f'<svg viewBox="0 0 {W} {H}" role="img" aria-label="Spread between forecast models '
          f'for each night" preserveAspectRatio="xMidYMid meet">']
-    p.append(f'<rect class="band" x="{PAD}" y="14" width="{x(GO)-PAD:.1f}" '
-             f'height="{H-30}"/>')
+    p.append(f'<rect class="band" x="{PAD}" y="14" width="{x(GO)-PAD:.1f}" height="{H-30}"/>')
     for v in (0, 25, 50, 75, 100):
         p.append(f'<line class="grid" x1="{x(v):.1f}" y1="14" x2="{x(v):.1f}" y2="{H-16}"/>')
         p.append(f'<text class="ax" x="{x(v):.1f}" y="{H-4}" text-anchor="middle">{v}%</text>')
 
     for i, (label, nd) in enumerate(nights):
-        y = 34 + i * rowsH
+        y = 46 + i * rowsH
         p.append(f'<text class="nlab" x="0" y="{y+4}">{label}</text>')
         mods = nd.get("models") or {}
         if not mods:
@@ -340,12 +353,23 @@ def agreement_svg(latest):
             continue
         lo, hi = min(mods.values()), max(mods.values())
         p.append(f'<line class="rng" x1="{x(lo):.1f}" y1="{y}" x2="{x(hi):.1f}" y2="{y}"/>')
-        for name, v in sorted(mods.items(), key=lambda kv: kv[1]):
-            p.append(f'<circle class="mdot" cx="{x(v):.1f}" cy="{y}" r="5"/>')
-            p.append(f'<text class="mlab" x="{x(v):.1f}" y="{y-11}" text-anchor="middle">'
-                     f'{name}</text>')
-            p.append(f'<text class="mval" x="{x(v):.1f}" y="{y+18}" text-anchor="middle">'
-                     f'{v}</text>')
+
+        pts = sorted(mods.items(), key=lambda kv: kv[1])
+        xs  = [x(v) for _, v in pts]
+        lt  = tier(xs, 40)        # model names need ~40px
+        vt  = tier(xs, 24)        # numbers need ~24px
+
+        for (name, v), px_, tl, tv in zip(pts, xs, lt, vt):
+            ly = y - 13 - tl * 12
+            vy = y + 19 + tv * 12
+            if tl:   # leader line so a bumped label still reads as belonging to its dot
+                p.append(f'<line class="lead" x1="{px_:.1f}" y1="{y-7}" x2="{px_:.1f}" y2="{ly+3}"/>')
+            if tv:
+                p.append(f'<line class="lead" x1="{px_:.1f}" y1="{y+7}" x2="{px_:.1f}" y2="{vy-8}"/>')
+            p.append(f'<circle class="mdot" cx="{px_:.1f}" cy="{y}" r="5"/>')
+            p.append(f'<text class="mlab" x="{px_:.1f}" y="{ly}" text-anchor="middle">{name}</text>')
+            p.append(f'<text class="mval" x="{px_:.1f}" y="{vy}" text-anchor="middle">{v}</text>')
+
         nws = nd.get("core")
         if nws is not None:
             p.append(f'<path class="nws" d="M{x(nws):.1f},{y-9} L{x(nws)+6:.1f},{y} '
@@ -353,7 +377,7 @@ def agreement_svg(latest):
         spread = hi - lo
         verd = "agree" if spread < 20 else "some spread" if spread < 40 else "no consensus"
         cls  = "good" if spread < 20 else "warn" if spread < 40 else "bad"
-        p.append(f'<text class="spread {cls}" x="{W-112}" y="{y-2}">±{spread}</text>')
+        p.append(f'<text class="spread {cls}" x="{W-112}" y="{y-2}">&plusmn;{spread}</text>')
         p.append(f'<text class="spreadlab {cls}" x="{W-112}" y="{y+12}">{verd}</text>')
     p.append("</svg>")
     return "\n".join(p)
@@ -757,6 +781,7 @@ td.better{{color:var(--good);font-weight:600}} td.worse{{color:var(--bad);font-w
 .val{{font-weight:600}}
 .rng{{stroke:var(--muted);stroke-width:3;stroke-linecap:round;opacity:.45}}
 .mdot{{fill:var(--accent);stroke:var(--surface);stroke-width:2}}
+.lead{{stroke:var(--rule);stroke-width:1}}
 .nws{{fill:none;stroke:var(--ink);stroke-width:2}}
 .nlab{{fill:var(--ink);font-family:var(--mono);font-size:11px;font-weight:600}}
 .mlab{{fill:var(--muted);font-family:var(--mono);font-size:9px;letter-spacing:.04em}}

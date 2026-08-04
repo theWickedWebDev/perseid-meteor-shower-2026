@@ -4,11 +4,11 @@
   "cloud": 0,
   "night": false,
   "stats": {
-   "lum": 189.8,
-   "lum_sd": 17.1,
-   "lum_p90": 215.0,
-   "sat": 50.6,
-   "rb": 0.766
+   "lum": 189.1,
+   "lum_sd": 17.0,
+   "lum_p90": 214.0,
+   "sat": 50.7,
+   "rb": 0.764
   },
   "shot": "webcam/2026-08-04T14.jpg",
   "models": {
