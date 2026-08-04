@@ -907,7 +907,12 @@ def webcam_section(log=None):
         if not os.path.exists("webcam_log.json"):
             return ""
         log = json.load(open("webcam_log.json"))
-    day = [e for e in log if not e["night"] and e["cloud"] is not None]
+    # Bright enough to score is not the same as trustworthy. Near sunrise and sunset the
+    # whole sky reddens and the R/B test reads clear air as overcast — caught live at
+    # 19:41 on 4 Aug, when the camera said 40% while the satellite and every model said 0.
+    # Same SUN_MIN gate the calibration column already applies.
+    day = [e for e in log if not e["night"] and e["cloud"] is not None
+           and sun_alt(datetime.fromisoformat(e["time"]), *WEBCAM_SITE) >= SUN_MIN]
     if not day:
         return ""
 
