@@ -1532,9 +1532,15 @@ def main():
         # The deterministic forecast has not moved, but the ensemble and the fog/haze
         # readings have their own cadence and belong to "now" rather than to a package.
         # Refresh them on the existing entry instead of banking a duplicate snapshot.
-        for k in ("trip", "cond"):
-            if new.get(k):
-                hist[-1][k] = new[k]
+        if new.get("trip"):
+            hist[-1]["trip"] = new["trip"]
+        # Merge conditions per night and per field. A partial outage — one endpoint timing
+        # out while the other answers — returns a dict that is truthy but missing whole
+        # nights, and replacing wholesale threw away good readings. Seen in the wild.
+        if new.get("cond"):
+            cur = hist[-1].setdefault("cond", {})
+            for lab, rec in new["cond"].items():
+                cur.setdefault(lab, {}).update({k: v for k, v in rec.items() if v is not None})
         json.dump(hist, open(HIST, "w"), indent=1)
         write_page(hist)          # webcam data still moves hourly, so rebuild anyway
         write_log(hist)

@@ -11611,21 +11611,67 @@
    "n": 31
   },
   "cond": {
+   "Night 1": {
+    "fog_hours": 1,
+    "spread": 0.3,
+    "wind": 2.6,
+    "hours": 14
+   },
+   "Night 2": {
+    "fog_hours": 0,
+    "spread": 0.1,
+    "wind": 13.0,
+    "hours": 14
+   },
+   "Night 3": {
+    "fog_hours": 2,
+    "spread": 0.8,
+    "wind": 3.2,
+    "hours": 14
+   },
    "Lead-up 05": {
+    "fog_hours": 0,
+    "spread": 6.8,
+    "wind": 2.9,
+    "hours": 14,
     "aod": 0.16,
     "pm25": 5.8
    },
    "Lead-up 06": {
+    "fog_hours": 1,
+    "spread": 0.4,
+    "wind": 3.5,
+    "hours": 14,
     "aod": 0.3,
     "pm25": 8.7
    },
    "Lead-up 07": {
+    "fog_hours": 1,
+    "spread": 0.7,
+    "wind": 0.8,
+    "hours": 14,
     "aod": 0.37,
     "pm25": 10.2
    },
    "Lead-up 08": {
+    "fog_hours": 0,
+    "spread": 0.2,
+    "wind": 3.3,
+    "hours": 14,
     "aod": 0.26,
     "pm25": 4.6
+   },
+   "Lead-up 09": {
+    "fog_hours": 0,
+    "spread": 2.1,
+    "wind": 5.4,
+    "hours": 14
+   },
+   "Lead-up 10": {
+    "fog_hours": 0,
+    "spread": 0.3,
+    "wind": 6.7,
+    "hours": 14
    }
   }
  }
