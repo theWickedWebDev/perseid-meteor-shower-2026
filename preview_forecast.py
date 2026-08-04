@@ -232,6 +232,18 @@ if __name__ == "__main__":
     lf.PAGE = "forecast_preview.html"
     lf.WEBCAM_OVERRIDE = mock_webcam()
     lf.SAT_OVERRIDE, lf.FCST_OVERRIDE = mock_satellite()
+    # the skill cache is real (it is climatology plus verification, not a forecast), but
+    # fall back to plausible numbers if it has never been computed on this machine
+    import os, json as _j
+    if not os.path.exists("skill.json"):
+        lf._skill = lambda: {
+            "climatology": {"years": 30, "median": 72, "p_night_good": 31,
+                            "p_trip_good": 67, "window": "Aug 11-13", "per_night": {}},
+            "lead_skill": {"n_hours": 51,
+                           "by_lead": {str(k): {"mean": v, "median": max(4, v // 3), "n": 357}
+                                       for k, v in enumerate([20, 15, 18, 21, 18, 21, 23, 38])},
+                           "by_model": {"AIFS": {"0": 9, "1": 9, "2": 13, "5": 12, "6": 13, "7": 33},
+                                        "ECMWF": {"0": 9, "1": 9, "2": 15, "5": 22, "6": 24, "7": 47}}}}
     lf.write_page(build())
 
     s = open(lf.PAGE).read()

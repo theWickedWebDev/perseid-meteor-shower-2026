@@ -5,6 +5,12 @@ set -u
 cd /home/stephen/pittsburg-trip || exit 1
 PY=/usr/bin/python3
 
+# Climatology and lead-time skill: thirty archive calls plus seven previous-run calls,
+# and neither moves hourly. Refresh once a day, and never let it block the run.
+if [ ! -f skill.json ] || [ -n "$(find skill.json -mmin +1200 2>/dev/null)" ]; then
+    $PY skill.py >/dev/null 2>&1 || echo "$(date '+%F %T')  skill refresh failed - using cache"
+fi
+
 $PY webcam.py
 
 # Satellite needs h5py, which lives in venv/ rather than system Python. If the venv is

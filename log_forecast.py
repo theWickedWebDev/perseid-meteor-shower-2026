@@ -804,6 +804,99 @@ def compass_film(sat):
             f'</div>')
 
 
+def _skill():
+    """Cached climatology and lead-time skill, or {}. Written by skill.py, daily."""
+    try:
+        return json.load(open("skill.json"))
+    except Exception:
+        return {}
+
+
+def base_rate_line(sk, latest):
+    """One sentence putting the trip odds against thirty years of the same dates.
+
+    Every other number on this page is absolute, which makes 84% unreadable — good or bad
+    depends entirely on what a normal year looks like here, and a normal year is 72% cloud
+    with two nights in three unusable.
+    """
+    c = (sk or {}).get("climatology")
+    t = (latest or {}).get("trip")
+    if not c:
+        return ""
+    base = c["p_trip_good"]
+    if not t:
+        return (f'<p class="note">For reference, {c["window"]} at this site over '
+                f'{c["years"]} years: median <b>{c["median"]}%</b> cloud in the core window, '
+                f'and <b>{base}%</b> of years gave at least one usable night.</p>')
+    j = t["joint"]
+    d = j - base
+    cls = "good" if d >= 8 else "bad" if d <= -8 else "warn"
+    word = ("better than a normal year" if d >= 8 else
+            "worse than a normal year" if d <= -8 else "about a normal year")
+    return (f'<p class="baserate"><b class="{cls}">{word}</b> — {j}% against a '
+            f'<b>{base}%</b> base rate for {c["window"]} here, measured over {c["years"]} '
+            f'years. A typical year at this site is <b>{c["median"]}%</b> cloud in the core '
+            f'window, and only <b>{c["p_night_good"]}%</b> of individual nights beat '
+            f'{GO}%.</p>')
+
+
+def waiting_section(sk):
+    """Does another day of waiting actually buy a better forecast? Measured, not assumed."""
+    ls = (sk or {}).get("lead_skill")
+    if not ls or not ls.get("by_lead"):
+        return ""
+    bl = ls["by_lead"]
+    leads = sorted(bl, key=int)
+    mx = max(bl[k]["mean"] for k in leads) or 1
+    bars = []
+    for k in leads:
+        m = bl[k]["mean"]
+        w = 100 * m / mx
+        cls = "bad" if m >= 30 else "warn" if m >= 22 else "good"
+        bars.append(f'<div class="lk"><span class="lkl">{k} d</span>'
+                    f'<span class="lkbar"><i class="{cls}" style="width:{w:.0f}%"></i></span>'
+                    f'<span class="lkv">{m:.0f}</span></div>')
+    e7 = bl.get("7", {}).get("mean")
+    e3 = bl.get("3", {}).get("mean")
+    e0 = bl.get("0", {}).get("mean")
+    verdict = ""
+    if None not in (e7, e3, e0):
+        verdict = (f'<p>Waiting from seven days out to three gains '
+                   f'<b>{e7 - e3:.0f} points</b> of accuracy. Waiting from three days to '
+                   f'the night itself gains <b>{e3 - e0:.0f}</b>. The information arrives '
+                   f'early and then stops — there is no eleventh-hour clarity to hold out '
+                   f'for.</p>')
+
+    bm = ls.get("by_model") or {}
+    rows = []
+    for name in sorted(bm, key=lambda n: bm[n].get("0", 99)):
+        d = bm[name]
+        near = [d[k] for k in ("0", "1", "2") if k in d]
+        far = [d[k] for k in ("5", "6", "7") if k in d]
+        n_, f_ = (sum(near) / len(near) if near else None), (sum(far) / len(far) if far else None)
+        rows.append(f'<tr class="mrow"><td><b>{name}</b></td>'
+                    f'<td class="n">{"—" if n_ is None else f"{n_:.0f}"}</td>'
+                    f'<td class="n">{"—" if f_ is None else f"{f_:.0f}"}</td></tr>')
+    table = ('<table class="mtable"><thead><tr><th>Model</th>'
+             '<th>Error 0–2 d</th><th>Error 5–7 d</th></tr></thead><tbody>'
+             + "".join(rows) + '</tbody></table>')
+    return (f'<h2>Does waiting help?</h2>\n<div class="card">'
+            f'<p class="lede">Mean error against the satellite, by how far ahead the '
+            f'forecast was made. {ls["n_hours"]} verified night hours.</p>'
+            f'<div class="lks">{bars and "".join(bars)}</div>'
+            f'{verdict}'
+            f'<p class="note">Typical error is far lower than the mean — the median at '
+            f'three days is {bl.get("3", {}).get("median", "—")} points. The mean is pulled '
+            f'up by occasional total misses, which is where the risk lives: when the models '
+            f'agree they are usually right, and when they split the tail is announcing '
+            f'itself.</p>'
+            f'<h3 class="sub">Which model, at which range</h3>'
+            f'<div class="scroll">{table}</div>'
+            f'<p class="note">Lower is better. Measured at this site against satellite '
+            f'observation, so it reflects this terrain rather than a global scorecard.</p>'
+            f'</div>')
+
+
 def webcam_section(log=None):
     """Live view, an hourly filmstrip with the forecast above each frame, and a scoreboard.
 
@@ -1180,7 +1273,9 @@ def _wlog():
 # much weight it deserves for THIS question — night cloud over a valley in northern NH.
 MODEL_NOTES = [
  ("ECMWF", "ECMWF · Europe", "9 km",
-  "Highest medium-range skill of any global model. The one to weight at 4–10 days.",
+  "Highest medium-range skill of any global model in general, and measured here it is the "
+  "best of the set inside two days. Its long-range advantage does not survive verification "
+  "at this site — see \"Does waiting help?\" — so weight it near, not far.",
   "Too coarse to resolve a valley; known to overdo low stratus in moist northwest flow."),
  ("HRRR", "NOAA · US", "3 km",
   "Convection-allowing and terrain-resolving — the only model here that can see your "
@@ -1200,7 +1295,9 @@ MODEL_NOTES = [
   "180 h ceiling — silent on the trip nights until roughly 7 Aug."),
  ("AIFS", "ECMWF · Europe", "31 km",
   "Machine-learning model trained on ERA5 reanalysis. It fails differently from the "
-  "physics models, which is the entire reason it earns a vote.",
+  "physics models, which is the entire reason it earns a vote — and measured against "
+  "satellite at this site it is the most accurate source beyond five days, ahead of "
+  "ECMWF.",
   "Smooths extremes — a genuinely clear or genuinely socked-in night gets pulled toward "
   "the middle."),
  ("GFS", "NOAA · US", "13 km",
@@ -1486,6 +1583,17 @@ h3.sub{{font-family:var(--serif);color:var(--ink);font-size:1rem;margin:1.8rem 0
 .mtable td.r{{text-align:right}}
 .mtable td.r .pill{{white-space:nowrap}}
 .wf{{color:var(--muted);margin-top:.2rem}}
+.baserate{{margin:.1rem 0 1rem;padding:.6rem .8rem;border-left:2px solid var(--rule);
+  color:var(--body)}}
+.lks{{display:flex;flex-direction:column;gap:.25rem;margin:.9rem 0}}
+.lk{{display:grid;grid-template-columns:3rem 1fr 2rem;align-items:center;gap:.5rem;
+  font-family:var(--mono);font-size:.72rem}}
+.lkl{{color:var(--muted)}}
+.lkbar{{background:var(--rule);border-radius:2px;height:8px;overflow:hidden}}
+.lkbar i{{display:block;height:100%;border-radius:2px}}
+.lkbar i.good{{background:var(--good)}} .lkbar i.warn{{background:var(--warn)}}
+.lkbar i.bad{{background:var(--bad)}}
+.lkv{{text-align:right;font-variant-numeric:tabular-nums}}
 .filmhead{{display:flex;align-items:baseline;gap:.6rem;margin:.5rem 0 .2rem;
   font-family:var(--mono);font-size:.8rem}}
 .filmhead b{{color:var(--ink);font-variant-numeric:tabular-nums}}
@@ -1630,6 +1738,7 @@ td.trail{{font-family:var(--mono);font-size:1rem;letter-spacing:.12em}}
   Perseids and the scope. Each point is one forecast run.</p>
 
   {trip_banner(latest)}
+  {base_rate_line(_skill(), latest)}
   <div class="cards">{"".join(cards)}</div>
   <p class="note">{srcnote}</p>
 
@@ -1679,6 +1788,8 @@ td.trail{{font-family:var(--mono);font-size:1rem;letter-spacing:.12em}}
     Caveat: it's a whole-dome average and can't say <em>where</em> the cloud is.</p>
   </div>
 
+  {waiting_section(_skill())}
+
   <h2>The sources</h2>
   <div class="card">
     <p class="lede">Every number on this page is the median across these. None of them is
@@ -1689,15 +1800,19 @@ td.trail{{font-family:var(--mono);font-size:1rem;letter-spacing:.12em}}
     <p>Yes, and it changes as the trip approaches.</p>
     <table class="mtable"><tbody>
       <tr class="mrow"><td class="n">Now — 7+ days</td>
-        <td class="r"><b>Nobody, individually</b></td></tr>
-      <tr class="mdesc"><td colspan="2">Read the spread, not the number. A ±60 spread means
-        the atmosphere has not committed yet, and any single model quoting you 23% is
-        guessing.</td></tr>
+        <td class="r"><b>AIFS, and the spread</b></td></tr>
+      <tr class="mdesc"><td colspan="2">Measured at this site, AIFS is the most accurate
+        model beyond five days and ECMWF one of the worst — the reverse of their short-range
+        order. Mostly though, read the spread rather than the number: a ±60 split means the
+        atmosphere has not committed and any single model quoting you 23% is guessing.
+        <b>Waiting past about five days out is where the forecast stops improving</b> — see
+        "Does waiting help?" above.</td></tr>
       <tr class="mrow"><td class="n">8 Aug — decision day</td>
         <td class="r"><b>ECMWF, then UKMO</b></td></tr>
-      <tr class="mdesc"><td colspan="2">At 3 days these have the best track record, UKMO and
-        ICON are both in range by then, and NWS has a human in the loop. HRRR still cannot
-        see 11 Aug.</td></tr>
+      <tr class="mdesc"><td colspan="2">Inside three days ECMWF is the strongest here, UKMO
+        and ICON are both in range by then, and NWS has a human in the loop. HRRR still
+        cannot see 11 Aug. Note this is already past the point where extra waiting buys
+        accuracy — by the 6th or 7th you have essentially the whole picture.</td></tr>
       <tr class="mrow"><td class="n">9–10 Aug</td><td class="r"><b>HRRR</b></td></tr>
       <tr class="mdesc"><td colspan="2">3 km resolves the valley and the lakes instead of
         averaging them into a 13 km box. For terrain cloud nothing else here is close.</td></tr>
