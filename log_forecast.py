@@ -22,6 +22,7 @@ from datetime import datetime, timedelta, timezone
 SITE    = ("Lake spot", 45.2393, -71.1964)
 UA      = "perseid-meteor-shower-2026 (https://github.com/theWickedWebDev/perseid-meteor-shower-2026)"
 EDT     = timezone(timedelta(hours=-4))
+WEBCAM_SITE = (45.0958, -71.2600)   # First Connecticut Lake cam, not the shooting site
 HIST    = "forecast_history.json"
 LOG     = "FORECAST_LOG.md"
 PAGE    = "forecast.html"
@@ -651,6 +652,33 @@ def delta_table(hist):
             + "".join(rows) + "</tbody></table>")
 
 
+OBS_WIN = (16, 10)   # hours searched for usable webcam frames bracketing a night
+SUN_MIN = 15.0   # deg. Below this the R/B cloud test is not trustworthy — a low sun
+                 # reddens the whole sky, so clear evening air reads as cloud.
+
+
+def sun_alt(dt, lat, lon):
+    """Solar elevation in degrees. NOAA low-precision algorithm, good to ~0.1 deg.
+
+    Validated against the almanac for this site: computes sunset 20:03 and sunrise 05:39
+    EDT for 4 Aug 2026, against published values of about 20:05 and 05:30.
+    """
+    import math
+    u = dt.astimezone(timezone.utc)
+    n = (u - datetime(2000, 1, 1, 12, tzinfo=timezone.utc)).total_seconds() / 86400.0
+    L = (280.460 + 0.9856474 * n) % 360
+    g = math.radians((357.528 + 0.9856003 * n) % 360)
+    lam = math.radians(L + 1.915 * math.sin(g) + 0.020 * math.sin(2 * g))
+    eps = math.radians(23.439 - 0.0000004 * n)
+    ra = math.atan2(math.cos(eps) * math.sin(lam), math.cos(lam))
+    dec = math.asin(math.sin(eps) * math.sin(lam))
+    gmst = (18.697374558 + 24.06570982441908 * n) % 24
+    H = math.radians((gmst * 15 + lon) % 360) - ra
+    la = math.radians(lat)
+    return math.degrees(math.asin(math.sin(la) * math.sin(dec) +
+                                  math.cos(la) * math.cos(dec) * math.cos(H)))
+
+
 def observed(day, wlog):
     """What the webcam actually saw across the dark window for `day`.
 
@@ -665,19 +693,28 @@ def observed(day, wlog):
     if not wlog:
         return None
     nxt = (datetime.strptime(day, "%Y-%m-%d") + timedelta(days=1)).strftime("%Y-%m-%d")
-    want = {f"{day}T{h:02d}" for h in range(DARK[0], 24)} | \
-           {f"{nxt}T{h:02d}" for h in range(0, DARK[1] + 1)}
-    vals, dark = [], 0
+    # Deliberately wider than DARK. Inside the dark window almost nothing clears the sun
+    # test, so this reaches back into the afternoon and forward into the morning to catch
+    # the last trustworthy look before dark and the first after dawn.
+    want = {f"{day}T{h:02d}" for h in range(OBS_WIN[0], 24)} | \
+           {f"{nxt}T{h:02d}" for h in range(0, OBS_WIN[1] + 1)}
+    vals, unusable = [], 0
     for e in wlog:
         if e["time"][:13] not in want:
             continue
         if e.get("cloud") is None:
-            dark += 1
-        else:
-            vals.append(e["cloud"])
+            unusable += 1
+            continue
+        # A frame can be bright enough to score and still be worthless: near sunrise and
+        # sunset the sky itself is red, which drives R/B past the cloud threshold on
+        # perfectly clear air. Drop those rather than believe them.
+        if sun_alt(datetime.fromisoformat(e["time"]), *WEBCAM_SITE) < SUN_MIN:
+            unusable += 1
+            continue
+        vals.append(e["cloud"])
     if not vals:
         return None
-    return round(sum(vals) / len(vals)), len(vals), dark
+    return round(sum(vals) / len(vals)), len(vals), unusable
 
 
 def calibration(hist, wlog=None):
@@ -702,7 +739,7 @@ def calibration(hist, wlog=None):
             miss = last - om
             mcls = "good" if abs(miss) <= 10 else "warn" if abs(miss) <= 25 else "bad"
             obs_td = (f"<td class='n' title='{n} usable frames"
-                      f"{f', {dk} too dark to score' if dk else ''}'>{om}%</td>")
+                      f"{f', {dk} unusable — dark or low sun' if dk else ''}'>{om}%</td>")
             miss_td = (f"<td class='n {mcls}'>{'+' if miss > 0 else ''}{miss}</td>")
             misses.append(abs(miss))
         else:
@@ -731,9 +768,12 @@ def calibration(hist, wlog=None):
             + "".join(rows) + '</tbody></table></div>'
             + '<p class="note" style="margin-top:.8rem"><b>Observed</b> is the webcam at '
             'First Connecticut Lake, about 20 km south of the shooting site. Cloud can only '
-            'be scored in daylight for now, so it averages the dusk and dawn frames either '
-            'side of the window rather than the window itself — a bracket, not a '
-            'measurement. Hover a value for the frame count.</p>')
+            'be scored while the sun is more than 15° up, so this is the last trustworthy look '
+            'before dark and the first after dawn — a bracket around the night, not a '
+            'measurement of it. '
+            'Frames nearer sunset and sunrise are discarded: a low sun reddens the whole '
+            'sky, and the red/blue test then reads clear air as overcast. Hover a value '
+            'for the usable frame count.</p>')
 
 
 WEBCAM_OVERRIDE = None      # preview_forecast.py sets this to render mock frames
