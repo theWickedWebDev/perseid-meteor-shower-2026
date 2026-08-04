@@ -66,6 +66,7 @@ SERIES = [("#2a78d6", "#3987e5", "none"),
 
 # ── fetch ────────────────────────────────────────────────────────────────
 def get(url):
+    raise RuntimeError("simulated API outage")
     req = urllib.request.Request(url, headers={"User-Agent": UA})
     with urllib.request.urlopen(req, timeout=30) as r:
         return json.load(r)

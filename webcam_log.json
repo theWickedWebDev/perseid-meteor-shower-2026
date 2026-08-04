@@ -23,9 +23,9 @@
   "cloud": 0,
   "night": false,
   "stats": {
-   "lum": 186.8,
-   "lum_sd": 14.6,
-   "lum_p90": 207.3,
+   "lum": 186.7,
+   "lum_sd": 14.7,
+   "lum_p90": 207.0,
    "sat": 53.0,
    "rb": 0.753
   },
