@@ -64,6 +64,7 @@ def build():
             if lead < 0 or (v is None and lead > 7):
                 nights[label] = {"date": day, "lead": lead, "core": None, "core_best": None,
                                  "late": None, "late_best": None, "pop": None, "dark": None,
+                                 "core_best_hr": None, "late_best_hr": None,
                                  "flat": True, "models": {}, "models_late": {},
                                  "models_hourly": {}, "hour_labels": [], "rows": []}
                 continue
@@ -85,13 +86,17 @@ def build():
             rows = [{"h": f"{h}:00", "sky": nws_row[j],
                      "pop": clamp(nws_row[j] - 25), "dew": 14.0}
                     for j, h in enumerate(hours)]
-            core = [nws_row[1], nws_row[2]]
-            late = nws_row[4:7]
+            core_p = [(nws_row[1], 22), (nws_row[2], 23)]
+            late_p = [(nws_row[4], 1), (nws_row[5], 2), (nws_row[6], 3)]
+            core = [v for v, _ in core_p]
+            late = [v for v, _ in late_p]
 
             nights[label] = {
                 "date": day, "lead": lead,
-                "core": clamp(sum(core) / 2), "core_best": min(core),
-                "late": clamp(sum(late) / 3), "late_best": min(late),
+                "core": clamp(sum(core) / 2),
+                "core_best": min(core_p)[0], "core_best_hr": min(core_p)[1],
+                "late": clamp(sum(late) / 3),
+                "late_best": min(late_p)[0], "late_best_hr": min(late_p)[1],
                 "dark": clamp(sum(nws_row) / len(nws_row)),
                 "pop": clamp(centre - 25),
                 "flat": False,

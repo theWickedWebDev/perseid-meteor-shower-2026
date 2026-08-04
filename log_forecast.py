@@ -51,6 +51,12 @@ OM_META = [("ECMWF", "ecmwf_ifs025"), ("GFS", "ncep_gfs013"), ("ICON", "dwd_icon
 OM_URL = ("https://api.open-meteo.com/v1/forecast?latitude={la}&longitude={lo}"
           "&hourly=cloud_cover&models={m}&timezone=America%2FNew_York&forecast_days=14")
 
+def hr12(h):
+    """22 -> '10 PM'. Hours read faster than 24h codes on a card."""
+    h = int(h)
+    return f"{(h % 12) or 12} {'AM' if h < 12 else 'PM'}"
+
+
 # validated categorical slots 1–3 (all-pairs, both modes) + dash as secondary encoding
 SERIES = [("#2a78d6", "#3987e5", "none"),
           ("#eb6834", "#d95926", "7 4"),
@@ -159,17 +165,22 @@ def snapshot():
                  "pop": pop.get(h.isoformat()),
                  "dew": dew.get(h.isoformat())} for h in hrs]
         have = [r["sky"] for r in rows if r["sky"] is not None]
-        core = [r["sky"] for r in rows
-                if r["sky"] is not None and int(r["h"][:2]) in CORE_HR]
-        late = [r["sky"] for r in rows
-                if r["sky"] is not None and int(r["h"][:2]) in LATE_HR]
+        # keep the hour with each value so "best hour" can say WHICH hour
+        core_p = [(r["sky"], int(r["h"][:2])) for r in rows
+                  if r["sky"] is not None and int(r["h"][:2]) in CORE_HR]
+        late_p = [(r["sky"], int(r["h"][:2])) for r in rows
+                  if r["sky"] is not None and int(r["h"][:2]) in LATE_HR]
+        core = [v for v, _ in core_p]
+        late = [v for v, _ in late_p]
         entry["nights"][label] = {
             "date": day,
             "lead": (d0.date() - stamp.date()).days,
             "core": round(sum(core) / len(core)) if core else None,
-            "core_best": min(core) if core else None,      # clearest single hour — "is there
+            "core_best": min(core_p)[0] if core_p else None,   # clearest single hour — "is there
+            "core_best_hr": min(core_p)[1] if core_p else None,
             "late": round(sum(late) / len(late)) if late else None,   # a shootable moment?"
-            "late_best": min(late) if late else None,
+            "late_best": min(late_p)[0] if late_p else None,
+            "late_best_hr": min(late_p)[1] if late_p else None,
             "dark": round(sum(have) / len(have)) if have else None,
             "pop":  max([r["pop"] for r in rows if r["pop"] is not None], default=None),
             "flat": len(set(have)) == 1 if have else None,
@@ -569,8 +580,8 @@ def write_page(hist):
         verdict = ("no data" if v is None else
                    "GO" if v <= GO else "marginal" if v <= 55 else "poor")
         vc = "dim" if v is None else ("good" if v <= GO else "warn" if v <= 55 else "bad")
-        cb = nd.get("core_best")
-        lb = nd.get("late_best")
+        cb, cbh = nd.get("core_best"), nd.get("core_best_hr")
+        lb, lbh = nd.get("late_best"), nd.get("late_best_hr")
         lt = nd.get("late")
         ml = nd.get("models_late") or {}
         ltxt = ("—" if lt is None else f"{lt}%")
@@ -588,11 +599,12 @@ def write_page(hist):
             f'<b>{label}</b><span class="dim">{d:%a %d %b} · lead {nd["lead"]}d</span>'
             f'<span class="big {vc}">{"—" if v is None else str(v)+"%"}</span>'
             f'<span class="verdict {vc}">NWS mean · {verdict}</span>'
-            f'<span class="mrange">best hour <b>{"—" if cb is None else str(cb)+"%"}</b>'
+            f'<span class="mrange">best hour '
+            f'<b>{"—" if cb is None else hr12(cbh) + " · " + str(cb) + "%"}</b>'
             f'{"" if cb is None else " · " + ("shootable" if cb <= GO else "no clear hour")}</span>'
             f'{mline}'
             f'<span class="mrange">1–4 AM <b>{ltxt}</b>'
-            f'{"" if lb is None else f" · best {lb}%"}{lrange}</span></div>')
+            f'{"" if lb is None else f" · best {hr12(lbh)} {lb}%"}{lrange}</span></div>')
 
     def band(v):
         return "good" if v <= GO else "warn" if v <= 55 else "bad"
