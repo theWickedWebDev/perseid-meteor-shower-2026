@@ -377,7 +377,7 @@ def agreement_svg(latest):
         spread = hi - lo
         verd = "agree" if spread < 20 else "some spread" if spread < 40 else "no consensus"
         cls  = "good" if spread < 20 else "warn" if spread < 40 else "bad"
-        p.append(f'<text class="spread {cls}" x="{W-112}" y="{y-2}">&plusmn;{spread}</text>')
+        p.append(f'<text class="spread {cls}" x="{W-112}" y="{y-2}">±{spread}</text>')
         p.append(f'<text class="spreadlab {cls}" x="{W-112}" y="{y+12}">{verd}</text>')
     p.append("</svg>")
     return "\n".join(p)
@@ -571,7 +571,7 @@ def calibration(hist):
             f'{mx} points</b> (typical {avg:.0f}). You are asking how <em>wrong</em> a forecast '
             f'could be — a tail question — so the worst case is the honest number and the mean '
             f'understates it. A night reading 45% four days out could plausibly land anywhere '
-            f'within &plusmn;{mx} of that.</p>'
+            f'within ±{mx} of that.</p>'
             '<div class="scroll"><table><thead><tr><th>Night</th><th>Lead</th><th>First</th>'
             '<th>Latest</th><th>Swing</th></tr></thead><tbody>' + "".join(rows) +
             '</tbody></table></div>')
@@ -802,7 +802,10 @@ text.good{{fill:var(--good)}} text.warn{{fill:var(--warn)}} text.bad{{fill:var(-
   <div class="eyebrow" style="margin-top:2rem">Fetched {t:%a %d %b, %H:%M} EDT · forecast issued
     {issued} · gridpoint {latest['grid']}</div>
   <h1>Forecast trend</h1>
-  <p class="lede">Cloud cover. <b>Core window 10–11:30 PM</b> decides go/no-go; <b>1–4 AM</b> is Perseids and the scope. Each point is one forecast run.</p>
+  <p class="lede">Cloud cover. <b>Core window 10–11:30 PM</b> decides go/no-go; <b>1–4 AM</b> is
+  Perseids and the scope. Each point is one forecast run.<br>
+  <b style="color:var(--accent)">Decide Aug 8 on Night 2</b> — Perseid max and new moon.
+  Go if its core window is under {GO}%.</p>
 
   <div class="cards">{"".join(cards)}</div>
 

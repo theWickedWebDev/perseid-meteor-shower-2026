@@ -146,10 +146,13 @@ text.good{fill:var(--good)} text.warn{fill:var(--warn)} text.bad{fill:var(--bad)
 </div></div>
 
 <div class="wrap">
-  <div class="eyebrow" style="margin-top:2rem">Fetched Tue 04 Aug, 14:50 EDT · forecast issued
+  <div class="eyebrow" style="margin-top:2rem">Fetched Tue 04 Aug, 14:51 EDT · forecast issued
     Tue 04 Aug 14:19 · gridpoint GYX 28,125</div>
   <h1>Forecast trend</h1>
-  <p class="lede">Cloud cover. <b>Core window 10–11:30 PM</b> decides go/no-go; <b>1–4 AM</b> is Perseids and the scope. Each point is one forecast run.</p>
+  <p class="lede">Cloud cover. <b>Core window 10–11:30 PM</b> decides go/no-go; <b>1–4 AM</b> is
+  Perseids and the scope. Each point is one forecast run.<br>
+  <b style="color:var(--accent)">Decide Aug 8 on Night 2</b> — Perseid max and new moon.
+  Go if its core window is under 30%.</p>
 
   <div class="cards"><div class="ncard"><span class="swatch s0"></span><b>Night 1</b><span class="dim">Tue 11 Aug · lead 7d</span><span class="big warn">51%</span><span class="verdict warn">NWS mean · marginal</span><span class="mrange">best hour <b>10 PM · 51%</b> · no clear hour</span><span class="mrange">models <b>23–82%</b> <span class="bad">±59</span></span><span class="mrange">1–4 AM <b>51%</b> · best 1 AM 51% · models 5–96%</span></div><div class="ncard"><span class="swatch s1"></span><b>Night 2</b><span class="dim">Wed 12 Aug · lead 8d</span><span class="big dim">—</span><span class="verdict dim">NWS mean · no data</span><span class="mrange">best hour <b>—</b></span><span class="mrange">models <b>38–92%</b> <span class="bad">±54</span></span><span class="mrange">1–4 AM <b>—</b> · models 70–89%</span></div><div class="ncard"><span class="swatch s2"></span><b>Night 3</b><span class="dim">Thu 13 Aug · lead 9d</span><span class="big dim">—</span><span class="verdict dim">NWS mean · no data</span><span class="mrange">best hour <b>—</b></span><span class="mrange">models <b>18–100%</b> <span class="bad">±82</span></span><span class="mrange">1–4 AM <b>—</b> · models 1–100%</span></div></div>
 
@@ -168,7 +171,7 @@ text.good{fill:var(--good)} text.warn{fill:var(--warn)} text.bad{fill:var(--bad)
 <line class="grid" x1="46" y1="18.0" x2="612" y2="18.0"/>
 <text class="ax" x="38" y="22.0" text-anchor="end">100%</text>
 <text class="ax" x="329.0" y="296" text-anchor="middle">04 Aug</text>
-<text class="ax dim" x="329.0" y="310" text-anchor="middle">14:50</text>
+<text class="ax dim" x="329.0" y="310" text-anchor="middle">14:51</text>
 <line class="rng0" x1="325.0" y1="218.2" x2="325.0" y2="64.8"/>
 <line class="rng1" x1="329.0" y1="179.2" x2="329.0" y2="38.8"/>
 <line class="rng2" x1="333.0" y1="231.2" x2="333.0" y2="18.0"/>
@@ -234,7 +237,7 @@ text.good{fill:var(--good)} text.warn{fill:var(--warn)} text.bad{fill:var(--bad)
 <text class="mlab" x="510.2" y="33" text-anchor="middle">GEM</text>
 <text class="mval" x="510.2" y="65" text-anchor="middle">82</text>
 <path class="nws" d="M352.1,37 L358.1,46 L352.1,55 L346.1,46 Z"/>
-<text class="spread bad" x="608" y="44">&plusmn;59</text>
+<text class="spread bad" x="608" y="44">±59</text>
 <text class="spreadlab bad" x="608" y="58">no consensus</text>
 <text class="nlab" x="0" y="142">Night 2</text>
 <line class="rng" x1="285.8" y1="138" x2="561.2" y2="138"/>
@@ -247,7 +250,7 @@ text.good{fill:var(--good)} text.warn{fill:var(--warn)} text.bad{fill:var(--bad)
 <circle class="mdot" cx="561.2" cy="138" r="5"/>
 <text class="mlab" x="561.2" y="125" text-anchor="middle">GEM</text>
 <text class="mval" x="561.2" y="157" text-anchor="middle">92</text>
-<text class="spread bad" x="608" y="136">&plusmn;54</text>
+<text class="spread bad" x="608" y="136">±54</text>
 <text class="spreadlab bad" x="608" y="150">no consensus</text>
 <text class="nlab" x="0" y="234">Night 3</text>
 <line class="rng" x1="183.8" y1="230" x2="602.0" y2="230"/>
@@ -260,7 +263,7 @@ text.good{fill:var(--good)} text.warn{fill:var(--warn)} text.bad{fill:var(--bad)
 <circle class="mdot" cx="602.0" cy="230" r="5"/>
 <text class="mlab" x="602.0" y="217" text-anchor="middle">ECMWF</text>
 <text class="mval" x="602.0" y="249" text-anchor="middle">100</text>
-<text class="spread bad" x="608" y="228">&plusmn;82</text>
+<text class="spread bad" x="608" y="228">±82</text>
 <text class="spreadlab bad" x="608" y="242">no consensus</text>
 </svg></div>
     <p class="note">Dots = models · bar = range · ◇ = NWS · shaded = under 30%</p>
@@ -275,7 +278,7 @@ text.good{fill:var(--good)} text.warn{fill:var(--warn)} text.bad{fill:var(--bad)
   <h2>Every reading</h2>
   <div class="card"><div class="scroll"><table>
     <thead><tr><th>Forecast run</th><th>Night 1</th><th>Night 2</th><th>Night 3</th></tr></thead>
-    <tbody><tr><td>04 Aug 14:50</td><td class="n"><span class="val warn">51%</span><span class="delta dim">new</span></td><td class="n dim">—</td><td class="n dim">—</td></tr></tbody></table></div>
+    <tbody><tr><td>04 Aug 14:51</td><td class="n"><span class="val warn">51%</span><span class="delta dim">new</span></td><td class="n dim">—</td><td class="n dim">—</td></tr></tbody></table></div>
     <p class="note">Core-window mean cloud cover. <b class="good">Green ≤30%</b> ·
     <b class="warn">amber ≤55%</b> · <b class="bad">red above</b>. The arrow is the change since
     that night's previous reading — <b class="good">↓ green is improving</b> (less cloud),
@@ -302,7 +305,7 @@ text.good{fill:var(--good)} text.warn{fill:var(--warn)} text.bad{fill:var(--bad)
   <div style="margin-top:2.5rem;padding-top:1.2rem;border-top:1px solid var(--rule);
               color:var(--muted);font-size:.84rem">
     <a href="index.html" style="color:var(--accent)">← Trip plan</a>
-    <br><span style="font-family:var(--mono)">Page built Tue 04 Aug 2026, 14:50 EDT</span>
+    <br><span style="font-family:var(--mono)">Page built Tue 04 Aug 2026, 14:51 EDT</span>
     · rebuilt hourly from <span style="font-family:var(--mono)">api.weather.gov</span>,
     Open-Meteo and the lake webcam.
     <br><b>Data vintages</b> — NWS package issued <span style="font-family:var(--mono)">Tue 04 Aug 14:19</span>
