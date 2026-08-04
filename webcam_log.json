@@ -99,11 +99,11 @@
   "cloud": 39,
   "night": false,
   "stats": {
-   "lum": 215.5,
-   "lum_sd": 7.1,
-   "lum_p90": 224.3,
-   "sat": 36.0,
-   "rb": 0.847
+   "lum": 222.1,
+   "lum_sd": 6.8,
+   "lum_p90": 230.7,
+   "sat": 37.0,
+   "rb": 0.848
   },
   "shot": "webcam/2026-08-04T19.jpg",
   "models": {

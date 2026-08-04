@@ -907,6 +907,8 @@ def webcam_section(log=None):
         if not os.path.exists("webcam_log.json"):
             return ""
         log = json.load(open("webcam_log.json"))
+    satby = {e["time"][:13]: e.get("cloud") for e in _satlog()}
+
     # Bright enough to score is not the same as trustworthy. Near sunrise and sunset the
     # whole sky reddens and the R/B test reads clear air as overcast — caught live at
     # 19:41 on 4 Aug, when the camera said 40% while the satellite and every model said 0.
@@ -953,22 +955,36 @@ def webcam_section(log=None):
     for e in reversed(log[-30:]):
         t = datetime.fromisoformat(e["time"])
         ms = e.get("models") or {}
-        if e["night"]:
-            fc = f'<span class="fc dim">{min(ms.values())}–{max(ms.values())}%</span>' if ms else \
-                 '<span class="fc dim">—</span>'
-            obs = '<span class="obs dim">night</span>'
+        fc = (f'<span class="fc{" dim" if e["night"] else ""}">'
+              f'{min(ms.values())}–{max(ms.values())}%</span>'
+              if ms else '<span class="fc dim">—</span>')
+
+        # The number under the photo is the SATELLITE, not the camera. The camera's red/blue
+        # estimate is unusable at night and unreliable in low sun — it read 40% at 19:41 on
+        # 4 Aug while the satellite and all eight models read 0 — so quoting it under every
+        # frame was publishing a figure we had already decided not to trust. The satellite
+        # has a verified number for every hour, dark included.
+        sv = satby.get(e["time"][:13])
+        if sv is None:
+            obs = '<span class="obs dim">—</span>'
         else:
-            fc = (f'<span class="fc">{min(ms.values())}–{max(ms.values())}%</span>'
-                  if ms else '<span class="fc dim">—</span>')
             if ms:
-                d = abs(e["cloud"] - sum(ms.values()) / len(ms))
+                d = abs(sv - sum(ms.values()) / len(ms))
                 cl = "good" if d < 15 else "warn" if d < 30 else "bad"
             else:
                 cl = ""
-            obs = f'<span class="obs {cl}">{e["cloud"]}%</span>'
+            obs = f'<span class="obs {cl}">{sv}%</span>'
+
+        # the camera's own reading is kept as a second opinion, but only when the sun is
+        # high enough for it to mean anything
+        cam = ""
+        if (e.get("cloud") is not None and not e["night"]
+                and sun_alt(t, *WEBCAM_SITE) >= SUN_MIN):
+            cam = f'<span class="cam">cam {e["cloud"]}%</span>'
         img = (f'<img src="{e["shot"]}" alt="webcam {t:%d %b %H:%M}" loading="lazy">'
                if os.path.exists(e["shot"]) else '<div class="noimg"></div>')
-        cells.append(f'<figure class="shot"><span class="hr">{t:%a %H:%M}</span>{fc}{img}{obs}</figure>')
+        cells.append(f'<figure class="shot"><span class="hr">{t:%a %H:%M}</span>'
+                     f'{fc}{img}{obs}{cam}</figure>')
 
     return f'''
   <h2>Ground truth — satellite and webcam</h2>
@@ -989,9 +1005,11 @@ def webcam_section(log=None):
     {score}
     <h3 style="margin-top:1.4rem">Hour by hour, forecast above the photo</h3>
     <div class="film scroll">{"".join(cells)}</div>
-    <p class="note">Above = forecast range · below = observed ·
-    <b class="good">within 15</b> / <b class="warn">30</b> / <b class="bad">beyond</b>.
-    Daylight only.</p>
+    <p class="note">Above each photo, what the models forecast for that hour. Below it,
+    what the <b>satellite</b> saw — <b class="good">within 15</b> /
+    <b class="warn">30</b> / <b class="bad">beyond</b>. The camera's own estimate appears
+    only where the sun was high enough for it to be trustworthy; at dusk a reddened sky
+    reads as cloud, so those numbers are withheld rather than shown and disbelieved.</p>
   </div>
 '''
 
@@ -1635,6 +1653,8 @@ h3.sub{{font-family:var(--serif);color:var(--ink);font-size:1rem;margin:1.8rem 0
   font-variant-numeric:tabular-nums}}
 .ocl{{display:block;font-family:var(--mono);font-size:.58rem;letter-spacing:.08em;
   color:var(--muted)}}
+.cam{{display:block;font-family:var(--mono);font-size:.58rem;color:var(--muted);
+  text-align:center;letter-spacing:.04em}}
 .nightbar{{fill:var(--accent);opacity:.75}}
 .daybar{{fill:var(--rule)}}
 .pill{{font-family:var(--mono);font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;padding:.15rem .4rem;border-radius:3px;white-space:nowrap;border:1px solid}}
