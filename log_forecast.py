@@ -184,6 +184,118 @@ def compact(hist):
     return hist
 
 
+# ── the decision layer ───────────────────────────────────────────────────
+# The page answers "how much cloud on the 12th". The actual question is "should we drive
+# four hours on the 8th", and you do not need the 12th — you need ONE of three nights to
+# give you ninety minutes. That is a joint probability, and guessing at how correlated
+# consecutive nights are would be the same overconfidence this page keeps fixing. Each
+# GEFS member is one physically consistent scenario across all three nights, so counting
+# members measures the correlation instead of assuming it.
+GEFS_URL = ("https://ensemble-api.open-meteo.com/v1/ensemble?latitude={la}&longitude={lo}"
+            "&hourly=cloud_cover&models=gfs025&forecast_days=14"
+            "&timezone=America%2FNew_York")
+
+# Fog. Radiative cooling needs a clear sky, so the nights that fog are the nights that
+# forecast best — anti-correlated with the very number the page optimises. Saturated and
+# calm under clear sky is the signature; wind mixes the layer out and prevents it.
+FOG_SPREAD = 2.0     # deg C between temperature and dewpoint
+FOG_WIND   = 5.0     # km/h at 10 m
+FOG_CLOUD  = 40      # % — above this there is no radiative cooling to drive it
+
+# Transparency. Cloud cover reads 0% straight through wildfire smoke, and northern NH sits
+# downwind of Quebec in August. AOD above this is a visibly milky sky.
+AOD_HAZY = 0.30
+
+
+def gefs_trip():
+    """Per-night and joint probability of a usable core window, from the GEFS members.
+
+    Returns {"per": {night: pct}, "joint": pct, "n": members} or None.
+    """
+    try:
+        h = get(GEFS_URL.format(la=SITE[1], lo=SITE[2]))["hourly"]
+    except Exception as ex:
+        print(f"  GEFS unavailable: {ex}")
+        return None
+    idx = {t: i for i, t in enumerate(h["time"])}
+    mem = [k for k in h if k.startswith("cloud_cover")]
+    per = {l: 0 for l, _ in NIGHTS}
+    joint = usable = 0
+    for m in mem:
+        good = {}
+        for label, day in NIGHTS:
+            v = [h[m][idx[f"{day}T{x:02d}:00"]] for x in CORE_HR
+                 if f"{day}T{x:02d}:00" in idx]
+            v = [x for x in v if x is not None]
+            if v:
+                good[label] = sum(v) / len(v) < GO
+        if len(good) < len(NIGHTS):
+            continue                      # member does not reach every night — cannot vote
+        usable += 1
+        for l, ok in good.items():
+            per[l] += ok
+        joint += any(good.values())
+    if not usable:
+        return None
+    return {"per": {l: round(100 * c / usable) for l, c in per.items()},
+            "joint": round(100 * joint / usable), "n": usable}
+
+
+def conditions():
+    """Fog risk and aerosol per night. {night: {fog_hours, spread, wind, aod, pm25}}."""
+    out = {}
+    try:
+        h = get(f"https://api.open-meteo.com/v1/forecast?latitude={SITE[1]}&longitude={SITE[2]}"
+                f"&hourly=temperature_2m,dew_point_2m,wind_speed_10m,cloud_cover"
+                f"&forecast_days=14&timezone=America%2FNew_York")["hourly"]
+    except Exception as ex:
+        print(f"  fog inputs unavailable: {ex}")
+        h = None
+    aq = None
+    try:
+        aq = get(f"https://air-quality-api.open-meteo.com/v1/air-quality?latitude={SITE[1]}"
+                 f"&longitude={SITE[2]}&hourly=aerosol_optical_depth,pm2_5"
+                 f"&forecast_days=7&timezone=America%2FNew_York")["hourly"]
+    except Exception as ex:
+        print(f"  air quality unavailable: {ex}")
+
+    for label, day in ALL:
+        nxt = (datetime.strptime(day, "%Y-%m-%d") + timedelta(days=1)).strftime("%Y-%m-%d")
+        keys = [f"{day}T{x:02d}:00" for x in range(DARK[0], 24)] + \
+               [f"{nxt}T{x:02d}:00" for x in range(0, DARK[1] + 1)]
+        rec = {}
+        if h:
+            idx = {t: i for i, t in enumerate(h["time"])}
+            risk, spreads, winds = 0, [], []
+            for k in keys:
+                i = idx.get(k)
+                if i is None:
+                    continue
+                t, td = h["temperature_2m"][i], h["dew_point_2m"][i]
+                w, c = h["wind_speed_10m"][i], h["cloud_cover"][i]
+                if None in (t, td, w, c):
+                    continue
+                sp = t - td
+                spreads.append(sp)
+                winds.append(w)
+                if sp < FOG_SPREAD and w < FOG_WIND and c < FOG_CLOUD:
+                    risk += 1
+            if spreads:
+                rec.update(fog_hours=risk, spread=round(min(spreads), 1),
+                           wind=round(min(winds), 1), hours=len(spreads))
+        if aq:
+            idx = {t: i for i, t in enumerate(aq["time"])}
+            a = [aq["aerosol_optical_depth"][idx[k]] for k in keys
+                 if idx.get(k) is not None and aq["aerosol_optical_depth"][idx[k]] is not None]
+            pm = [aq["pm2_5"][idx[k]] for k in keys
+                  if idx.get(k) is not None and aq["pm2_5"][idx[k]] is not None]
+            if a:
+                rec.update(aod=round(max(a), 2), pm25=round(max(pm), 1) if pm else None)
+        if rec:
+            out[label] = rec
+    return out
+
+
 def snapshot():
     p = get(f"https://api.weather.gov/points/{SITE[1]},{SITE[2]}")["properties"]
     grid = get(p["forecastGridData"])["properties"]
@@ -191,12 +303,16 @@ def snapshot():
                      ("skyCover", "probabilityOfPrecipitation", "dewpoint"))
     om = open_meteo()
     runs = model_runs()
+    trip = gefs_trip()
+    cond = conditions()
 
     stamp = datetime.now(EDT)
     entry = {"taken": stamp.isoformat(),
              "issued": grid.get("updateTime"),          # when NWS published this package
              "runs": runs,                              # model init + availability times
              "grid": f"{p['gridId']} {p['gridX']},{p['gridY']}",
+             "trip": trip,                              # joint probability from GEFS members
+             "cond": cond,                              # fog risk and aerosol per night
              "nights": {}}
 
     for label, day in ALL:
@@ -910,6 +1026,36 @@ def model_notes(latest):
             f'<div class="wf">Watch for: {bad}</div></td></tr>')
     return ('<table class="mtable"><tbody>' + "".join(rows) + '</tbody></table>')
 
+def trip_banner(latest):
+    """The decision, not the forecast: odds that at least one night gives you the core."""
+    t = latest.get("trip")
+    if not t:
+        return ('<div class="card"><p class="note">Trip odds unavailable — the GEFS '
+                'ensemble did not answer on the last run.</p></div>')
+    j = t["joint"]
+    cls = "good" if j >= 70 else "warn" if j >= 45 else "bad"
+    verdict = ("worth the drive" if j >= 70 else
+               "a real gamble" if j >= 45 else "probably not worth it")
+    bars = []
+    for label, _ in NIGHTS:
+        v = t["per"].get(label, 0)
+        c = "good" if v >= 50 else "warn" if v >= 25 else "bad"
+        bars.append(f'<div class="pk"><span class="pkl">{label}</span>'
+                    f'<span class="pkbar"><i class="{c}" style="width:{v}%"></i></span>'
+                    f'<span class="pkv {c}">{v}%</span></div>')
+    return (f'<div class="card trip">'
+            f'<span class="eyebrow">The actual question</span>'
+            f'<div class="tripbig {cls}">{j}%</div>'
+            f'<p class="tripsub"><b>chance at least one of the three nights gives you '
+            f'90 minutes of core</b> — {verdict}.</p>'
+            f'<div class="pks">{"".join(bars)}</div>'
+            f'<p class="note">Counted across {t["n"]} GEFS ensemble members. Each member is '
+            f'one physically consistent weather scenario spanning all three nights, so this '
+            f'measures how much the nights move together rather than assuming they are '
+            f'independent. You do not need a particular night — you need one of them.</p>'
+            f'</div>')
+
+
 def write_page(hist):
     latest = hist[-1]
     t = datetime.fromisoformat(latest["taken"])
@@ -1010,6 +1156,19 @@ def write_page(hist):
                      f'<span class="{scls}">±{sp}</span></span>')
         else:
             mline = '<span class="mrange dim">no data</span>'
+        cd = (latest.get("cond") or {}).get(label) or {}
+        warn = []
+        if cd.get("fog_hours"):
+            warn.append(f'<span class="bad">fog risk {cd["fog_hours"]}h</span> '
+                        f'<span class="dim">({cd["spread"]}°C spread, {cd["wind"]} km/h)</span>')
+        elif cd.get("spread") is not None:
+            warn.append(f'<span class="good">no fog signal</span> '
+                        f'<span class="dim">({cd["spread"]}°C, {cd["wind"]} km/h)</span>')
+        if cd.get("aod") is not None:
+            ac = "bad" if cd["aod"] >= AOD_HAZY else "good"
+            warn.append(f'<span class="{ac}">haze {cd["aod"]}</span>')
+        fogline = (f'<span class="mrange">{" · ".join(warn)}</span>' if warn else
+                   '<span class="mrange dim">fog and haze: no data this far out</span>')
         cards.append(
             f'<div class="ncard"><span class="swatch s{si}"></span>'
             f'<b>{label}</b><span class="dim">{d:%a %d %b} · lead {nd["lead"]}d</span>'
@@ -1021,7 +1180,8 @@ def write_page(hist):
             f'{"" if cb is None else " · " + ("shootable" if cb <= GO else "no clear hour")}</span>'
             f'{mline}'
             f'<span class="mrange">1–4 AM <b>{ltxt}</b>'
-            f'{"" if lb is None else f" · best {hr12(lbh)} {lb}%"}{lrange}</span></div>')
+            f'{"" if lb is None else f" · best {hr12(lbh)} {lb}%"}{lrange}</span>'
+            f'{fogline}</div>')
 
     def band(v):
         return "good" if v <= GO else "warn" if v <= 55 else "bad"
@@ -1096,6 +1256,19 @@ h2{{font-family:var(--serif);color:var(--ink);font-size:1.15rem;margin:2.2rem 0 
   font-variant-numeric:tabular-nums}}
 .verdict{{font-family:var(--mono);font-size:.66rem;letter-spacing:.12em;text-transform:uppercase}}
 h3.sub{{font-family:var(--serif);color:var(--ink);font-size:1rem;margin:1.8rem 0 .5rem}}
+.trip{{margin:1.2rem 0 .6rem}}
+.tripbig{{font-family:var(--mono);font-size:clamp(2.6rem,11vw,3.6rem);line-height:1;
+  font-variant-numeric:tabular-nums;margin:.2rem 0 .1rem}}
+.tripsub{{margin:.1rem 0 .9rem;color:var(--body)}}
+.pks{{display:flex;flex-direction:column;gap:.3rem;margin-bottom:.7rem}}
+.pk{{display:grid;grid-template-columns:5.2rem 1fr 2.6rem;align-items:center;gap:.5rem;
+  font-family:var(--mono);font-size:.72rem}}
+.pkl{{color:var(--muted)}}
+.pkbar{{background:var(--rule);border-radius:2px;height:6px;overflow:hidden}}
+.pkbar i{{display:block;height:100%;border-radius:2px}}
+.pkbar i.good{{background:var(--good)}} .pkbar i.warn{{background:var(--warn)}}
+.pkbar i.bad{{background:var(--bad)}}
+.pkv{{text-align:right;font-variant-numeric:tabular-nums}}
 .mtable{{width:100%;table-layout:auto}}
 .mtable td{{vertical-align:baseline;border:0;padding:.35rem .5rem .1rem 0;white-space:normal;overflow-wrap:anywhere}}
 .mtable tr.mrow td{{padding-top:.9rem;border-top:1px solid var(--rule)}}
@@ -1209,6 +1382,7 @@ td.trail{{font-family:var(--mono);font-size:1rem;letter-spacing:.12em}}
   <p class="lede">Cloud cover. <b>Core window 10–11:30 PM</b> decides go/no-go; <b>1–4 AM</b> is
   Perseids and the scope. Each point is one forecast run.</p>
 
+  {trip_banner(latest)}
   <div class="cards">{"".join(cards)}</div>
   <p class="note">{srcnote}</p>
 
@@ -1355,7 +1529,15 @@ def main():
                              for l, _ in ALL if l in e["nights"])))
     if hist and fingerprint(hist[-1]) == fingerprint(new):
         print("no new NWS package and no model changes")
+        # The deterministic forecast has not moved, but the ensemble and the fog/haze
+        # readings have their own cadence and belong to "now" rather than to a package.
+        # Refresh them on the existing entry instead of banking a duplicate snapshot.
+        for k in ("trip", "cond"):
+            if new.get(k):
+                hist[-1][k] = new[k]
+        json.dump(hist, open(HIST, "w"), indent=1)
         write_page(hist)          # webcam data still moves hourly, so rebuild anyway
+        write_log(hist)
         return
     hist.append(new)
     hist.sort(key=lambda e: e["taken"])
