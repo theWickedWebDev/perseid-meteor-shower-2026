@@ -18,6 +18,11 @@ and fog at night, when cloud-top temperature is close to ground temperature. Tha
 same blind spot the fog forecast in log_forecast.py covers, so the two are complements
 rather than a redundant pair. Neither alone is enough.
 
+The hourly log is what feeds the scrubbable compass on the forecast page: twelve hours
+of observation behind, twelve of HRRR ahead. Miss a run and that hour is simply absent
+from the film — there is no backfill in the hourly path, by design, because refetching
+history every hour would mean 12 downloads an hour to redraw the same picture.
+
 Needs h5py, which is not in system Python — hence venv/. publish.sh calls this with the
 venv interpreter and carries on without it if that is missing.
 """
@@ -133,6 +138,55 @@ def wind_bearing():
         return h["wind_direction_700hPa"][i]
     except Exception:
         return None
+
+
+OCTANTS = (("N", 0), ("NE", 45), ("E", 90), ("SE", 135),
+           ("S", 180), ("SW", 225), ("W", 270), ("NW", 315))
+OCT_KM = 14          # sampling radius for the compass — matches the satellite octants
+
+# HRRR is 3 km, so it can actually resolve a 14 km offset. ECMWF at 0.25 deg cannot: its
+# octants came back within 6 points of each other, which is a smooth blur, not a direction.
+FCST_MODELS = ("ncep_hrrr_conus", "gfs_seamless")
+
+
+def octant_forecast(hours=12):
+    """Forecast cloud per compass octant for the next `hours`. [] if unavailable.
+
+    Same geometry as the satellite compass, run forward. One Open-Meteo call covers all
+    nine points; the API accepts comma-separated coordinates and returns a list.
+    """
+    pts = [("dome", SITE)] + [(n, project(SITE[0], SITE[1], b, OCT_KM)) for n, b in OCTANTS]
+    la = ",".join(f"{q[1][0]:.4f}" for q in pts)
+    lo = ",".join(f"{q[1][1]:.4f}" for q in pts)
+    for model in FCST_MODELS:
+        url = (f"https://api.open-meteo.com/v1/forecast?latitude={la}&longitude={lo}"
+               f"&hourly=cloud_cover&models={model}&forecast_days=2"
+               f"&timezone=America%2FNew_York")
+        try:
+            req = urllib.request.Request(url, headers={"User-Agent": "perseid-meteor-shower-2026"})
+            with urllib.request.urlopen(req, timeout=60) as r:
+                d = json.load(r)
+            if not isinstance(d, list) or len(d) != len(pts):
+                continue
+            times = d[0]["hourly"]["time"]
+            now = datetime.now(EDT).replace(minute=0, second=0, microsecond=0)
+            start = next((i for i, t in enumerate(times)
+                          if datetime.fromisoformat(t).replace(tzinfo=EDT) > now), None)
+            if start is None:
+                continue
+            out = []
+            for i in range(start, min(start + hours, len(times))):
+                cell = {n: d[k]["hourly"]["cloud_cover"][i] for k, (n, _) in enumerate(pts)}
+                if all(v is None for v in cell.values()):
+                    continue
+                out.append({"time": datetime.fromisoformat(times[i]).replace(tzinfo=EDT).isoformat(),
+                            "octants": {k: v for k, v in cell.items() if k != "dome"},
+                            "cloud": cell["dome"], "kind": "forecast", "model": model})
+            if out:
+                return out
+        except Exception:
+            continue
+    return []
 
 
 def read(dt_utc=None):

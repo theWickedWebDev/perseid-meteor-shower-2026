@@ -751,6 +751,51 @@ def sky_now(sat):
             f'</div>')
 
 
+def compass_film(sat):
+    """The compass again, but as a timeline you can scrub — 12 h behind, 12 h ahead.
+
+    The static panel above answers "is the slot open now". This answers "is it opening or
+    closing", which is the question at 9 PM with the car still packed. Past frames are
+    satellite observation; future frames are HRRR, which at 3 km is the only model here
+    that can resolve a 14 km offset — the coarser globals return eight nearly identical
+    octants, a blur rather than a direction.
+    """
+    past = [e for e in (sat or []) if e.get("octants")][-12:]
+    try:
+        import satellite as satmod
+        future = satmod.octant_forecast(12)
+    except Exception:
+        future = []
+    frames = [{"time": e["time"], "octants": e["octants"], "cloud": e.get("cloud"),
+               "kind": "observed"} for e in past] + future
+    if len(frames) < 2:
+        return ""
+    now_i = max(0, len(past) - 1)
+    payload = json.dumps(frames).replace("</", "<\\/")
+    cells = "".join(
+        f'<div class="oc{" slot" if n in ("S", "SW") else ""}" data-oct="{n}">'
+        f'<span class="ocv">—</span><span class="ocl">{n}</span></div>'
+        if n else '<div class="oc mid" data-oct="dome"><span class="ocv">—</span>'
+                  '<span class="ocl">dome</span></div>'
+        for n in ("NW", "N", "NE", "W", None, "E", "SW", "S", "SE"))
+    return (f'<div class="card" style="margin-bottom:.8rem">'
+            f'<span class="eyebrow">Is it opening or closing?</span>'
+            f'<div class="filmhead"><b id="cfTime">—</b>'
+            f'<span id="cfKind" class="cfkind">—</span></div>'
+            f'<div class="compass" id="cfGrid">{cells}</div>'
+            f'<div class="cfctl">'
+            f'<button class="btn" id="cfPlay" aria-label="Play or pause">▶ Play</button>'
+            f'<input type="range" id="cfSlide" min="0" max="{len(frames)-1}" '
+            f'value="{now_i}" aria-label="Time">'
+            f'</div>'
+            f'<div class="cftrack" id="cfTrack"></div>'
+            f'<p class="note">Left of the marker is what the satellite saw; right of it is '
+            f'HRRR. Watch south-west — that is the core. Cloud arriving there before it '
+            f'arrives overhead is your warning.</p>'
+            f'<script id="cfData" type="application/json">{payload}</script>'
+            f'</div>')
+
+
 def webcam_section(log=None):
     """Live view, an hourly filmstrip with the forecast above each frame, and a scoreboard.
 
@@ -822,6 +867,7 @@ def webcam_section(log=None):
     return f'''
   <h2>Ground truth — satellite and webcam</h2>
   {sky_now(_satlog())}
+  {compass_film(_satlog())}
   <div class="card" style="margin-bottom:.8rem">
     <p class="lede">What was actually overhead, hour by hour — <b>including after dark</b>,
     which the camera cannot see. This is what the models get marked against.</p>
@@ -1428,6 +1474,18 @@ h3.sub{{font-family:var(--serif);color:var(--ink);font-size:1rem;margin:1.8rem 0
 .mtable td.r{{text-align:right}}
 .mtable td.r .pill{{white-space:nowrap}}
 .wf{{color:var(--muted);margin-top:.2rem}}
+.filmhead{{display:flex;align-items:baseline;gap:.6rem;margin:.5rem 0 .2rem;
+  font-family:var(--mono);font-size:.8rem}}
+.filmhead b{{color:var(--ink);font-variant-numeric:tabular-nums}}
+.cfkind{{font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--muted);border:1px solid var(--rule);border-radius:3px;padding:.05rem .35rem}}
+.cfkind.fc{{color:var(--accent);border-color:var(--accent)}}
+.cfctl{{display:flex;align-items:center;gap:.6rem;margin:.5rem 0 .3rem;max-width:22rem}}
+.cfctl input[type=range]{{flex:1;accent-color:var(--accent)}}
+.cftrack{{display:flex;gap:1px;max-width:22rem;height:5px;margin-bottom:.5rem}}
+.cftrack i{{flex:1;border-radius:1px;background:var(--rule)}}
+.cftrack i.fc{{background:var(--accent);opacity:.35}}
+.cftrack i.on{{outline:1px solid var(--ink)}}
 .rings{{display:flex;gap:.5rem;margin:.8rem 0 .6rem;flex-wrap:wrap}}
 .rk{{flex:1 1 5rem;border:1px solid var(--rule);border-radius:3px;padding:.4rem .5rem}}
 .rkl{{display:block;font-family:var(--mono);font-size:.62rem;letter-spacing:.08em;
@@ -1663,6 +1721,50 @@ td.trail{{font-family:var(--mono);font-size:1rem;letter-spacing:.12em}}
     }};
     tick(); setInterval(tick,20000);
   }}
+  // compass film: scrub 12 h of satellite observation into 12 h of HRRR forecast
+  var cfEl=document.getElementById('cfData');
+  if(cfEl){{
+    var F=JSON.parse(cfEl.textContent), grid=document.getElementById('cfGrid'),
+        slide=document.getElementById('cfSlide'), play=document.getElementById('cfPlay'),
+        lab=document.getElementById('cfTime'), kind=document.getElementById('cfKind'),
+        track=document.getElementById('cfTrack'), timer=null, i=+slide.value;
+    F.forEach(function(f,k){{
+      var b=document.createElement('i');
+      if(f.kind==='forecast') b.className='fc';
+      track.appendChild(b);
+    }});
+    var band=function(v){{
+      if(v===null||v===undefined) return 'dim';
+      return v<={GO}?'good':(v<=55?'warn':'bad');
+    }};
+    var draw=function(){{
+      var f=F[i]; if(!f) return;
+      grid.querySelectorAll('[data-oct]').forEach(function(c){{
+        var k=c.getAttribute('data-oct'),
+            v=(k==='dome')?f.cloud:(f.octants?f.octants[k]:null),
+            s=c.querySelector('.ocv');
+        s.textContent=(v===null||v===undefined)?'—':(k==='dome'?v+'%':v);
+        s.className='ocv '+band(v);
+      }});
+      var d=new Date(f.time);
+      lab.textContent=d.toLocaleDateString([], {{weekday:'short'}})+' '+
+        String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+      kind.textContent=f.kind==='forecast'?'HRRR forecast':'satellite';
+      kind.className='cfkind'+(f.kind==='forecast'?' fc':'');
+      Array.prototype.forEach.call(track.children,function(b,k){{
+        b.classList.toggle('on',k===i);
+      }});
+      slide.value=i;
+    }};
+    slide.addEventListener('input',function(){{ i=+slide.value; draw(); }});
+    play.addEventListener('click',function(){{
+      if(timer){{ clearInterval(timer); timer=null; play.textContent='▶ Play'; return; }}
+      play.textContent='❚❚ Pause';
+      timer=setInterval(function(){{ i=(i+1)%F.length; draw(); }},550);
+    }});
+    draw();
+  }}
+
   var r=document.documentElement,t=document.getElementById('theme'),n=document.getElementById('night');
   t.addEventListener('click',function(){{
     var c=r.getAttribute('data-theme')||(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');
