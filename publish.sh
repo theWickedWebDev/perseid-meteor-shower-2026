@@ -1,11 +1,26 @@
 #!/bin/bash
-# Hourly: grab a webcam frame, refresh the forecast if there's a new one, publish if anything moved.
+# Hourly: grab a webcam frame, refresh the forecast if there's a new one, rebuild the
+# pages, publish if anything moved.
 set -u
 cd /home/stephen/pittsburg-trip || exit 1
+PY=/usr/bin/python3
 
-/usr/bin/python3 webcam.py
-/usr/bin/python3 log_forecast.py
-/usr/bin/python3 preview_forecast.py >/dev/null   # keep the mock preview in step (gitignored)
+$PY webcam.py
+
+# log_forecast rebuilds the pages on both paths (new data, or no new data). If it fails
+# outright — an API down, no network — rebuild from the stored history anyway, so a fresh
+# webcam frame still gets rendered instead of being committed but not shown.
+if ! $PY log_forecast.py; then
+    echo "$(date '+%F %T')  log_forecast failed — rebuilding pages from stored history"
+    $PY - <<'EOF' || echo "  fallback rebuild failed too"
+import json, os, log_forecast as lf
+if os.path.exists(lf.HIST):
+    h = json.load(open(lf.HIST))
+    lf.write_page(h); lf.write_log(h)
+EOF
+fi
+
+$PY preview_forecast.py >/dev/null 2>&1 || true   # mock preview, gitignored
 
 if [ -z "$(git status --porcelain)" ]; then
     echo "$(date '+%F %T')  no changes"
