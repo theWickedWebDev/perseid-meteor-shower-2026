@@ -76,7 +76,7 @@ night 1 looks clear low in the SSW, don't gamble it on night 2.
 | **9:56** | **Dark. Core, landscape.** You know from last night which framings worked — be efficient. |
 | **10:45** | **Portrait, vertical band.** Twenty frames, then stop. |
 | **11:05** | **Drop the tripod to knee height. Creative session.** Subject 5–7 m out. 10 s, f/1.8, ISO 3200, untracked. Silhouettes, light-painted foreground, headlamp beam, reflections if the water's calm. See [CREATIVE_SHOTS.md](CREATIVE_SHOTS.md). |
-| **11:25** | Core at 10°. Done. Pack. |
+| **11:17** | Core at 10° (11:13 if this is the 13th). Done. Pack. |
 | **11:45** | Depart. |
 | **12:10 AM** | Cabin. Card off, verify. Fresh card in. |
 | **12:15** | **Carry the scope out from the porch.** At ambient, camera cold. **Polar align check**, expect a small adjustment. **Dew heaters ON**, low. |

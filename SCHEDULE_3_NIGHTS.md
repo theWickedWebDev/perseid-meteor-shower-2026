@@ -66,31 +66,33 @@ The Canon shoots the core **from the cabin** tonight. The arrival survey will te
 the low south works there; if it doesn't, the Canon does meteors and you've lost nothing
 irreplaceable.
 
+<!-- GENERATED FROM schedule_data.py — edit there, then run make_schedules.py -->
+
 | Time | Action |
 |---|---|
-| **3:00 PM** | Arrive. Unload the truck. |
-| **3:20** | **360° HORIZON SURVEY — [ARRIVAL_SURVEY.md](ARRIVAL_SURVEY.md).** Do it first, while the light's good and before you're committed to a spot. Dense every 5° across **170°–240°**. |
-| **3:45** | **Pick positions.** EQ6 spot (clear north for Polaris, open south and west), 6SE spot far enough that walking to it doesn't shake the rig, Canon spot, and where the desktop lives. Find the AC outlet and measure the run. |
-| **4:00** | **Desktop setup indoors** — tower, monitors, power. Then run the 50' ethernet out to where the Pi will sit. Do this after picking the mount spot, not before. |
-| **4:45** | **Plywood plate down. Tripod on it, levelled to the bubble.** Note the leg extension against your tape marks. |
-| **5:15** | Mount head on. Counterweights. OTA. **Balance RA and DEC.** |
-| **6:00** | Cabling and power. **All USB connected before the Pi gets power** — hot-plug crashes the Pi 5. Boot, wait for the beep, Ekos connects, verify all five devices. |
-| **6:30** | **Site coordinates in — `ssh astro`, edit `/etc/systemd/system/virtualgps.service` to 45.088279, −71.324767, `daemon-reload`, `restart virtualgps`, then `cat /tmp/vgps` to confirm.** Check the site in Ekos too. Cool to −10 °C. Rough daylight focus, EAF step 500. |
-| **7:00** | **Daylight flats** with the panel, ~0.005 s at gain 100. |
-| **7:30** | Eat. Assemble the SAM and the 6SE. Load the M8/M20 sequence, 120 s. |
-| **7:58** | Sunset. |
-| **8:30** | Civil twilight ends. **Set park position = home/Polaris.** Verify `ON_COORD_SET=TRACK`, never SYNC. |
-| **8:45** | **POLAR ALIGN.** Polaris is up. Take your time — tonight's alignment is the one you're reproducing for the rest of the trip. |
-| **9:10** | ⭐ **MARK THE PLATE.** Stake it, or outline it, or both. Mark which corner faces north. **Then do not touch the alt/az bolts again all trip.** |
-| **9:15** | Plate-solve test, autofocus V-curve (step 30, 15 steps), start guiding. Target HFR ~1.2. |
-| **9:30** | Polar align the SAM. Frame the Canon — core from the cabin if the survey allows, otherwise the Cassiopeia/M31 meteor field. |
-| **9:56** | **Dark. Refractor → M8/M20.** Canon running. |
-| **10:00–12:00** | 6SE on the southern showpieces — **M8, M17 Swan, M16 Eagle, M22, M11, M20.** Invisible from home and only up now. |
-| **12:15 AM** | M8/M20 drops below 10°. **Slew to Veil** — just past its 12:17 transit, so west of the meridian, **no flip all night**. |
-| **12:30** | Canon to the meteor field if it wasn't already. 20 s, f/1.8, ISO 3200, continuous. |
-| **2:00–3:45** | Perseids. 6SE on NGC 7331 + Stephan's Quintet, M31, M33, Saturn. |
-| **3:45** | Twilight. Stop capture. |
-| **4:00** | **Teardown practice.** Move the **whole tripod assembled** — head, OTA, counterweights, alt/az untouched — onto the porch. That's where it lives for the rest of the trip, and moving it in one piece is what preserves the alignment. Time yourself; you repeat this twice. |
+| **3:00 PM** | **ARRIVE - unload the truck** Move fast. Every minute before dark is load-bearing today. |
+| **3:20** | **360 HORIZON SURVEY - do this first** Phone app, mark the treeline from the exact spot the tripod will stand. Dense every 5 deg across 170-240. That band is where M8/M20, the core and the Trifid all live. |
+| **3:45** | **Pick positions** EQ6 spot (clear north for Polaris - watch for eaves and the north wall, not trees). 6SE spot far enough that walking to it doesn't shake the rig. Canon spot. Desktop. Find the AC outlet and measure the run. |
+| **4:00** | **Desktop setup indoors, then run the ethernet** Tower, monitors, power. Run the 50ft ethernet out to where the Pi will sit. Do this after picking the mount spot, not before. |
+| **4:45** | **Plate down, tripod on it, level to the bubble** Pavers underneath if the ground is soft - seat them roughly coplanar or the plywood rocks. Note the leg extension against your tape marks. |
+| **5:15** | **Head on, counterweights, OTA, balance** Balance RA on the counterweight shaft and DEC in the dovetail. |
+| **6:00** | **Cabling and power - USB FIRST** All USB connected before the Pi gets power. Hot-plug crashes the Pi 5. Boot, wait for the beep, Ekos connects, verify all five devices. |
+| **6:30** | **Site coords in - virtualgps on the Pi** ssh astro / sudo nano /etc/systemd/system/virtualgps.service / set 45.088279, -71.324767 + elevation / sudo systemctl daemon-reload / sudo systemctl restart virtualgps / cat /tmp/vgps to confirm. Then check the site in Ekos. Wrong coords means wrong LST and wrong meridian-flip timing. Cool to -10C. Daylight focus, EAF step 500. |
+| **7:00** | **Daylight flats** ~0.005s at gain 100 with the panel. These cover all three nights unless you rotate the camera or change the optical train. |
+| **7:30** | **Eat. Assemble the SAM and the 6SE** Load the M8/M20 sequence, 120s. Sunset 19:58 - the SAM's latitude wedge goes to 45 now, in the light, rather than later by headlamp. |
+| **8:30** | **Set park position = home/Polaris** Verify ON_COORD_SET=TRACK, never SYNC. |
+| **8:45** | **POLAR ALIGN** Polaris is up. Take your time - tonight's alignment is the one you reproduce for the rest of the trip. |
+| **9:10** | ***** MARK THE PLATE ***** Stake it, outline it, both. Mark which corner faces north. Then DO NOT TOUCH THE ALT/AZ BOLTS again all trip. This is what makes nights 2 and 3 possible. |
+| **9:15** | **Plate-solve test, autofocus V-curve, start guiding** Step 30, 15 steps. Target HFR ~1.2. |
+| **9:30** | **Polar align the SAM, frame the Canon** Core from the cabin if the arrival survey allows it, otherwise the Cassiopeia/M31 meteor field. Decide from the survey, not from hope. |
+| **9:56** | **ASTRONOMICAL DARK - scope to M8/M20** 120s subs, gain 100, offset 50, dither 3px. THE ONLY NIGHT the refractor can reach this pair - on lake nights it's below 10 deg before you get back. |
+| **10:00** | **6SE - the southern showpieces** M8, M17 Swan, M16 Eagle, M22, M11, M20. Invisible from home and only up now. This is the why-did-we-drive-here moment. |
+| **12:15 AM** | **Scope to the Veil / Cygnus Loop** Just past its 12:17 transit so it's west of the meridian - no flip all night. Teal OIII and crimson Ha filaments. |
+| **12:30** | **Canon to the meteor field** 20s, f/1.8, ISO 3200, continuous. |
+| **2:00** | **Perseids building** 6SE on NGC 7331 + Stephan's Quintet while it's high. Then M31, M33, Saturn. |
+| **3:45** | **Twilight - stop capture** Then TEARDOWN PRACTICE: pull the OTA and counterweights, lift the head off without touching alt/az, and move it TO THE PORCH - that's where it lives for the rest of the trip. Time yourself, you repeat this twice. |
+
+<!-- END GENERATED -->
 
 **What night 1 delivers:** a marked plate, a known-good alignment, a proven solve/focus/guide
 chain, and a teardown you've done once in the dark. That's what buys you nights 2 and 3.
@@ -101,29 +103,34 @@ chain, and a teardown you've done once in the dark. That's what buys you nights 
 
 Everything is set up. Same shape, but the back half of the night is the point.
 
+<!-- GENERATED FROM schedule_data.py — edit there, then run make_schedules.py -->
+
 | Time | Action |
 |---|---|
-| **5:00 PM** | **Assemble on the porch.** Head, counterweights, OTA, **balance RA and DEC**, cables dressed. Comfortable, lit, sitting down — this is where the "why won't it connect" half-hours normally happen. |
-| **5:45** | Pi up, Ekos connects, all five devices verified. **Start the camera cooling** — the porch is at ambient, so −10 °C is an easy 22 °C delta. **Dew heaters OFF** — under a roof it can't dew, and heat fights the acclimation. |
-| **6:15** | Confirm the tripod is still seated on the plate outside, bagged and level. Fix whatever broke last night. **Load the car — PACK THE 6SE**, its southern targets only exist while you're at the lake. |
-| **7:15** | **Depart. Moose drive.** |
-| **8:10** | **Earth's shadow + Belt of Venus** at azimuth 112°, off your right heading north — dark band with a pink edge rising out of the east. Gone by 8:35. Bright twilight: ~1/10 s, f/5.6, ISO 100, underexpose slightly. |
-| **8:30** | Arrive the lake. Setup is quick now — you did it last night. |
-| **8:45** | Foreground frames. |
-| **9:00–9:30** | Polar align, frame to 204°, focus, lock. |
-| **9:56** | **Dark. Core.** Landscape → portrait as before. Take more 35 mm frames — last night told you which worked. |
-| **11:25** | Core at 10°. Pack. |
-| **11:45** | Depart. |
-| **12:10 AM** | Cabin. Card off to the desktop, verify two or three frames opened sharp. Fresh card in. |
-| **12:15** | **Carry the scope out from the porch.** Already at ambient, camera already cold. **Polar align check** — plate may have shifted, expect a small adjustment. **Dew heaters ON now**, low setting. |
-| **1:00** | **Refractor → Cocoon IC 5146 + B168.** Red core, blue rim, black dust river — the best colour target of the trip, transits at 87.8°, essentially zenith. |
-| **1:00** | Canon onto the SAM, Cassiopeia/M31 field. 20 s, f/1.8, ISO 3200, continuous. |
-| **1:19** | ⚠️ **Near-zenith meridian flip.** These are the awkward ones — azimuth swings fast, clearance gets tight. Supervise it. (Alternative: don't start until 1:25, just past transit, and track down the west side with no flip. Costs 55 min, buys certainty.) |
-| **2:00** | **Peak window.** Radiant 47° → 61°. Rates roughly 3× the evening. |
-| **2:00–3:45** | Both of you outside. Lawn chairs. Camera runs itself. **This is what the trip is for.** |
-| **~2:55** | **Doorway frames — ten minutes, not a session.** **Draco's head** passes the NW door at 37° altitude, the only recognizable thing that does so during your cabin hours. Radiant is ~60° off, near-ideal for trail length. Grab a handful, then put the Canon back on the open-sky field. |
-| **3:45** | Twilight. |
-| **4:00** | Park, ramp cooling off, **carry the scope back to the porch — not into the warm cabin.** Cold optics in warm humid air fog instantly. Pull cards. |
+| **5:00 PM** | **Assemble the rig ON THE PORCH** Head, counterweights, OTA, balance RA and DEC, cables dressed. Comfortable and lit - this is where the why-wont-it-connect half-hours normally happen. |
+| **5:45** | **Pi up, Ekos connected - START COOLING** All five devices verified. Porch is at ambient so -10C is an easy 22C delta. DEW HEATERS OFF - under a roof it cannot dew, and heat fights the acclimation. The triplet needs these five hours to reach ambient. |
+| **6:15** | **Check the tripod outside** Still seated on the plate, bagged, level. Alt/az bolts untouched so alignment carries over. |
+| **7:00** | **LOAD THE CAR - lake kit** 6SE + fork + tripod + eyepieces + 32mm Plossl (LEAVE THE EQ WEDGE HOME). Canon + Sigma with the 72mm UV/IR filter fitted + lens hood. SAM + tripod, wedge at 45. POWER, one supply per system: LP-E17 batteries for the camera (all four, charged) - USB power bank for the dew strap - lead-acid + FUSED alligator lead for the 6SE - 2xAA lithiums plus spares for the SAM. Power box and coupler stay in the truck as backup. USB dew strap. Power bank + hand warmers as backup. Spare SD cards. IR thermometer. Two headlamps + amber gel. Something to drop the tripod to 0.5m. Chairs, layers, bug spray, ID. |
+| **7:15** | **DEPART - moose drive north on Route 3** The 6SE's best targets are southern and only up 9:54 to midnight - exactly when you're at the lake. Leave it behind and M8, M17, M16, M22 and M11 do not happen this trip. Sunset 7:58. |
+| **8:10** | **Earth's shadow + Belt of Venus** Azimuth 112, off your right heading north. Dark band with a pink edge rising out of the east. Gone by 8:35. ~1/10s, f/5.6, ISO 100, underexpose slightly. |
+| **8:30** | **Arrive the lake - set up** Civil twilight ends. Tripod and SAM out immediately. |
+| **8:45** | **FOREGROUND FRAMES - only chance** Glow still on the water. f/2.8, ISO 800, 60-120s. These are your blend layer and there is no second chance tonight. |
+| **9:00** | **Polar align the SAM - frame to azimuth 204** Polaris is behind you over land. SAM latitude wedge should be at 45. |
+| **9:15** | **Focus, check corners, lock composition** Hard deadline isn't darkness, it's being ready for it. |
+| **9:54** | **ASTRONOMICAL DARK - shoot the core** Landscape, 18mm. Also several at 35mm: Rho Oph + core + Trifid in one frame. Rho Oph is at 13.2 deg and dying - shoot it FIRST. |
+| **10:35** | **RHO OPH DEADLINE - below 10 deg, gone for the year** Last frames of Rho Oph now. Core at 13.6 and sliding toward frame centre. |
+| **11:00** | **Switch to PORTRAIT** Band standing vertical out of the water. Core dead centre at 11.8 deg. This is the postcard. |
+| **11:17** | **CORE DEADLINE - 10 deg. South is finished** Last frames. Pack up. Verified against astropy for this specific night - the core sets four minutes earlier each night, so this is not the same time every evening. If the arrival survey finds the treeline lower than 10 deg you gain roughly another half hour; re-check on site. |
+| **11:45** | **Depart the lake** Moose peep on the way back to the cabin. |
+| **12:10 AM** | **Back at the cabin** Check ntfy / dashboard. Pull the SD card, copy to the desktop, verify two or three frames opened and are sharp. Fresh card in. |
+| **12:15** | **Carry the scope out from the porch** Already at ambient, camera already cold. Onto the tripod - alt/az untouched, so the alignment carries over. Polar align CHECK - the plate may have shifted and the ground settles, so expect a small adjustment. Not from scratch. DEW HEATERS ON NOW, low setting. Target 2-5C above ambient, no more - err low on the triplet. |
+| **1:00** | **Scope on Cocoon IC 5146 + B168** Red core, blue rim, black dust river - the best colour target of the trip. Transits 1:19 at 87.8 deg, essentially zenith. WARNING: near-zenith meridian flips are the awkward ones. Supervise it, or start after 1:25 and skip the flip entirely. |
+| **1:00** | **Canon meteor run - Cassiopeia/M31 field** 20s, f/1.8, ISO 3200, continuous. Radiant in the lower-left corner. Dew heater on the lens. |
+| **1:30** | **Supervise the meridian flip** Watch it through. Clearance is tight near zenith and a failed flip costs the rest of the night. |
+| **2:00** | **PERSEID PEAK HOURS** Radiant climbs 47 to 61 deg. Rates roughly triple over the evening. Camera runs itself - both of you outside, in chairs, looking up. |
+| **3:45** | **Astronomical twilight - stop capture** Park the mount, ramp cooling off gradually, pull cards. SCOPE BACK ON THE PORCH, not into the warm cabin - cold optics in warm humid air fog instantly. |
+
+<!-- END GENERATED -->
 
 ---
 
@@ -132,28 +139,38 @@ Everything is set up. Same shape, but the back half of the night is the point.
 Core and meteors are banked. Tonight the Canon does the fun stuff. See
 [CREATIVE_SHOTS.md](CREATIVE_SHOTS.md).
 
+<!-- GENERATED FROM schedule_data.py — edit there, then run make_schedules.py -->
+
 | Time | Action |
 |---|---|
-| **3:00 PM** | **Assemble on the porch** — pull the whole rebuild into the afternoon. Head, counterweights, OTA, balance, cables, Pi, Ekos, devices verified. Camera cooling. **Heaters off.** |
-| **5:00** | **Dinner at Buck Rub Pub** — 45.0658, −71.3437. 2.9 km SSW, ~5 min, opposite direction from the moose drive. Pull the forecast and the Kp index while you have a table. |
-| **6:40** | Back. Final checks. **Load the car — PACK THE 6SE.** **Pack the creative kit** — second headlamp, amber gel, something to drop the tripod to ~0.5 m, a marker for the subject's spot. |
-| **7:15** | **Depart. Moose drive.** |
-| **8:10** | **Earth's shadow + Belt of Venus** at azimuth 112°, off your right heading north — dark band with a pink edge rising out of the east. Gone by 8:35. Bright twilight: ~1/10 s, f/5.6, ISO 100, underexpose slightly. |
-| **8:30** | Arrive. Setup. |
-| **8:45** | Foreground frames. |
-| **9:00–9:30** | Polar align, frame to 204°, focus. |
-| **9:56** | **Dark. Core, landscape.** Get the stacking frames done efficiently — you already have two nights of them, so twenty good subs is plenty. |
-| **10:45** | **Portrait, vertical band.** Twenty frames, then stop. |
-| **11:05** | **Drop the tripod to knee height. Creative session.** Subject 5–7 m out. 10 s, f/1.8, ISO 3200, untracked. Silhouettes, light-painted foreground, headlamp beam into the sky, reflections if the water's calm. **Twenty minutes, twenty-plus frames.** |
-| **11:25** | Core at 10°. Done. Pack. |
-| **11:45** | Depart. |
-| **12:10 AM** | Cabin. Card off, verify. Fresh card in. |
-| **12:15** | **Carry the scope out from the porch.** At ambient, camera cold. **Polar align check**, expect a small adjustment. **Dew heaters ON**, low. |
-| **1:00** | **Refractor → Dark Shark + vdB 152.** Centre Dec +71° 47', long axis N–S. Canon → Cassiopeia/M31. |
-| **1:30** | Supervise the flip. |
-| **2:00–3:45** | Perseids. Rates are down from peak but still excellent. 6SE for whatever's left on the list. |
-| **3:45** | Twilight. |
-| **4:00** | Park, ramp cooling off, **scope back onto the porch**, pull cards. Sleep. Pack out in the morning. |
+| **3:00 PM** | **Assemble the rig ON THE PORCH** Head, counterweights, OTA, balance RA and DEC, cables dressed. Comfortable and lit - this is where the why-wont-it-connect half-hours normally happen. |
+| **3:45** | **Pi up, Ekos connected - START COOLING** All five devices verified. Porch is at ambient so -10C is an easy 22C delta. DEW HEATERS OFF - under a roof it cannot dew, and heat fights the acclimation. The triplet needs these five hours to reach ambient. |
+| **4:15** | **Check the tripod outside** Still seated on the plate, bagged, level. Alt/az bolts untouched so alignment carries over. |
+| **4:30** | **Pack the creative kit** Second headlamp, amber gel, something to drop the tripod to ~0.5m, a marker for the subject's spot. |
+| **5:00** | **Dinner at Buck Rub Pub** 45.0658, -71.3437. 2.9km SSW of the cabin, ~5 min, opposite direction from the moose drive. Rig already assembled on the porch this afternoon. Pull the forecast and the Kp index while you have a table. |
+| **7:00** | **LOAD THE CAR - lake kit** 6SE + fork + tripod + eyepieces + 32mm Plossl (LEAVE THE EQ WEDGE HOME). Canon + Sigma with the 72mm UV/IR filter fitted + lens hood. SAM + tripod, wedge at 45. POWER, one supply per system: LP-E17 batteries for the camera (all four, charged) - USB power bank for the dew strap - lead-acid + FUSED alligator lead for the 6SE - 2xAA lithiums plus spares for the SAM. Power box and coupler stay in the truck as backup. USB dew strap. Power bank + hand warmers as backup. Spare SD cards. IR thermometer. Two headlamps + amber gel. Something to drop the tripod to 0.5m. Chairs, layers, bug spray, ID. |
+| **7:15** | **DEPART - moose drive north on Route 3** The 6SE's best targets are southern and only up 9:54 to midnight - exactly when you're at the lake. Leave it behind and M8, M17, M16, M22 and M11 do not happen this trip. Sunset 7:58. |
+| **8:10** | **Earth's shadow + Belt of Venus** Azimuth 112, off your right heading north. Dark band with a pink edge rising out of the east. Gone by 8:35. ~1/10s, f/5.6, ISO 100, underexpose slightly. |
+| **8:30** | **Arrive the lake - set up** Civil twilight ends. Tripod and SAM out immediately. |
+| **8:45** | **FOREGROUND FRAMES - only chance** Glow still on the water. f/2.8, ISO 800, 60-120s. These are your blend layer and there is no second chance tonight. |
+| **9:00** | **Polar align the SAM - frame to azimuth 204** Polaris is behind you over land. SAM latitude wedge should be at 45. |
+| **9:15** | **Focus, check corners, lock composition** Hard deadline isn't darkness, it's being ready for it. |
+| **9:52** | **ASTRONOMICAL DARK - shoot the core** Landscape, 18mm. Also several at 35mm: Rho Oph + core + Trifid in one frame. Rho Oph is at 13.2 deg and dying - shoot it FIRST. |
+| **10:32** | **RHO OPH DEADLINE - below 10 deg, gone for the year** Last frames of Rho Oph now. Core at 13.6 and sliding toward frame centre. |
+| **11:00** | **Switch to PORTRAIT** Band standing vertical out of the water. Core dead centre at 11.8 deg. This is the postcard. |
+| **11:05** | **CREATIVE SESSION - drop the tripod to knee height** Subject 5-7m out. 10s, f/1.8, ISO 3200, UNTRACKED. Silhouettes, light-painted foreground, headlamp beam. Light in a 1-2s PULSE from the side, never a hold. Shoot 20+ frames, the failure rate is high. |
+| **11:13** | **CORE DEADLINE - 10 deg. South is finished** Last frames. Pack up. Verified against astropy for this specific night - the core sets four minutes earlier each night, so this is not the same time every evening. If the arrival survey finds the treeline lower than 10 deg you gain roughly another half hour; re-check on site. |
+| **11:45** | **Depart the lake** Moose peep on the way back to the cabin. |
+| **12:10 AM** | **Back at the cabin** Check ntfy / dashboard. Pull the SD card, copy to the desktop, verify two or three frames opened and are sharp. Fresh card in. |
+| **12:15** | **Carry the scope out from the porch** Already at ambient, camera already cold. Onto the tripod - alt/az untouched, so the alignment carries over. Polar align CHECK - the plate may have shifted and the ground settles, so expect a small adjustment. Not from scratch. DEW HEATERS ON NOW, low setting. Target 2-5C above ambient, no more - err low on the triplet. |
+| **1:00** | **Scope on Dark Shark LDN 1235 + vdB 152** Centre at Dec +71 47' with the long axis N-S and both cores land in one frame. Grey-brown dust shapes plus a blue reflection knot. Outer dust clips on each - that's the accepted trade. |
+| **1:00** | **Canon meteor run - Cassiopeia/M31 field** 20s, f/1.8, ISO 3200, continuous. Radiant in the lower-left corner. Dew heater on the lens. |
+| **1:30** | **Supervise the meridian flip** Watch it through. Clearance is tight near zenith and a failed flip costs the rest of the night. |
+| **2:00** | **PERSEID PEAK HOURS** Radiant climbs 47 to 61 deg. Rates roughly triple over the evening. Camera runs itself - both of you outside, in chairs, looking up. |
+| **2:55** | **Doorway frames - ten minutes, not a session** Draco's head passes the NW door at 37 deg, the only recognizable thing that does so during your cabin hours. Radiant ~60 deg off, near-ideal for trail length. |
+| **3:45** | **Astronomical twilight - stop capture** Park the mount, ramp cooling off gradually, pull cards. SCOPE BACK ON THE PORCH, not into the warm cabin - cold optics in warm humid air fog instantly. |
+
+<!-- END GENERATED -->
 
 ---
 

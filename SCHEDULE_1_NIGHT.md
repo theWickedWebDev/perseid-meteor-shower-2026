@@ -69,7 +69,7 @@ friend something real to do while you're working, and the fork mount travels fin
 | **10:30** | Rho Oph below 10°, gone for the year. Core 13.6°, sliding toward frame centre. |
 | **10:45** | **Switch to portrait.** Band standing vertical out of the water. Core near centre. Take 20 frames and stop. |
 | **11:05** | **Drop the tripod to knee height. Creative session.** Subject 5–7 m out. 10 s, f/1.8, ISO 3200, untracked. Silhouettes, light-painted foreground, headlamp beam. Twenty minutes, twenty-plus frames. See [CREATIVE_SHOTS.md](CREATIVE_SHOTS.md). |
-| **11:25** | Core at 10°. **South is finished.** Last frames, pack. |
+| **11:21** | Core at 10° — this is Night 1's deadline; it is 11:17 on the 12th and 11:13 on the 13th. **South is finished.** Last frames, pack. |
 | **11:45** | Depart. Moose peep on the way back to the cabin. |
 | **12:10 AM** | Cabin. Card off to the desktop, verify a few frames opened sharp. Fresh card in. |
 | **12:15** | **Carry the scope out from the porch.** Already at ambient, camera already cold. **Polar align check** — the plate may have shifted, expect a small adjustment. **Dew heaters ON**, low. |

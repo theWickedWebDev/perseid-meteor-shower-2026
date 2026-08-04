@@ -167,7 +167,7 @@ reflection at Rho Oph itself, gold around Antares, red Ha, black dust threading 
 - **11:00 – 11:17 PM** — band vertical out of the SW → **portrait**, rising from the water
 - Aim **azimuth 204°**
 
-Rho Oph dies at 10:30. Core dies at 11:25. Hard deadlines.
+Rho Oph dies at 10:39 / 10:35 / 10:32. Core dies at 11:21 / 11:17 / 11:13. Nights 1 / 2 / 3 — they are not the same time each night. Hard deadlines.
 
 The astromod matters most here — full spectrum with the UV/IR cut pulls Ha along the whole
 Sagittarius arm in a way a stock body cannot.

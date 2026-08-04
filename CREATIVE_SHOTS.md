@@ -28,7 +28,7 @@ A person 1.8 m tall, camera at height *c*, head appears at `atan((1.8 − c) / d
 | 0.5 m | **4.9 m** ← the sweet spot |
 | 0.2 m (on the ground) | 6.0 m |
 
-### Same, for the core at 10° (around 11:20 PM)
+### Same, for the core at 10° (11:21 / 11:17 / 11:13 PM, nights 1 / 2 / 3)
 
 | Camera height | Subject distance |
 |---|---|

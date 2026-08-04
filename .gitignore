@@ -7,3 +7,6 @@ forecast_preview.html
 __pycache__/
 *.pyc
 .DS_Store
+
+# schedule table backups written by make_schedules.py
+.schedule_backup/
