@@ -1005,11 +1005,20 @@ summary .hr{font-family:var(--mono); color:var(--accent); font-variant-numeric:t
     Full detail in <span class="num">~/pittsburg-trip/</span> — start at
     <span class="num">PRIORITIES.md</span>. Field card is <span class="num">OH_SHIT.md</span>.
     <br>Self-contained — works offline if the signal drops.
+    <br><span class="num" id="updated"></span>
   </div>
 </div>
 
 <script>
 (function(){
+  // document.lastModified is the file's own timestamp — the GH Pages deploy time when
+  // served, the local mtime when opened from disk. Accurate either way, no build step.
+  var u=document.getElementById('updated');
+  if(u){
+    var d=new Date(document.lastModified);
+    u.textContent='Last updated '+d.toLocaleString(undefined,
+      {weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+  }
   var root=document.documentElement;
   var t=document.getElementById('theme');
   var n=document.getElementById('night');
