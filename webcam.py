@@ -28,21 +28,41 @@ LOG     = "webcam_log.json"
 SHOTS   = "webcam"
 KEEP    = 48                       # archived frames to retain
 
-# Calibration for this camera. Sky box excludes the pole at far left, the conifers at
-# right, and the bottom band where horizon haze reads as false cloud.
-CAL = {"y0": 20, "y1": 260, "x0": 150, "x1": 1300, "rb": 0.85, "dark": 40}
+# Calibration for this camera. Fractions of frame size, NOT pixels — yt-dlp may hand us
+# 720p or 1080p depending on what's available, and an absolute box would sample a
+# different part of the scene at each resolution.
+# Box excludes the pole at far left, the conifers at right, and the bottom band where
+# horizon haze reads as false cloud.
+CAL = {"y0": 0.019, "y1": 0.241, "x0": 0.078, "x1": 0.677, "rb": 0.85, "dark": 40}
 
 MODELS = [("ecmwf_ifs025", "ECMWF"), ("gfs_seamless", "GFS"),
           ("icon_seamless", "ICON"), ("gem_seamless", "GEM")]
 
 
 def grab(path):
-    url = subprocess.run(["yt-dlp", "-q", "--no-warnings", "-g", STREAM],
-                         capture_output=True, text=True, timeout=90).stdout.strip().split("\n")[0]
-    if not url:
-        raise RuntimeError("could not resolve stream")
-    subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-i", url,
-                    "-frames:v", "1", "-q:v", "3", path], check=True, timeout=120)
+    """Pipe the stream through yt-dlp rather than handing ffmpeg the manifest URL.
+
+    YouTube throttles segment requests that lack a correctly deciphered `n` parameter,
+    and ffmpeg can't do that deciphering — so fetching the manifest directly works
+    only intermittently. yt-dlp handles it, so let it do the fetching and give ffmpeg
+    a pipe. ffmpeg exits after one frame and SIGPIPEs yt-dlp, which is fine.
+    """
+    yt = subprocess.Popen(
+        ["yt-dlp", "-q", "--no-warnings", "-f", "best[height<=720]/best", "-o", "-", STREAM],
+        stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+    try:
+        subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-i", "pipe:0",
+                        "-frames:v", "1", "-q:v", "3", path],
+                       stdin=yt.stdout, check=True, timeout=120)
+    finally:
+        yt.stdout.close()
+        yt.terminate()
+        try:
+            yt.wait(timeout=10)
+        except subprocess.TimeoutExpired:
+            yt.kill()
+    if not os.path.exists(path) or os.path.getsize(path) < 5000:
+        raise RuntimeError("frame came out empty")
 
 
 def estimate(path):
@@ -50,7 +70,9 @@ def estimate(path):
     import numpy as np
     from PIL import Image
     im = np.asarray(Image.open(path).convert("RGB")).astype(float)
-    sky = im[CAL["y0"]:CAL["y1"], CAL["x0"]:CAL["x1"]]
+    H, W = im.shape[:2]
+    sky = im[int(CAL["y0"] * H):int(CAL["y1"] * H),
+             int(CAL["x0"] * W):int(CAL["x1"] * W)]
     if sky.mean() < CAL["dark"]:
         return None, True
     rb = sky[:, :, 0] / np.maximum(sky[:, :, 2], 1)
