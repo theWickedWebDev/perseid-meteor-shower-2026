@@ -724,12 +724,17 @@ def sky_now(sat):
     cells = []
     for name, _ in order:
         if name is None:
-            cells.append(f'<div class="oc mid"><span class="ocv">{e.get("cloud")}%</span>'
+            dv = e.get("cloud")
+            df = 0 if dv is None else max(0, min(100, dv)) / 100
+            cells.append(f'<div class="oc mid" style="--f:{df:.2f}">'
+                         f'<span class="ocv {band(dv)}">{dv}%</span>'
                          f'<span class="ocl">dome</span></div>')
             continue
         v = oct_.get(name)
         hot = " slot" if name in ("S", "SW") else ""
-        cells.append(f'<div class="oc{hot}"><span class="ocv {band(v)}">'
+        f = 0 if v is None else max(0, min(100, v)) / 100
+        cells.append(f'<div class="oc{hot}" style="--f:{f:.2f}">'
+                     f'<span class="ocv {band(v)}">'
                      f'{"—" if v is None else v}</span><span class="ocl">{name}</span></div>')
 
     up = e.get("upwind")
@@ -1500,7 +1505,17 @@ h3.sub{{font-family:var(--serif);color:var(--ink);font-size:1rem;margin:1.8rem 0
 .rkv{{font-family:var(--mono);font-size:1.15rem;font-variant-numeric:tabular-nums}}
 .compass{{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;max-width:15rem;
   margin:.6rem 0}}
-.oc{{background:var(--ground);border-radius:3px;padding:.35rem .2rem;text-align:center}}
+.oc{{background:var(--ground);border-radius:3px;padding:.35rem .2rem;text-align:center;
+  position:relative;isolation:isolate}}
+/* Density readout in two parts, because a wash behind text can only go so far. The tint
+   tops out at .08: the amber "warn" colour is barely 3.5:1 on plain background, and at .30
+   it fell to 1.8:1 — unreadable. The edge bar carries the rest of the signal, where there
+   is no text to fight, so a full cell still reads as full at a glance. */
+.oc::before{{content:"";position:absolute;inset:0;border-radius:3px;background:var(--ink);
+  opacity:calc(var(--f,0) * .08);z-index:-1}}
+.oc::after{{content:"";position:absolute;left:0;bottom:0;height:3px;border-radius:0 0 3px 3px;
+  width:calc(var(--f,0) * 100%);background:var(--ink);opacity:.55;z-index:-1}}
+.oc > *{{position:relative}}
 .oc.slot{{outline:1px solid var(--accent);outline-offset:-1px}}
 .oc.mid{{background:transparent;border:1px dashed var(--rule)}}
 .ocv{{display:block;font-family:var(--mono);font-size:.95rem;
@@ -1752,6 +1767,7 @@ td.trail{{font-family:var(--mono);font-size:1rem;letter-spacing:.12em}}
             s=c.querySelector('.ocv');
         s.textContent=(v===null||v===undefined)?'—':(k==='dome'?v+'%':v);
         s.className='ocv '+band(v);
+        c.style.setProperty('--f',(v===null||v===undefined)?0:Math.max(0,Math.min(100,v))/100);
       }});
       var d=new Date(f.time);
       lab.textContent=d.toLocaleDateString([], {{weekday:'short'}})+' '+
