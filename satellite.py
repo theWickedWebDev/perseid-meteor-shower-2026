@@ -79,6 +79,62 @@ def latlon_to_scan(lat, lon, lon0, a, b, H):
             math.atan(sz / sx))
 
 
+# Your southern program lives in a narrow slot: azimuth 177-232 deg, roughly 7-22 deg
+# altitude. Whole-dome cloud percentages cannot tell you whether that slot is open, and a
+# night that is 50% cloudy with all of it sitting north is a GO the dome number calls
+# marginal.
+#
+# How far out the blocking cloud sits is pure geometry — distance = height / tan(altitude):
+#     low stratus 1 km    ->  2-8 km out
+#     mid deck    3 km    ->  7-23 km out
+#     cirrus     10 km    -> 25-78 km out
+# so the fan is sampled in rings, and a ring that is cloudy while the near ring is clear
+# means something is on its way rather than overhead.
+SLOT_AZ = (177, 232)
+RINGS = ((3, 9, "near"), (9, 25, "mid"), (25, 60, "far"))
+UPWIND_KM = (30, 90)        # what arrives in roughly the next hour at typical steering flow
+R_EARTH = 6371.0
+
+
+def project(lat, lon, bearing_deg, dist_km):
+    """Point at a bearing and distance from a lat/lon. Spherical is ample at these ranges."""
+    br, d = math.radians(bearing_deg), dist_km / R_EARTH
+    la, lo = math.radians(lat), math.radians(lon)
+    la2 = math.asin(math.sin(la) * math.cos(d) + math.cos(la) * math.sin(d) * math.cos(br))
+    lo2 = lo + math.atan2(math.sin(br) * math.sin(d) * math.cos(la),
+                          math.cos(d) - math.sin(la) * math.sin(la2))
+    return math.degrees(la2), math.degrees(lo2)
+
+
+def _sample(grid, xs, ys, proj, pts):
+    """Mean cloud fraction over a list of lat/lon points, or None."""
+    import numpy as np
+    vals = []
+    for la, lo in pts:
+        X, Y = latlon_to_scan(la, lo, *proj)
+        ix = int(np.argmin(np.abs(xs - X)))
+        iy = int(np.argmin(np.abs(ys - Y)))
+        v = grid[iy, ix]
+        if v <= 1:
+            vals.append(float(v))
+    return round(100 * sum(vals) / len(vals)) if vals else None
+
+
+def wind_bearing():
+    """Direction the 700 mb flow is coming FROM, for the upwind sample. None if unavailable."""
+    try:
+        url = (f"https://api.open-meteo.com/v1/forecast?latitude={SITE[0]}&longitude={SITE[1]}"
+               f"&hourly=wind_direction_700hPa&forecast_days=1&timezone=UTC")
+        req = urllib.request.Request(url, headers={"User-Agent": "perseid-meteor-shower-2026"})
+        with urllib.request.urlopen(req, timeout=30) as r:
+            h = json.load(r)["hourly"]
+        now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:00")
+        i = h["time"].index(now)
+        return h["wind_direction_700hPa"][i]
+    except Exception:
+        return None
+
+
 def read(dt_utc=None):
     """Cloud over the site from the most recent granule. Returns a dict or None."""
     import numpy as np
@@ -118,8 +174,37 @@ def read(dt_utc=None):
     scan = (datetime(int(stamp[:4]), 1, 1, tzinfo=timezone.utc)
             + timedelta(days=int(stamp[4:7]) - 1, hours=int(stamp[7:9]),
                         minutes=int(stamp[9:11])))
+    proj = (lon0, a, b, H)
+    # the southern slot, ring by ring
+    slot = {}
+    for lo_km, hi_km, name in RINGS:
+        pts = [project(SITE[0], SITE[1], az, d)
+               for az in range(SLOT_AZ[0], SLOT_AZ[1] + 1, 5)
+               for d in (lo_km, (lo_km + hi_km) / 2, hi_km)]
+        slot[name] = _sample(bcm, xs, ys, proj, pts)
+
+    # where the cloud is, by compass octant at slot-relevant range
+    octants = {}
+    for name, centre in (("N", 0), ("NE", 45), ("E", 90), ("SE", 135),
+                         ("S", 180), ("SW", 225), ("W", 270), ("NW", 315)):
+        pts = [project(SITE[0], SITE[1], centre + off, d)
+               for off in (-20, 0, 20) for d in (6, 14, 24)]
+        octants[name] = _sample(bcm, xs, ys, proj, pts)
+
+    wb = wind_bearing()
+    upwind = None
+    if wb is not None:
+        pts = [project(SITE[0], SITE[1], wb + off, d)
+               for off in (-25, 0, 25)
+               for d in (UPWIND_KM[0], sum(UPWIND_KM) / 2, UPWIND_KM[1])]
+        upwind = _sample(bcm, xs, ys, proj, pts)
+
     pixel = bcm[iy, ix]
     return {
+        "slot": slot,
+        "octants": octants,
+        "upwind": upwind,
+        "wind_from": wb,
         "time": scan.astimezone(EDT).replace(minute=0, second=0,
                                              microsecond=0).isoformat(),
         "scan": scan.astimezone(EDT).isoformat(),

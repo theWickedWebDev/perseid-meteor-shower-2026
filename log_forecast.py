@@ -682,6 +682,75 @@ def sat_strip(sat):
     return "".join(p)
 
 
+def sky_now(sat):
+    """Where the cloud actually is right now, not just how much of it there is.
+
+    The southern slot is the only part of the sky the core programme uses, so a dome
+    percentage can be badly misleading in both directions — 54% overall has already meant
+    a clear north and a socked-in south on this site. The upwind figure is what the flow
+    is carrying toward you, and it has led the overhead reading by about an hour.
+    """
+    if not sat:
+        return ""
+    e = sat[-1]
+    slot, oct_ = e.get("slot") or {}, e.get("octants") or {}
+    if not slot and not oct_:
+        return ""
+    t = datetime.fromisoformat(e["scan"])
+
+    def band(v):
+        return "dim" if v is None else "good" if v <= GO else "warn" if v <= 55 else "bad"
+
+    near, mid, far = slot.get("near"), slot.get("mid"), slot.get("far")
+    verdict = ""
+    if near is not None:
+        if near <= GO and (far or 0) > 55:
+            verdict = "clear overhead, cloud approaching from range"
+        elif near > 55 and (far is not None and far <= GO):
+            verdict = "blocked now, clearer air further out"
+        elif near <= GO:
+            verdict = "the southern slot is open"
+        else:
+            verdict = "the southern slot is blocked"
+
+    ring = "".join(
+        f'<div class="rk"><span class="rkl">{n}</span>'
+        f'<span class="rkv {band(v)}">{"—" if v is None else str(v) + "%"}</span></div>'
+        for n, v in (("0–9 km", near), ("9–25 km", mid), ("25–60 km", far)))
+
+    # compass, north at top, drawn as a 3x3 with the site in the middle
+    order = [("NW", 0), ("N", 1), ("NE", 2), ("W", 3), (None, 4), ("E", 5),
+             ("SW", 6), ("S", 7), ("SE", 8)]
+    cells = []
+    for name, _ in order:
+        if name is None:
+            cells.append(f'<div class="oc mid"><span class="ocv">{e.get("cloud")}%</span>'
+                         f'<span class="ocl">dome</span></div>')
+            continue
+        v = oct_.get(name)
+        hot = " slot" if name in ("S", "SW") else ""
+        cells.append(f'<div class="oc{hot}"><span class="ocv {band(v)}">'
+                     f'{"—" if v is None else v}</span><span class="ocl">{name}</span></div>')
+
+    up = e.get("upwind")
+    wb = e.get("wind_from")
+    upline = ("" if up is None else
+              f'<p class="note"><b class="{band(up)}">{up}% cloud upwind</b> — 30–90 km out '
+              f'on the {int(wb)}° flow, which is roughly what arrives overhead in the next '
+              f'hour.</p>')
+    return (f'<div class="card" style="margin-bottom:.8rem">'
+            f'<span class="eyebrow">Where the cloud is · {t:%a %H:%M}</span>'
+            f'<p class="lede" style="margin-top:.3rem">Your whole southern programme lives '
+            f'between azimuth 177° and 232°. <b>{verdict}</b></p>'
+            f'<div class="rings">{ring}</div>'
+            f'<div class="compass">{"".join(cells)}</div>'
+            f'{upline}'
+            f'<p class="note">Left: cloud in the southern slot by distance — near cloud '
+            f'blocks low altitudes, far cloud blocks the cirrus band. Right: cloud by '
+            f'compass octant, south-west highlighted because that is where the core sits.</p>'
+            f'</div>')
+
+
 def webcam_section(log=None):
     """Live view, an hourly filmstrip with the forecast above each frame, and a scoreboard.
 
@@ -752,6 +821,7 @@ def webcam_section(log=None):
 
     return f'''
   <h2>Ground truth — satellite and webcam</h2>
+  {sky_now(_satlog())}
   <div class="card" style="margin-bottom:.8rem">
     <p class="lede">What was actually overhead, hour by hour — <b>including after dark</b>,
     which the camera cannot see. This is what the models get marked against.</p>
@@ -1358,6 +1428,20 @@ h3.sub{{font-family:var(--serif);color:var(--ink);font-size:1rem;margin:1.8rem 0
 .mtable td.r{{text-align:right}}
 .mtable td.r .pill{{white-space:nowrap}}
 .wf{{color:var(--muted);margin-top:.2rem}}
+.rings{{display:flex;gap:.5rem;margin:.8rem 0 .6rem;flex-wrap:wrap}}
+.rk{{flex:1 1 5rem;border:1px solid var(--rule);border-radius:3px;padding:.4rem .5rem}}
+.rkl{{display:block;font-family:var(--mono);font-size:.62rem;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--muted)}}
+.rkv{{font-family:var(--mono);font-size:1.15rem;font-variant-numeric:tabular-nums}}
+.compass{{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;max-width:15rem;
+  margin:.6rem 0}}
+.oc{{background:var(--ground);border-radius:3px;padding:.35rem .2rem;text-align:center}}
+.oc.slot{{outline:1px solid var(--accent);outline-offset:-1px}}
+.oc.mid{{background:transparent;border:1px dashed var(--rule)}}
+.ocv{{display:block;font-family:var(--mono);font-size:.95rem;
+  font-variant-numeric:tabular-nums}}
+.ocl{{display:block;font-family:var(--mono);font-size:.58rem;letter-spacing:.08em;
+  color:var(--muted)}}
 .nightbar{{fill:var(--accent);opacity:.75}}
 .daybar{{fill:var(--rule)}}
 .pill{{font-family:var(--mono);font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;padding:.15rem .4rem;border-radius:3px;white-space:nowrap;border:1px solid}}
