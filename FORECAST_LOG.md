@@ -12,6 +12,34 @@ Sky cover is the number that matters — **PoP is not a cloud forecast.** An ove
 
 ---
 
+## Tue 04 Aug 2026, 14:44 EDT
+
+`api.weather.gov` gridpoint **GYX 28,125** · Lake spot
+
+### Night 1 · Tue 11 Aug — lead 7 days
+
+**Core window mean sky cover: 51%** · full-dark 51% · max PoP 26%
+
+> ⚠️ Every hour reads the same value — the model isn't resolving hours at this lead time. One coarse long-range number stretched across the night, not an hourly forecast. Pattern context only.
+
+| Hour (EDT) | Sky | PoP | Dewpoint |
+|---|---|---|---|
+| 21:00 | 51% | 26% | — |
+| 22:00 | 51% | 24% | — |
+| 23:00 | 51% | 22% | — |
+| 00:00 | 51% | —% | — |
+| 01:00 | 51% | —% | — |
+
+### Night 2 · Wed 12 Aug — lead 8 days
+
+_Outside the forecast window — no data yet._
+
+### Night 3 · Thu 13 Aug — lead 9 days
+
+_Outside the forecast window — no data yet._
+
+---
+
 ## Tue 04 Aug 2026, 14:39 EDT
 
 `api.weather.gov` gridpoint **GYX 28,125** · Lake spot

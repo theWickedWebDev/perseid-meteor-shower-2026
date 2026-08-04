@@ -348,15 +348,16 @@ def agreement_svg(latest):
     return "\n".join(p)
 
 
-def webcam_section():
+def webcam_section(log=None):
     """Live view, an hourly filmstrip with the forecast above each frame, and a scoreboard.
 
     The filmstrip is the point: scroll it and you can see what a given forecast number
     actually looked like out of the window.
     """
-    if not os.path.exists("webcam_log.json"):
-        return ""
-    log = json.load(open("webcam_log.json"))
+    if log is None:
+        if not os.path.exists("webcam_log.json"):
+            return ""
+        log = json.load(open("webcam_log.json"))
     day = [e for e in log if not e["night"] and e["cloud"] is not None]
     if not day:
         return ""
@@ -536,14 +537,18 @@ def calibration(hist):
                     f"<td class='n'>{hi-lo}</td></tr>")
     if not rows:
         return ('<p class="note">Not enough runs yet for the lead-up nights to show movement.</p>')
-    avg = sum(moves) / len(moves)
-    return (f'<p style="margin-bottom:.8rem"><b style="color:var(--ink)">Average swing so far: '
-            f'{avg:.0f} points.</b> That is how much a night\'s core-window forecast has actually '
-            f'moved while you watched it — the honest measure of what a day-4 number is worth in '
-            f'this pattern.</p>'
+    avg, mx = sum(moves) / len(moves), max(moves)
+    return (f'<p style="margin-bottom:.8rem"><b style="color:var(--ink)">Worst swing so far: '
+            f'{mx} points</b> (typical {avg:.0f}). You are asking how <em>wrong</em> a forecast '
+            f'could be — a tail question — so the worst case is the honest number and the mean '
+            f'understates it. A night reading 45% four days out could plausibly land anywhere '
+            f'within &plusmn;{mx} of that.</p>'
             '<div class="scroll"><table><thead><tr><th>Night</th><th>Lead</th><th>First</th>'
             '<th>Latest</th><th>Swing</th></tr></thead><tbody>' + "".join(rows) +
             '</tbody></table></div>')
+
+
+WEBCAM_OVERRIDE = None      # preview_forecast.py sets this to render mock frames
 
 
 def write_page(hist):
@@ -798,7 +803,7 @@ text.good{{fill:var(--good)}} text.warn{{fill:var(--warn)}} text.bad{{fill:var(-
     then the mean to see how much of the window it buys you, then the strip below for the shape.</p>
   </div>
 
-  {webcam_section()}
+  {webcam_section(WEBCAM_OVERRIDE)}
 
   <h2>Hour by hour</h2>
   <div class="card">
