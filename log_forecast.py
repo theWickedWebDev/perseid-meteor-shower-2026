@@ -541,15 +541,20 @@ def hourly_strips(latest):
         H = len(rows) * rowh + 28
         p = [f'<svg viewBox="0 0 {W} {H}" role="img" '
              f'aria-label="Hour by hour cloud cover for {label}">']
-        # core-window bracket
-        ci = [i for i, h in enumerate(hrs) if int(h) in CORE_HR]
-        if ci:
+        # Both shooting windows, bracketed. They are separate because the targets are
+        # separate: the Milky Way core is below the 10 degree treeline by 11:25 PM, so
+        # the late hours are Perseids and the refractor, not the core.
+        for hrset, name, cls in ((CORE_HR, "MW CORE", "corebox"),
+                                 (LATE_HR, "PERSEIDS", "latebox")):
+            ci = [i for i, h in enumerate(hrs) if int(h) in hrset]
+            if not ci:
+                continue
             x0 = lab + ci[0] * (cell + gap) - 1
             x1 = lab + (ci[-1] + 1) * (cell + gap) - gap + 1
-            p.append(f'<rect class="corebox" x="{x0}" y="10" width="{x1-x0}" '
+            p.append(f'<rect class="{cls}" x="{x0}" y="10" width="{x1-x0}" '
                      f'height="{H-26}" rx="2"/>')
-            p.append(f'<text class="corelab" x="{(x0+x1)/2:.0f}" y="7" '
-                     f'text-anchor="middle">CORE</text>')
+            p.append(f'<text class="corelab {cls}lab" x="{(x0+x1)/2:.0f}" y="7" '
+                     f'text-anchor="middle">{name}</text>')
         for i, h in enumerate(hrs):
             p.append(f'<text class="hlab" x="{lab + i*(cell+gap) + cell/2:.0f}" y="{H-5}" '
                      f'text-anchor="middle">{h}</text>')
@@ -862,6 +867,8 @@ svg{{width:100%;height:auto;display:block}}
 .srclab{{fill:var(--body);font-family:var(--mono);font-size:8.5px}}
 .corebox{{fill:none;stroke:var(--accent);stroke-width:1.5;opacity:.8}}
 .corelab{{fill:var(--accent);font-family:var(--mono);font-size:7px;letter-spacing:.12em}}
+.latebox{{fill:none;stroke:var(--s2);stroke-width:1.5;opacity:.75;stroke-dasharray:3 2}}
+.lateboxlab{{fill:var(--s2)}}
 .rng0{{stroke:var(--s0);stroke-width:5;opacity:.22;stroke-linecap:round}}
 .rng1{{stroke:var(--s1);stroke-width:5;opacity:.22;stroke-linecap:round}}
 .rng2{{stroke:var(--s2);stroke-width:5;opacity:.22;stroke-linecap:round}}
