@@ -12,7 +12,7 @@ Sky cover is the number that matters — **PoP is not a cloud forecast.** An ove
 
 ---
 
-## Tue 04 Aug 2026, 14:56 EDT
+## Tue 04 Aug 2026, 15:01 EDT
 
 `api.weather.gov` gridpoint **GYX 28,125** · Lake spot
 

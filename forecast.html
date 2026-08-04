@@ -156,7 +156,7 @@ td.trail{font-family:var(--mono);font-size:1rem;letter-spacing:.12em}
   <div class="eyebrow" style="margin-top:2rem">Fetched Tue 04 Aug, 17:53 EDT · forecast issued
     Tue 04 Aug 14:19 · gridpoint GYX 28,125</div>
   <h1>Forecast trend</h1>
-  <div class="next"><b>Next check 15:05</b> <span class="dim">— in 7 min, then hourly</span><span class="dim"> · next model data: ECMWF ~15:06 · ICON ~17:53 · GFS ~19:52</span></div>
+  <div class="next" data-cron-min="5"><span id="nextcheck"><b>Next check 15:05</b> <span class="dim">— in 3 min, then hourly</span></span><span class="dim"> · next model data: ECMWF ~15:06 · ICON ~17:53 · GFS ~19:52</span></div>
   <p class="lede">Cloud cover. <b>Core window 10–11:30 PM</b> decides go/no-go; <b>1–4 AM</b> is
   Perseids and the scope. Each point is one forecast run.<br>
   <b style="color:var(--accent)">Decide Aug 8 on Night 2</b> — Perseid max and new moon.
@@ -179,7 +179,7 @@ td.trail{font-family:var(--mono);font-size:1rem;letter-spacing:.12em}
 <line class="grid" x1="46" y1="18.0" x2="612" y2="18.0"/>
 <text class="ax" x="38" y="22.0" text-anchor="end">100%</text>
 <text class="ax" x="329.0" y="296" text-anchor="middle">04 Aug</text>
-<text class="ax dim" x="329.0" y="310" text-anchor="middle">14:56</text>
+<text class="ax dim" x="329.0" y="310" text-anchor="middle">15:01</text>
 <line class="rng0" x1="325.0" y1="218.2" x2="325.0" y2="64.8"/>
 <line class="rng1" x1="329.0" y1="179.2" x2="329.0" y2="38.8"/>
 <line class="rng2" x1="333.0" y1="231.2" x2="333.0" y2="18.0"/>
@@ -203,9 +203,9 @@ td.trail{font-family:var(--mono);font-size:1rem;letter-spacing:.12em}
       title="First Connecticut Lake live webcam" loading="lazy" allowfullscreen
       referrerpolicy="strict-origin-when-cross-origin"></iframe></div>
     <p class="note">Live — needs a connection. Frames below are archived.</p>
-    
+    <div class="scroll" style="margin-top:1rem"><table><thead><tr><th>Model</th><th>Checks</th><th>Mean error vs camera</th></tr></thead><tbody><tr><td>GFS</td><td class='n'>2</td><td class='n good'>0 pts</td></tr><tr><td>GEM</td><td class='n'>2</td><td class='n good'>0 pts</td></tr><tr><td>ECMWF</td><td class='n'>2</td><td class='n good'>4 pts</td></tr><tr><td>ICON</td><td class='n'>2</td><td class='n good'>5 pts</td></tr></tbody></table></div><p class="note">Lowest = believe that one.</p>
     <h3 style="margin-top:1.4rem">Hour by hour, forecast above the photo</h3>
-    <div class="film scroll"><figure class="shot"><span class="hr">Tue 14:00</span><span class="fc">0–1%</span><img src="webcam/2026-08-04T14.jpg" alt="webcam 04 Aug 14:00" loading="lazy"><span class="obs good">0%</span></figure></div>
+    <div class="film scroll"><figure class="shot"><span class="hr">Tue 15:00</span><span class="fc">0–10%</span><img src="webcam/2026-08-04T15.jpg" alt="webcam 04 Aug 15:00" loading="lazy"><span class="obs good">0%</span></figure><figure class="shot"><span class="hr">Tue 14:00</span><span class="fc">0–1%</span><img src="webcam/2026-08-04T14.jpg" alt="webcam 04 Aug 14:00" loading="lazy"><span class="obs good">0%</span></figure></div>
     <p class="note">Above = forecast range · below = observed ·
     <b class="good">within 15</b> / <b class="warn">30</b> / <b class="bad">beyond</b>.
     Daylight only.</p>
@@ -314,6 +314,21 @@ td.trail{font-family:var(--mono);font-size:1rem;letter-spacing:.12em}
 
 <script>
 (function(){
+  // live countdown to the next cron run, ticking — a build-time value goes stale immediately
+  var box=document.querySelector('.next'), el=document.getElementById('nextcheck');
+  if(box&&el){
+    var m=parseInt(box.getAttribute('data-cron-min'),10)||0;
+    var tick=function(){
+      var now=new Date(), nx=new Date(now);
+      nx.setSeconds(0,0); nx.setMinutes(m);
+      if(nx<=now) nx.setHours(nx.getHours()+1);
+      var mins=Math.round((nx-now)/60000);
+      var hh=String(nx.getHours()).padStart(2,'0')+':'+String(nx.getMinutes()).padStart(2,'0');
+      el.innerHTML='<b>Next check '+hh+'</b> <span class="dim">— '+
+        (mins<=1?'any moment now':'in '+mins+' min')+', then hourly</span>';
+    };
+    tick(); setInterval(tick,20000);
+  }
   var r=document.documentElement,t=document.getElementById('theme'),n=document.getElementById('night');
   t.addEventListener('click',function(){
     var c=r.getAttribute('data-theme')||(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');

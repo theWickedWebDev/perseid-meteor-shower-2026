@@ -617,8 +617,11 @@ def write_page(hist):
         upcoming.append((t, n))
     upcoming.sort()
     nextmodels = " · ".join(f"{n} ~{t:%H:%M}" for t, n in upcoming[:3])
-    nextline = (f'<div class="next"><b>Next check {nxt_check:%H:%M}</b> '
-                f'<span class="dim">— in {mins} min, then hourly</span>'
+    # The countdown must be computed in the browser — baked into the HTML it starts
+    # decaying the moment the page is built. data-cron-min is the cron minute (:05).
+    nextline = (f'<div class="next" data-cron-min="5">'
+                f'<span id="nextcheck"><b>Next check {nxt_check:%H:%M}</b> '
+                f'<span class="dim">— in {mins} min, then hourly</span></span>'
                 + (f'<span class="dim"> · next model data: {nextmodels}</span>'
                    if nextmodels else "") + '</div>')
     runline = ("".join(f' · <b>{n}</b> <span style="font-family:var(--mono)">{i}</span> run, '
@@ -899,6 +902,21 @@ td.trail{{font-family:var(--mono);font-size:1rem;letter-spacing:.12em}}
 
 <script>
 (function(){{
+  // live countdown to the next cron run, ticking — a build-time value goes stale immediately
+  var box=document.querySelector('.next'), el=document.getElementById('nextcheck');
+  if(box&&el){{
+    var m=parseInt(box.getAttribute('data-cron-min'),10)||0;
+    var tick=function(){{
+      var now=new Date(), nx=new Date(now);
+      nx.setSeconds(0,0); nx.setMinutes(m);
+      if(nx<=now) nx.setHours(nx.getHours()+1);
+      var mins=Math.round((nx-now)/60000);
+      var hh=String(nx.getHours()).padStart(2,'0')+':'+String(nx.getMinutes()).padStart(2,'0');
+      el.innerHTML='<b>Next check '+hh+'</b> <span class="dim">— '+
+        (mins<=1?'any moment now':'in '+mins+' min')+', then hourly</span>';
+    }};
+    tick(); setInterval(tick,20000);
+  }}
   var r=document.documentElement,t=document.getElementById('theme'),n=document.getElementById('night');
   t.addEventListener('click',function(){{
     var c=r.getAttribute('data-theme')||(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');
