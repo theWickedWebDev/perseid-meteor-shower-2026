@@ -141,6 +141,10 @@ td.trail{font-family:var(--mono);font-size:1rem;letter-spacing:.12em}
   border:1px solid var(--rule);border-left:3px solid var(--accent);border-radius:3px;
   font-family:var(--mono);font-size:.78rem}
 .next b{color:var(--accent)}
+.vint{display:grid;grid-template-columns:max-content 1fr;gap:.15rem .9rem;margin-top:.7rem;
+  font-family:var(--mono);font-size:.76rem}
+.vk{color:var(--ink);white-space:nowrap}
+.vv{color:var(--muted)}
 .scroll{overflow-x:auto}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
@@ -179,7 +183,7 @@ td.trail{font-family:var(--mono);font-size:1rem;letter-spacing:.12em}
 <line class="grid" x1="46" y1="18.0" x2="612" y2="18.0"/>
 <text class="ax" x="38" y="22.0" text-anchor="end">100%</text>
 <text class="ax" x="329.0" y="296" text-anchor="middle">04 Aug</text>
-<text class="ax dim" x="329.0" y="310" text-anchor="middle">15:01</text>
+<text class="ax dim" x="329.0" y="310" text-anchor="middle">15:03</text>
 <line class="rng0" x1="325.0" y1="218.2" x2="325.0" y2="64.8"/>
 <line class="rng1" x1="329.0" y1="179.2" x2="329.0" y2="38.8"/>
 <line class="rng2" x1="333.0" y1="231.2" x2="333.0" y2="18.0"/>
@@ -302,13 +306,11 @@ td.trail{font-family:var(--mono);font-size:1rem;letter-spacing:.12em}
   <div style="margin-top:2.5rem;padding-top:1.2rem;border-top:1px solid var(--rule);
               color:var(--muted);font-size:.84rem">
     <a href="index.html" style="color:var(--accent)">← Trip plan</a>
-    <br><span style="font-family:var(--mono)">Page built Tue 04 Aug 2026, 17:53 EDT</span>
-    · rebuilt hourly from <span style="font-family:var(--mono)">api.weather.gov</span>,
-    Open-Meteo and the lake webcam.
-    <br><b>Data vintages</b> — NWS package issued <span style="font-family:var(--mono)">Tue 04 Aug 14:19</span>
-    EDT · <b>ECMWF</b> <span style="font-family:var(--mono)">06Z</span> run, published <span style="font-family:var(--mono)">04 Aug 09:06</span> · <b>GFS</b> <span style="font-family:var(--mono)">12Z</span> run, published <span style="font-family:var(--mono)">04 Aug 13:52</span> · <b>ICON</b> <span style="font-family:var(--mono)">12Z</span> run, published <span style="font-family:var(--mono)">04 Aug 11:53</span> · <b>GEM</b> run time unknown
-    <br><span style="opacity:.75">Each model is a snapshot of a different run, so a little of any
-    apparent disagreement is just run age rather than genuine divergence.</span>
+    <div class="vint"><div class="vk">Page built</div><div class="vv">Tue 04 Aug 2026, 17:53 EDT</div><div class="vk">NWS package</div><div class="vv">issued Tue 04 Aug 14:19 EDT</div><div class="vk">ECMWF</div><div class="vv">06Z run · published 04 Aug 09:06</div><div class="vk">GFS</div><div class="vv">12Z run · published 04 Aug 13:52</div><div class="vk">ICON</div><div class="vv">12Z run · published 04 Aug 11:53</div><div class="vk">GEM</div><div class="vv">run time unknown</div></div>
+    <p style="margin-top:.7rem;opacity:.8">Rebuilt hourly from
+    <span style="font-family:var(--mono)">api.weather.gov</span>, Open-Meteo and the lake webcam.</p>
+    <p style="margin-top:.35rem;opacity:.8">Each model is a snapshot of a different run — so a
+    little of any apparent disagreement is just run age, not genuine divergence.</p>
   </div>
 </div>
 

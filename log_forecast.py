@@ -624,10 +624,13 @@ def write_page(hist):
                 f'<span class="dim">— in {mins} min, then hourly</span></span>'
                 + (f'<span class="dim"> · next model data: {nextmodels}</span>'
                    if nextmodels else "") + '</div>')
-    runline = ("".join(f' · <b>{n}</b> <span style="font-family:var(--mono)">{i}</span> run, '
-                       f'published <span style="font-family:var(--mono)">{a}</span>'
-                       for n, (i, a, *_) in sorted(rr.items()))
-               + (" · <b>GEM</b> run time unknown" if "GEM" not in rr else "")) if rr else ""
+    vint = [("Page built", f"{t:%a %d %b %Y, %H:%M} EDT"),
+            ("NWS package", f"issued {issued} EDT")]
+    for n, (i, a, *_) in sorted(rr.items()):
+        vint.append((n, f"{i} run · published {a}"))
+    if rr and "GEM" not in rr:
+        vint.append(("GEM", "run time unknown"))
+    runline = "".join(f'<div class="vk">{k}</div><div class="vv">{v}</div>' for k, v in vint)
     cards = []
     for si, (label, _) in enumerate(NIGHTS):
         nd = latest["nights"][label]
@@ -818,6 +821,10 @@ td.trail{{font-family:var(--mono);font-size:1rem;letter-spacing:.12em}}
   border:1px solid var(--rule);border-left:3px solid var(--accent);border-radius:3px;
   font-family:var(--mono);font-size:.78rem}}
 .next b{{color:var(--accent)}}
+.vint{{display:grid;grid-template-columns:max-content 1fr;gap:.15rem .9rem;margin-top:.7rem;
+  font-family:var(--mono);font-size:.76rem}}
+.vk{{color:var(--ink);white-space:nowrap}}
+.vv{{color:var(--muted)}}
 .scroll{{overflow-x:auto}}
 @media (prefers-reduced-motion:reduce){{*{{transition:none!important}}}}
 </style>
@@ -890,13 +897,11 @@ td.trail{{font-family:var(--mono);font-size:1rem;letter-spacing:.12em}}
   <div style="margin-top:2.5rem;padding-top:1.2rem;border-top:1px solid var(--rule);
               color:var(--muted);font-size:.84rem">
     <a href="index.html" style="color:var(--accent)">← Trip plan</a>
-    <br><span style="font-family:var(--mono)">Page built {t:%a %d %b %Y, %H:%M} EDT</span>
-    · rebuilt hourly from <span style="font-family:var(--mono)">api.weather.gov</span>,
-    Open-Meteo and the lake webcam.
-    <br><b>Data vintages</b> — NWS package issued <span style="font-family:var(--mono)">{issued}</span>
-    EDT{runline}
-    <br><span style="opacity:.75">Each model is a snapshot of a different run, so a little of any
-    apparent disagreement is just run age rather than genuine divergence.</span>
+    <div class="vint">{runline}</div>
+    <p style="margin-top:.7rem;opacity:.8">Rebuilt hourly from
+    <span style="font-family:var(--mono)">api.weather.gov</span>, Open-Meteo and the lake webcam.</p>
+    <p style="margin-top:.35rem;opacity:.8">Each model is a snapshot of a different run — so a
+    little of any apparent disagreement is just run age, not genuine divergence.</p>
   </div>
 </div>
 
