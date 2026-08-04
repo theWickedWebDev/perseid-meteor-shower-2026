@@ -472,38 +472,41 @@ def hourly_strips(latest):
                        f'<span class="dim">no hourly data</span></div>')
             continue
         d = datetime.strptime(nd["date"], "%Y-%m-%d")
-        cw, cell, gap = 34, 34, 2
-        W = len(hrs) * (cell + gap) + 74
+        cell, gap, lab = 24, 2, 54          # cell width, gap, left label column
+        rowh, ch = 19, 14                   # row pitch, cell height
+        W = len(hrs) * (cell + gap) + lab + 20
         rows = [("NWS", [nws.get(h) for h in hrs])] + \
                [(k, v) for k, v in sorted(mh.items())]
-        H = len(rows) * 26 + 34
+        H = len(rows) * rowh + 28
         p = [f'<svg viewBox="0 0 {W} {H}" role="img" '
              f'aria-label="Hour by hour cloud cover for {label}">']
         # core-window bracket
         ci = [i for i, h in enumerate(hrs) if int(h) in CORE_HR]
         if ci:
-            x0 = 70 + ci[0] * (cell + gap) - 1
-            x1 = 70 + (ci[-1] + 1) * (cell + gap) - gap + 1
-            p.append(f'<rect class="corebox" x="{x0}" y="12" width="{x1-x0}" '
-                     f'height="{H-30}" rx="3"/>')
-            p.append(f'<text class="corelab" x="{(x0+x1)/2:.0f}" y="8" '
+            x0 = lab + ci[0] * (cell + gap) - 1
+            x1 = lab + (ci[-1] + 1) * (cell + gap) - gap + 1
+            p.append(f'<rect class="corebox" x="{x0}" y="10" width="{x1-x0}" '
+                     f'height="{H-26}" rx="2"/>')
+            p.append(f'<text class="corelab" x="{(x0+x1)/2:.0f}" y="7" '
                      f'text-anchor="middle">CORE</text>')
         for i, h in enumerate(hrs):
-            p.append(f'<text class="hlab" x="{70 + i*(cell+gap) + cell/2:.0f}" y="{H-6}" '
+            p.append(f'<text class="hlab" x="{lab + i*(cell+gap) + cell/2:.0f}" y="{H-5}" '
                      f'text-anchor="middle">{h}</text>')
         for r, (name, vals) in enumerate(rows):
-            y = 18 + r * 26
-            p.append(f'<text class="srclab" x="64" y="{y+14}" text-anchor="end">{name}</text>')
+            y = 15 + r * rowh
+            p.append(f'<text class="srclab" x="{lab-6}" y="{y+ch-3}" '
+                     f'text-anchor="end">{name}</text>')
             for i, v in enumerate(vals):
-                x = 70 + i * (cell + gap)
+                x = lab + i * (cell + gap)
                 if v is None:
                     p.append(f'<rect class="nodata" x="{x}" y="{y}" width="{cell}" '
-                             f'height="20" rx="2"/>')
+                             f'height="{ch}" rx="2"/>')
                     continue
-                p.append(f'<rect class="cloud" x="{x}" y="{y}" width="{cell}" height="20" '
+                p.append(f'<rect class="cloud" x="{x}" y="{y}" width="{cell}" height="{ch}" '
                          f'rx="2" style="opacity:{max(v,0)/100:.2f}"/>')
-                p.append(f'<rect class="cellb" x="{x}" y="{y}" width="{cell}" height="20" rx="2"/>')
-                p.append(f'<text class="cellv" x="{x+cell/2:.0f}" y="{y+14}" '
+                p.append(f'<rect class="cellb" x="{x}" y="{y}" width="{cell}" '
+                         f'height="{ch}" rx="2"/>')
+                p.append(f'<text class="cellv" x="{x+cell/2:.0f}" y="{y+ch-3}" '
                          f'text-anchor="middle">{v}</text>')
         p.append("</svg>")
         out.append(f'<div class="striprow"><div class="striphead"><b>{label}</b>'
@@ -767,18 +770,19 @@ svg{{width:100%;height:auto;display:block}}
 .shot .hr{{font-family:var(--mono);font-size:.62rem;letter-spacing:.06em;color:var(--muted)}}
 .shot .fc{{font-family:var(--mono);font-size:.72rem;color:var(--accent);font-weight:600}}
 .shot .obs{{font-family:var(--mono);font-size:.8rem;font-weight:700;margin-top:.15rem}}
-.striprow{{margin-bottom:1.4rem}}
+.striprow{{margin-bottom:1rem}}
 .striphead{{display:flex;gap:.6rem;align-items:baseline;margin-bottom:.3rem}}
 .striphead b{{color:var(--ink)}}
+.striprow svg{{max-width:440px}}
 .cloud{{fill:var(--ink)}}
 .cellb{{fill:none;stroke:var(--rule);stroke-width:1}}
 .nodata{{fill:none;stroke:var(--rule);stroke-width:1;stroke-dasharray:2 2}}
-.cellv{{fill:var(--muted);font-family:var(--mono);font-size:9px;
+.cellv{{fill:var(--muted);font-family:var(--mono);font-size:7.5px;
   paint-order:stroke;stroke:var(--surface);stroke-width:2.5px}}
-.hlab{{fill:var(--muted);font-family:var(--mono);font-size:9px}}
-.srclab{{fill:var(--body);font-family:var(--mono);font-size:10px}}
+.hlab{{fill:var(--muted);font-family:var(--mono);font-size:8px}}
+.srclab{{fill:var(--body);font-family:var(--mono);font-size:8.5px}}
 .corebox{{fill:none;stroke:var(--accent);stroke-width:1.5;opacity:.8}}
-.corelab{{fill:var(--accent);font-family:var(--mono);font-size:8px;letter-spacing:.14em}}
+.corelab{{fill:var(--accent);font-family:var(--mono);font-size:7px;letter-spacing:.12em}}
 .rng0{{stroke:var(--s0);stroke-width:5;opacity:.22;stroke-linecap:round}}
 .rng1{{stroke:var(--s1);stroke-width:5;opacity:.22;stroke-linecap:round}}
 .rng2{{stroke:var(--s2);stroke-width:5;opacity:.22;stroke-linecap:round}}
