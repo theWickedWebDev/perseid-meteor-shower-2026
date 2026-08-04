@@ -61,8 +61,8 @@
   "cloud": 0,
   "night": false,
   "stats": {
-   "lum": 180.3,
-   "lum_sd": 8.6,
+   "lum": 180.5,
+   "lum_sd": 8.5,
    "lum_p90": 192.7,
    "sat": 59.7,
    "rb": 0.72
