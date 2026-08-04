@@ -410,10 +410,9 @@ def webcam_section(log=None):
             f"{sum(v)/len(v):.0f} pts</td></tr>"
             for m, v in sorted(errs.items(), key=lambda kv: sum(kv[1]) / len(kv[1])))
         score = ('<div class="scroll" style="margin-top:1rem"><table><thead><tr>'
-                 '<th>Model</th><th>Checks</th><th>Mean error</th></tr></thead><tbody>'
+                 '<th>Model</th><th>Checks</th><th>Mean error vs camera</th></tr></thead><tbody>'
                  + rows + '</tbody></table></div>'
-                 '<p class="note">How far each model has been from what the camera actually '
-                 'showed, same hour. <b>Lowest is the one to believe for the trip nights.</b></p>')
+                 '<p class="note">Lowest = believe that one.</p>')
 
     cells = []
     for e in reversed(log[-30:]):
@@ -439,23 +438,18 @@ def webcam_section(log=None):
     return f'''
   <h2>Ground truth — the webcam</h2>
   <div class="card">
-    <p style="max-width:62ch">First Connecticut Lake, about 15 km from the shooting site. Every
-    hour a frame is grabbed and cloud cover estimated from it, then compared against what each
-    model predicted <em>for that same hour</em>. <b style="color:var(--ink)">That turns model
-    disagreement into a score</b> — after a few days you know which model to believe rather than
-    guessing.</p>
+    <p class="lede">First Connecticut Lake, ~15 km from the site. Hourly frame, cloud estimated,
+    compared against what each model said for that hour.</p>
     <div class="live"><iframe src="https://www.youtube.com/embed/wNxk-XC8Z5s"
       title="First Connecticut Lake live webcam" loading="lazy" allowfullscreen
       referrerpolicy="strict-origin-when-cross-origin"></iframe></div>
-    <p class="note">Live stream — needs a connection. Frames below are archived.</p>
+    <p class="note">Live — needs a connection. Frames below are archived.</p>
     {score}
     <h3 style="margin-top:1.4rem">Hour by hour, forecast above the photo</h3>
     <div class="film scroll">{"".join(cells)}</div>
-    <p class="note"><b>Range above</b> is what the models said for that hour;
-    <b>number below</b> is what the camera actually showed.
-    <b class="good">Green</b> = within 15 points, <b class="warn">amber</b> within 30,
-    <b class="bad">red</b> beyond. Cloud is estimated by red/blue ratio, which only works in
-    daylight — night frames are archived but not scored.</p>
+    <p class="note">Above = forecast range · below = observed ·
+    <b class="good">within 15</b> / <b class="warn">30</b> / <b class="bad">beyond</b>.
+    Daylight only.</p>
   </div>
 '''
 
@@ -791,7 +785,8 @@ td.better{{color:var(--good);font-weight:600}} td.worse{{color:var(--bad);font-w
 text.good{{fill:var(--good)}} text.warn{{fill:var(--warn)}} text.bad{{fill:var(--bad)}}
 .delta{{display:inline-block;margin-left:.4rem;font-size:.76rem;font-weight:600;
   letter-spacing:.02em}}
-.note{{color:var(--muted);font-size:.9rem;margin:.6rem 0 0}}
+.note{{color:var(--muted);font-size:.85rem;margin:.6rem 0 0}}
+.lede{{color:var(--body);font-size:.94rem;max-width:64ch;margin:0 0 .2rem}}
 .scroll{{overflow-x:auto}}
 @media (prefers-reduced-motion:reduce){{*{{transition:none!important}}}}
 </style>
@@ -807,73 +802,37 @@ text.good{{fill:var(--good)}} text.warn{{fill:var(--warn)}} text.bad{{fill:var(-
   <div class="eyebrow" style="margin-top:2rem">Fetched {t:%a %d %b, %H:%M} EDT · forecast issued
     {issued} · gridpoint {latest['grid']}</div>
   <h1>Forecast trend</h1>
-  <p style="max-width:62ch"><b>The chart and the go/no-go use the core window, 10–11:30 PM</b> —
-  the Milky Way core over the lake. That's the only irreplaceable thing on the trip and it lasts
-  90 minutes, so it decides whether to drive up at all. The cards also carry
-  <b>1–4 AM</b>, which is the Perseid peak and the refractor back at the cabin — a night can be
-  clear for one and clouded for the other. Each point is one forecast run — so the lines show <b>how the prediction for a
-  given night has moved as the lead time shortened</b>, not the weather itself.</p>
+  <p class="lede">Cloud cover. <b>Core window 10–11:30 PM</b> decides go/no-go; <b>1–4 AM</b> is Perseids and the scope. Each point is one forecast run.</p>
 
   <div class="cards">{"".join(cards)}</div>
 
   <div class="card">
     {svg_chart(hist)}
-    <p class="note">Lower is better. The <b>dot and line</b> are the NWS forecast; the
-    <b>pale vertical bar</b> behind each is the spread across ECMWF, GFS and GEM at that moment.
-    <b style="color:var(--ink)">Watch the bars get shorter</b> — that's consensus forming, and
-    it matters more than where any single line sits. Line style distinguishes the nights as well
-    as colour.</p>
+    <p class="note">Lower is better. Dot &amp; line = NWS · pale bar = model spread.
+    <b style="color:var(--ink)">Bars getting shorter = consensus forming.</b></p>
   </div>
 
   <h2>How much each night has moved</h2>
   <div class="card"><div class="scroll">{delta_table(hist)}</div></div>
 
-  <h2>Why two numbers per night</h2>
-  <div class="card">
-    <p style="max-width:62ch"><b style="color:var(--ink)">Mean</b> answers "how much of the
-    window works." <b style="color:var(--ink)">Best hour</b> answers "is there a shootable
-    moment at all" — and that's the one the go/no-go actually turns on, because the mission
-    needs one clear stretch, not a uniformly clear window.</p>
-    <p style="max-width:62ch; margin-top:.7rem">90% at 10 PM and 10% at 11 PM averages to
-    "50%, marginal" — while the truth is <b style="color:var(--ink)">45 perfectly usable
-    minutes</b>. The mean would argue against a night you'd want. Read the best hour first,
-    then the mean to see how much of the window it buys you, then the strip below for the shape.</p>
-  </div>
-
   {webcam_section(WEBCAM_OVERRIDE)}
 
   <h2>Hour by hour</h2>
   <div class="card">
-    <p style="max-width:62ch">A mean hides structure. 90% at 10 PM and 10% at 11 PM averages to
-    "50%, marginal" — when what you actually have is a clouded first half and a clear second.
-    <b style="color:var(--ink)">Darker cell = more cloud.</b> Rows are sources, so you can see
-    both how the night is shaped and whether the models agree about the shape.</p>
+    <p class="lede">Darker = more cloud. Rows are sources.</p>
     <div style="margin-top:1.2rem" class="scroll">{hourly_strips(latest)}</div>
-    <p class="note">Hours are EDT, 9 PM through 4 AM. The amber box is the core window —
-    the only part that decides go/no-go. Dashed cells are outside a model's range.</p>
+    <p class="note">EDT, 9 PM–4 AM. Amber box = core window. Dashed = no data.</p>
   </div>
 
   <h2>Do the models agree?</h2>
   <div class="card">
-    <p style="max-width:62ch">Open-Meteo exposes individual models rather than a blend.
-    <b style="color:var(--ink)">ECMWF is the most skillful global model and is genuinely
-    independent</b> of the NWS product above, which is built on GFS and NAM. So this isn't just
-    more data — <b style="color:var(--ink)">the width of the spread is itself the confidence
-    signal.</b></p>
-    <div style="margin-top:1rem">{agreement_svg(latest)}</div>
-    <p class="note">Dots are models, the bar is their range, the <b style="color:var(--ink)">◇
-    diamond</b> is the NWS value. Shaded zone is under {GO}%.
-    <b class="good">±&lt;20 they agree</b> — the forecast means something.
-    <b class="warn">±20–40 some spread.</b>
-    <b class="bad">±40+ no consensus</b> — nobody knows yet, and a discouraging number from any
-    single source is worth very little.</p>
+    <div>{agreement_svg(latest)}</div>
+    <p class="note">Dots = models · bar = range · ◇ = NWS · shaded = under {GO}%</p>
   </div>
 
   <h2>Calibration — the nights before the trip</h2>
   <div class="card">
-    <p style="max-width:60ch; margin-bottom:.9rem">Aug 5–10 are tracked too. They happen while
-    you're watching, so they measure how far a forecast for <em>this pattern</em> actually
-    travels as the lead time shrinks — rather than relying on general claims about model skill.</p>
+    <p class="lede">Nights before the trip, which verify while you watch — so this measures how far a forecast actually travels in this pattern.</p>
     {calibration(hist)}
   </div>
 
@@ -890,10 +849,7 @@ text.good{{fill:var(--good)}} text.warn{{fill:var(--warn)}} text.bad{{fill:var(-
 
   <h2>What the percentage means</h2>
   <div class="card">
-    <p><b style="color:var(--ink)">Percent of the sky covered by cloud</b>, averaged across the
-    10 PM and 11 PM readings. <b style="color:var(--ink)">It is not a probability.</b> Sky cover
-    57% means 57% of the dome has cloud in it; PoP 32% means a 32% chance of measurable rain.
-    Different quantities — and only the first one matters here.</p>
+    <p class="lede"><b>Percent of sky covered by cloud</b> — not a probability. PoP is a different quantity and doesn't matter here.</p>
     <div class="scroll" style="margin-top:.9rem"><table>
       <thead><tr><th>Sky cover</th><th>NWS wording</th><th>For you</th></tr></thead>
       <tbody>
@@ -903,31 +859,10 @@ text.good{{fill:var(--good)}} text.warn{{fill:var(--warn)}} text.bad{{fill:var(-
         <tr><td class="n">63–87%</td><td>Mostly cloudy</td><td class="bad">Occasional sucker holes</td></tr>
         <tr><td class="n">88–100%</td><td>Overcast</td><td class="bad">Nothing</td></tr>
       </tbody></table></div>
-    <p class="note" style="margin-top:.9rem">The go threshold sits at {GO}% because that's the top
-    of "mostly clear."</p>
-    <p style="margin-top:.9rem"><b style="color:var(--ink)">One real limitation:</b> sky cover is a
-    whole-dome average and can't tell you <em>where</em> the cloud is. 57% could be uniform thin
-    overcast — nothing shootable — or half the sky clear and half socked in. If the clear half
-    happens to be the southwest at 10 PM, that reads "partly cloudy" and is a perfectly good
-    night. Another reason a middling number four days out isn't grounds to cancel.</p>
+    <p class="note" style="margin-top:.9rem">Threshold {GO}% = top of "mostly clear."
+    Caveat: it's a whole-dome average and can't say <em>where</em> the cloud is.</p>
   </div>
 
-  <h2>Reading it</h2>
-  <div class="card">
-    <p><b style="color:var(--ink)">Sky cover, not PoP.</b> Probability of precipitation is not a
-    cloud forecast — an overcast rainless night reads 0% and is a total loss, while a 40%
-    convective afternoon can be clear by 10 PM.</p>
-    <p style="margin-top:.7rem"><b style="color:var(--ink)">Decision point Aug 8.</b> Pivot night
-    is <b style="color:var(--accent)">Night 2, Aug 12/13</b> — Perseid maximum and new moon, the
-    only night carrying something the others don't. Go if its core window is under ~{GO}%.</p>
-    <p style="margin-top:.7rem"><b style="color:var(--ink)">One point per forecast package.</b>
-    GYX publishes roughly twice a day — morning and mid-afternoon — plus amendments. The logger
-    keys on the package's own issuance time, so re-running it before a new one lands adds
-    nothing. Each point on the chart is a genuinely separate forecast.</p>
-    <p style="margin-top:.7rem"><b style="color:var(--ink)">Weight it asymmetrically.</b> Day-4
-    optimism is worth acting on; day-4 pessimism is weak evidence with four model cycles still
-    to run.</p>
-  </div>
   <div style="margin-top:2.5rem;padding-top:1.2rem;border-top:1px solid var(--rule);
               color:var(--muted);font-size:.84rem">
     <a href="index.html" style="color:var(--accent)">← Trip plan</a>
