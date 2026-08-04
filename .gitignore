@@ -10,3 +10,6 @@ __pycache__/
 
 # schedule table backups written by make_schedules.py
 .schedule_backup/
+
+# python venv for satellite.py (h5py) - rebuildable, not source
+venv/

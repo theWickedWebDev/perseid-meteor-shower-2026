@@ -640,6 +640,48 @@ def agreement_svg(latest):
     return "\n".join(p)
 
 
+def sat_strip(sat):
+    """Last 24 h of satellite cloud over the site, hour by hour, night included.
+
+    The webcam filmstrip below this stops at dusk. This does not — which is the entire
+    reason it exists, because the trip happens after dusk.
+    """
+    if not sat:
+        return ('<p class="note">No satellite readings yet. '
+                '<span class="mono">satellite.py</span> fills this hourly.</p>')
+    rows = sat[-24:]
+    cell, gap, lab = 26, 2, 46
+    W = len(rows) * (cell + gap) + lab + 14
+    H = 74
+    p = [f'<svg viewBox="0 0 {W} {H}" role="img" '
+         f'aria-label="Satellite cloud over the site, last {len(rows)} hours">']
+    p.append(f'<text class="srclab" x="{lab-6}" y="27" text-anchor="end">GOES</text>')
+    p.append(f'<text class="srclab" x="{lab-6}" y="46" text-anchor="end">night</text>')
+    for i, e in enumerate(rows):
+        t = datetime.fromisoformat(e["time"])
+        x = lab + i * (cell + gap)
+        v = e.get("cloud")
+        if v is None:
+            p.append(f'<rect class="nodata" x="{x}" y="14" width="{cell}" height="14" rx="2"/>')
+        else:
+            p.append(f'<rect class="cloud" x="{x}" y="14" width="{cell}" height="14" rx="2" '
+                     f'style="opacity:{max(v,0)/100:.2f}"><title>{t:%a %H:%M} — {v}% cloud'
+                     f'</title></rect>')
+            p.append(f'<rect class="cellb" x="{x}" y="14" width="{cell}" height="14" rx="2"/>')
+        dark = sun_alt(t, *SITE[1:3]) < -18
+        p.append(f'<rect class="{"nightbar" if dark else "daybar"}" x="{x}" y="33" '
+                 f'width="{cell}" height="5" rx="2"/>')
+        if i % 3 == 0:
+            p.append(f'<text class="hlab" x="{x + cell/2:.0f}" y="52" '
+                     f'text-anchor="middle">{t:%H}</text>')
+    p.append(f'<text class="hlab" x="{lab}" y="68">'
+             f'{datetime.fromisoformat(rows[0]["time"]):%a %d %b} → '
+             f'{datetime.fromisoformat(rows[-1]["time"]):%a %d %b}, '
+             f'darker = more cloud · bar under each hour marks astronomical dark</text>')
+    p.append("</svg>")
+    return "".join(p)
+
+
 def webcam_section(log=None):
     """Live view, an hourly filmstrip with the forecast above each frame, and a scoreboard.
 
@@ -655,15 +697,20 @@ def webcam_section(log=None):
         return ""
 
     # scoreboard: mean absolute error per model
+    # Score against the satellite where possible: it covers the night, which is the whole
+    # point. Daylight webcam frames still count, but they were never the hours that matter.
+    scored = [e for e in _satlog() if e.get("cloud") is not None and e.get("models")] + \
+             [e for e in day if e.get("models")]
     errs = {}
-    for e in day:
+    for e in scored:
         for m, v in (e.get("models") or {}).items():
             errs.setdefault(m, []).append(abs(v - e["cloud"]))
     # A ranking needs enough checks AND enough variety to mean anything. Three consecutive
     # clear frames give every model a near-perfect score and rank pure noise, so the table
     # shows n from the start but only claims a winner once there is something to separate.
-    n_obs = len(day)
-    spread_obs = (max(e["cloud"] for e in day) - min(e["cloud"] for e in day)) if day else 0
+    n_obs = len(scored)
+    spread_obs = ((max(e["cloud"] for e in scored) - min(e["cloud"] for e in scored))
+                  if scored else 0)
     trustworthy = n_obs >= SCORE_MIN_N and spread_obs >= SCORE_MIN_SPREAD
     score = ""
     if any(len(v) >= 2 for v in errs.values()):
@@ -704,7 +751,12 @@ def webcam_section(log=None):
         cells.append(f'<figure class="shot"><span class="hr">{t:%a %H:%M}</span>{fc}{img}{obs}</figure>')
 
     return f'''
-  <h2>Ground truth — the webcam</h2>
+  <h2>Ground truth — satellite and webcam</h2>
+  <div class="card" style="margin-bottom:.8rem">
+    <p class="lede">What was actually overhead, hour by hour — <b>including after dark</b>,
+    which the camera cannot see. This is what the models get marked against.</p>
+    <div class="scroll" style="margin-top:.8rem">{sat_strip(_satlog())}</div>
+  </div>
   <div class="card">
     <p class="lede">First Connecticut Lake, 16.7 km SSW of the site. Hourly frame, cloud estimated,
     compared against what each model said for that hour.</p>
@@ -858,8 +910,28 @@ def sun_alt(dt, lat, lon):
                                   math.cos(la) * math.cos(dec) * math.cos(H)))
 
 
-def observed(day, wlog):
-    """What the webcam actually saw across the dark window for `day`.
+def observed(day, wlog, sat=None):
+    """What was actually overhead across the dark window for `day`.
+
+    Satellite first. It measures the window itself — every hour of it, in the dark — so
+    when it is available the webcam bracket is not used at all. The webcam path below
+    remains for the hours before the satellite log existed.
+
+    Returns (mean, n_hours, unusable, source).
+    """
+    if sat:
+        nxt = (datetime.strptime(day, "%Y-%m-%d") + timedelta(days=1)).strftime("%Y-%m-%d")
+        want = {f"{day}T{h:02d}" for h in range(DARK[0], 24)} | \
+               {f"{nxt}T{h:02d}" for h in range(0, DARK[1] + 1)}
+        v = [e["cloud"] for e in sat
+             if e["time"][:13] in want and e.get("cloud") is not None]
+        if v:
+            return round(sum(v) / len(v)), len(v), 0, "satellite"
+    return _observed_webcam(day, wlog)
+
+
+def _observed_webcam(day, wlog):
+    """Fallback: what the webcam saw either side of the dark window for `day`.
 
     Returns (mean, n_hours, night_hours) or None. The window is the same 6 PM-7 AM span
     the strips use, spilling into the following morning.
@@ -893,10 +965,10 @@ def observed(day, wlog):
         vals.append(e["cloud"])
     if not vals:
         return None
-    return round(sum(vals) / len(vals)), len(vals), unusable
+    return round(sum(vals) / len(vals)), len(vals), unusable, "webcam bracket"
 
 
-def calibration(hist, wlog=None):
+def calibration(hist, wlog=None, sat=None):
     """How much has a night's forecast moved as its lead time shrank — and was it right?"""
     if len(hist) < 2:
         return ('<p class="note">Fills in over the next day or two, once these nights have been '
@@ -912,13 +984,14 @@ def calibration(hist, wlog=None):
         lo, hi = min(v for _, v in vals), max(v for _, v in vals)
         first, last = vals[0][1], vals[-1][1]
         moves.append(hi - lo)
-        ob = observed(day, wlog)
+        ob = observed(day, wlog, sat)
         if ob:
-            om, n, dk = ob
+            om, n, dk, src = ob
             miss = last - om
             mcls = "good" if abs(miss) <= 10 else "warn" if abs(miss) <= 25 else "bad"
-            obs_td = (f"<td class='n' title='{n} usable frames"
-                      f"{f', {dk} unusable — dark or low sun' if dk else ''}'>{om}%</td>")
+            obs_td = (f"<td class='n' title='{n} readings from {src}"
+                      f"{f', {dk} unusable' if dk else ''}'>{om}%"
+                      f"{'' if src == 'satellite' else '*'}</td>")
             miss_td = (f"<td class='n {mcls}'>{'+' if miss > 0 else ''}{miss}</td>")
             misses.append(abs(miss))
         else:
@@ -956,6 +1029,14 @@ def calibration(hist, wlog=None):
 
 
 WEBCAM_OVERRIDE = None      # preview_forecast.py sets this to render mock frames
+
+
+def _satlog():
+    """Hourly satellite cloud over the site. Empty list if it has not run yet."""
+    try:
+        return json.load(open("satellite_log.json"))
+    except Exception:
+        return []
 
 
 def _wlog():
@@ -1277,6 +1358,8 @@ h3.sub{{font-family:var(--serif);color:var(--ink);font-size:1rem;margin:1.8rem 0
 .mtable td.r{{text-align:right}}
 .mtable td.r .pill{{white-space:nowrap}}
 .wf{{color:var(--muted);margin-top:.2rem}}
+.nightbar{{fill:var(--accent);opacity:.75}}
+.daybar{{fill:var(--rule)}}
 .pill{{font-family:var(--mono);font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;padding:.15rem .4rem;border-radius:3px;white-space:nowrap;border:1px solid}}
 .pill.on{{color:var(--good);border-color:var(--good)}}
 .pill.off{{color:var(--muted);border-color:var(--rule)}}
@@ -1413,7 +1496,7 @@ td.trail{{font-family:var(--mono);font-size:1rem;letter-spacing:.12em}}
   <h2>Calibration — the nights before the trip</h2>
   <div class="card">
     <p class="lede">Nights before the trip, which verify while you watch — so this measures how far a forecast actually travels in this pattern.</p>
-    {calibration(hist, WEBCAM_OVERRIDE or _wlog())}
+    {calibration(hist, WEBCAM_OVERRIDE or _wlog(), _satlog())}
   </div>
 
   <h2>What the percentage means</h2>
