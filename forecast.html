@@ -73,7 +73,8 @@ h3.sub{font-family:var(--serif);color:var(--ink);font-size:1rem;margin:1.8rem 0 
 .mtable tr.mrow td{padding-top:.9rem;border-top:1px solid var(--rule)}
 .mtable tr.mrow:first-child td{border-top:0;padding-top:.2rem}
 .mtable tr.mdesc td{padding:0 0 .5rem;color:var(--body)}
-.mtable td.r{text-align:right;white-space:nowrap}
+.mtable td.r{text-align:right}
+.mtable td.r .pill{white-space:nowrap}
 .wf{color:var(--muted);margin-top:.2rem}
 .pill{font-family:var(--mono);font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;padding:.15rem .4rem;border-radius:3px;white-space:nowrap;border:1px solid}
 .pill.on{color:var(--good);border-color:var(--good)}
@@ -173,14 +174,14 @@ td.trail{font-family:var(--mono);font-size:1rem;letter-spacing:.12em}
 </div></div>
 
 <div class="wrap">
-  <div class="eyebrow" style="margin-top:2rem">Fetched Tue 04 Aug, 15:28 EDT · forecast issued
+  <div class="eyebrow" style="margin-top:2rem">Fetched Tue 04 Aug, 15:37 EDT · forecast issued
     Tue 04 Aug 14:19 · gridpoint GYX 28,125</div>
   <h1>Forecast trend</h1>
-  <div class="next" data-cron-min="5"><span id="nextcheck"><b>Next check 16:05</b> <span class="dim">— in 28 min, then hourly</span></span><span class="dim"> · next model data: 17:32 JMA · 17:53 ICON · 19:40 AIFS</span></div>
+  <div class="next" data-cron-min="5"><span id="nextcheck"><b>Next check 16:05</b> <span class="dim">— in 27 min, then hourly</span></span><span class="dim"> · next model data: 17:32 JMA · 17:53 ICON · 19:40 AIFS</span></div>
   <p class="lede">Cloud cover. <b>Core window 10–11:30 PM</b> decides go/no-go; <b>1–4 AM</b> is
   Perseids and the scope. Each point is one forecast run.</p>
 
-  <div class="cards"><div class="ncard"><span class="swatch s0"></span><b>Night 1</b><span class="dim">Tue 11 Aug · lead 7d</span><span class="big warn">40%</span><span class="verdict warn">6-source median · marginal<span class="step good">↓11 since last</span></span><span class="mrange">best hour <b>10 PM · 40%</b> · no clear hour</span><span class="mrange" title="AIFS, ECMWF, GEM, GFS, JMA, NWS">6 sources <b>23–82%</b> <span class="bad">±59</span></span><span class="mrange">1–4 AM <b>33%</b> · best 2 AM 28% · sources 2–96%</span></div><div class="ncard"><span class="swatch s1"></span><b>Night 2</b><span class="dim">Wed 12 Aug · lead 8d</span><span class="big warn">54%</span><span class="verdict warn">5-source median · marginal<span class="step good">↓2 since last</span></span><span class="mrange">best hour <b>10 PM · 51%</b> · no clear hour</span><span class="mrange" title="AIFS, ECMWF, GEM, GFS, JMA">5 sources <b>38–92%</b> <span class="bad">±54</span></span><span class="mrange">1–4 AM <b>74%</b> · best 1 AM 69% · sources 65–89%</span></div><div class="ncard"><span class="swatch s2"></span><b>Night 3</b><span class="dim">Thu 13 Aug · lead 9d</span><span class="big bad">58%</span><span class="verdict bad">5-source median · poor<span class="step dim">→ no change</span></span><span class="mrange">best hour <b>11 PM · 56%</b> · no clear hour</span><span class="mrange" title="AIFS, ECMWF, GEM, GFS, JMA">5 sources <b>18–100%</b> <span class="bad">±82</span></span><span class="mrange">1–4 AM <b>64%</b> · best 2 AM 63% · sources 1–100%</span></div></div>
+  <div class="cards"><div class="ncard"><span class="swatch s0"></span><b>Night 1</b><span class="dim">Tue 11 Aug · lead 7d</span><span class="big warn">40%</span><span class="verdict warn">6-source median · marginal<span class="step dim">→ no change</span></span><span class="mrange">best hour <b>10 PM · 40%</b> · no clear hour</span><span class="mrange" title="AIFS, ECMWF, GEM, GFS, JMA, NWS">6 sources <b>23–82%</b> <span class="bad">±59</span></span><span class="mrange">1–4 AM <b>33%</b> · best 2 AM 28% · sources 2–96%</span></div><div class="ncard"><span class="swatch s1"></span><b>Night 2</b><span class="dim">Wed 12 Aug · lead 8d</span><span class="big warn">54%</span><span class="verdict warn">5-source median · marginal<span class="step dim">→ no change</span></span><span class="mrange">best hour <b>10 PM · 51%</b> · no clear hour</span><span class="mrange" title="AIFS, ECMWF, GEM, GFS, JMA">5 sources <b>38–92%</b> <span class="bad">±54</span></span><span class="mrange">1–4 AM <b>74%</b> · best 1 AM 69% · sources 65–89%</span></div><div class="ncard"><span class="swatch s2"></span><b>Night 3</b><span class="dim">Thu 13 Aug · lead 9d</span><span class="big bad">58%</span><span class="verdict bad">5-source median · poor<span class="step dim">→ no change</span></span><span class="mrange">best hour <b>11 PM · 56%</b> · no clear hour</span><span class="mrange" title="AIFS, ECMWF, GEM, GFS, JMA">5 sources <b>18–100%</b> <span class="bad">±82</span></span><span class="mrange">1–4 AM <b>64%</b> · best 2 AM 63% · sources 1–100%</span></div></div>
   <p class="note">Median of <b>AIFS, ECMWF, GEM, GFS, JMA, NWS</b>, weighted equally. The number under each night is the middle opinion, not an average — one model going rogue moves the range, not the verdict. <b>HRRR, ICON, UKMO</b> do not forecast this far out yet and will join nearer the date.</p>
 
   <div class="card">
@@ -201,32 +202,40 @@ td.trail{font-family:var(--mono);font-size:1rem;letter-spacing:.12em}
 <text class="ax" x="38" y="22.0" text-anchor="end">100%</text>
 <text class="ax" x="46.0" y="296" text-anchor="middle">04 Aug</text>
 <text class="ax dim" x="46.0" y="310" text-anchor="middle">14:39</text>
-<text class="ax" x="329.0" y="296" text-anchor="middle">04 Aug</text>
-<text class="ax dim" x="329.0" y="310" text-anchor="middle">15:04</text>
+<text class="ax" x="234.7" y="296" text-anchor="middle">04 Aug</text>
+<text class="ax dim" x="234.7" y="310" text-anchor="middle">15:04</text>
+<text class="ax" x="423.3" y="296" text-anchor="middle">04 Aug</text>
+<text class="ax dim" x="423.3" y="310" text-anchor="middle">15:28</text>
 <text class="ax" x="612.0" y="296" text-anchor="middle">04 Aug</text>
-<text class="ax dim" x="612.0" y="310" text-anchor="middle">15:28</text>
+<text class="ax dim" x="612.0" y="310" text-anchor="middle">15:37</text>
 <line class="rng0" x1="42.0" y1="218.2" x2="42.0" y2="64.8"/>
-<line class="rng0" x1="325.0" y1="218.2" x2="325.0" y2="64.8"/>
+<line class="rng0" x1="230.7" y1="218.2" x2="230.7" y2="64.8"/>
+<line class="rng0" x1="419.3" y1="218.2" x2="419.3" y2="64.8"/>
 <line class="rng0" x1="608.0" y1="218.2" x2="608.0" y2="64.8"/>
 <line class="rng1" x1="46.0" y1="179.2" x2="46.0" y2="38.8"/>
-<line class="rng1" x1="329.0" y1="179.2" x2="329.0" y2="38.8"/>
+<line class="rng1" x1="234.7" y1="179.2" x2="234.7" y2="38.8"/>
+<line class="rng1" x1="423.3" y1="179.2" x2="423.3" y2="38.8"/>
 <line class="rng1" x1="612.0" y1="179.2" x2="612.0" y2="38.8"/>
 <line class="rng2" x1="50.0" y1="231.2" x2="50.0" y2="18.0"/>
-<line class="rng2" x1="333.0" y1="231.2" x2="333.0" y2="18.0"/>
+<line class="rng2" x1="238.7" y1="231.2" x2="238.7" y2="18.0"/>
+<line class="rng2" x1="427.3" y1="231.2" x2="427.3" y2="18.0"/>
 <line class="rng2" x1="616.0" y1="231.2" x2="616.0" y2="18.0"/>
-<path class="s0" d="M46.0,137.6 L329.0,145.4 L612.0,174.0" fill="none"/>
+<path class="s0" d="M46.0,137.6 L234.7,145.4 L423.3,174.0 L612.0,174.0" fill="none"/>
 <circle class="s0 dot" cx="46.0" cy="137.6" r="4.5"/>
-<circle class="s0 dot" cx="329.0" cy="145.4" r="4.5"/>
+<circle class="s0 dot" cx="234.7" cy="145.4" r="4.5"/>
+<circle class="s0 dot" cx="423.3" cy="174.0" r="4.5"/>
 <circle class="s0 dot" cx="612.0" cy="174.0" r="4.5"/>
 <text class="s0 lab" x="624.0" y="178.0">Night 1 · 40%</text>
-<path class="s1" d="M46.0,132.4 L329.0,132.4 L612.0,137.6" fill="none" stroke-dasharray="7 4"/>
+<path class="s1" d="M46.0,132.4 L234.7,132.4 L423.3,137.6 L612.0,137.6" fill="none" stroke-dasharray="7 4"/>
 <circle class="s1 dot" cx="46.0" cy="132.4" r="4.5"/>
-<circle class="s1 dot" cx="329.0" cy="132.4" r="4.5"/>
+<circle class="s1 dot" cx="234.7" cy="132.4" r="4.5"/>
+<circle class="s1 dot" cx="423.3" cy="137.6" r="4.5"/>
 <circle class="s1 dot" cx="612.0" cy="137.6" r="4.5"/>
 <text class="s1 lab" x="624.0" y="141.6">Night 2 · 54%</text>
-<path class="s2" d="M46.0,127.2 L329.0,127.2 L612.0,127.2" fill="none" stroke-dasharray="2 4"/>
+<path class="s2" d="M46.0,127.2 L234.7,127.2 L423.3,127.2 L612.0,127.2" fill="none" stroke-dasharray="2 4"/>
 <circle class="s2 dot" cx="46.0" cy="127.2" r="4.5"/>
-<circle class="s2 dot" cx="329.0" cy="127.2" r="4.5"/>
+<circle class="s2 dot" cx="234.7" cy="127.2" r="4.5"/>
+<circle class="s2 dot" cx="423.3" cy="127.2" r="4.5"/>
 <circle class="s2 dot" cx="612.0" cy="127.2" r="4.5"/>
 <text class="s2 lab" x="624.0" y="131.2">Night 3 · 58%</text>
 <line class="axis" x1="46" y1="278" x2="612" y2="278"/>
@@ -236,7 +245,7 @@ td.trail{font-family:var(--mono);font-size:1rem;letter-spacing:.12em}
   </div>
 
   <h2>How much each night has moved</h2>
-  <div class="card"><div class="scroll"><table><thead><tr><th>Night</th><th>First</th><th>Latest</th><th>Change</th><th>Each step</th><th>Range</th><th>Model spread</th></tr></thead><tbody><tr><td>Night 1</td><td class='n'>54%</td><td class='n'>40%</td><td class='n better'>↓ 14</td><td class='trail'><span class="good">↓</span><span class="good">↓</span></td><td class='n'>14</td><td class='n '>±59 → ±59</td></tr><tr><td>Night 2</td><td class='n'>56%</td><td class='n'>54%</td><td class='n '>↓ 2</td><td class='trail'><span class="dim">→</span><span class="good">↓</span></td><td class='n'>2</td><td class='n '>±54 → ±54</td></tr><tr><td>Night 3</td><td class='n'>58%</td><td class='n'>58%</td><td class='n '>→ 0</td><td class='trail'><span class="dim">→</span><span class="dim">→</span></td><td class='n'>0</td><td class='n '>±82 → ±82</td></tr></tbody></table></div></div>
+  <div class="card"><div class="scroll"><table><thead><tr><th>Night</th><th>First</th><th>Latest</th><th>Change</th><th>Each step</th><th>Range</th><th>Model spread</th></tr></thead><tbody><tr><td>Night 1</td><td class='n'>54%</td><td class='n'>40%</td><td class='n better'>↓ 14</td><td class='trail'><span class="good">↓</span><span class="good">↓</span><span class="dim">→</span></td><td class='n'>14</td><td class='n '>±59 → ±59</td></tr><tr><td>Night 2</td><td class='n'>56%</td><td class='n'>54%</td><td class='n '>↓ 2</td><td class='trail'><span class="dim">→</span><span class="good">↓</span><span class="dim">→</span></td><td class='n'>2</td><td class='n '>±54 → ±54</td></tr><tr><td>Night 3</td><td class='n'>58%</td><td class='n'>58%</td><td class='n '>→ 0</td><td class='trail'><span class="dim">→</span><span class="dim">→</span><span class="dim">→</span></td><td class='n'>0</td><td class='n '>±82 → ±82</td></tr></tbody></table></div></div>
 
   
   <h2>Ground truth — the webcam</h2>
@@ -356,7 +365,7 @@ td.trail{font-family:var(--mono);font-size:1rem;letter-spacing:.12em}
   <h2>Calibration — the nights before the trip</h2>
   <div class="card">
     <p class="lede">Nights before the trip, which verify while you watch — so this measures how far a forecast actually travels in this pattern.</p>
-    <p style="margin-bottom:.8rem"><b style="color:var(--ink)">Worst swing so far: 19 points</b> (typical 10). You are asking how <em>wrong</em> a forecast could be — a tail question — so the worst case is the honest number and the mean understates it. A night reading 45% four days out could plausibly land anywhere within ±19 of that.</p><p class="note" style="margin-bottom:.8rem">The observed column fills in the morning after each lead-up night, once the webcam has frames spanning it.</p><div class="scroll"><table><thead><tr><th>Night</th><th>Lead</th><th>First</th><th>Latest</th><th>Swing</th><th>Observed</th><th>Miss</th></tr></thead><tbody><tr><td>Wed 05 Aug</td><td class='n'>1d → 1d</td><td class='n'>16%</td><td class='n'>26%</td><td class='n'>10</td><td class='n dim'>—</td><td class='n dim'>—</td></tr><tr><td>Thu 06 Aug</td><td class='n'>2d → 2d</td><td class='n'>54%</td><td class='n'>71%</td><td class='n'>17</td><td class='n dim'>—</td><td class='n dim'>—</td></tr><tr><td>Fri 07 Aug</td><td class='n'>3d → 3d</td><td class='n'>92%</td><td class='n'>87%</td><td class='n'>5</td><td class='n dim'>—</td><td class='n dim'>—</td></tr><tr><td>Sat 08 Aug</td><td class='n'>4d → 4d</td><td class='n'>66%</td><td class='n'>66%</td><td class='n'>8</td><td class='n dim'>—</td><td class='n dim'>—</td></tr><tr><td>Sun 09 Aug</td><td class='n'>5d → 5d</td><td class='n'>56%</td><td class='n'>37%</td><td class='n'>19</td><td class='n dim'>—</td><td class='n dim'>—</td></tr><tr><td>Mon 10 Aug</td><td class='n'>6d → 6d</td><td class='n'>66%</td><td class='n'>66%</td><td class='n'>0</td><td class='n dim'>—</td><td class='n dim'>—</td></tr></tbody></table></div><p class="note" style="margin-top:.8rem"><b>Observed</b> is the webcam at First Connecticut Lake, about 20 km south of the shooting site. Cloud can only be scored in daylight for now, so it averages the dusk and dawn frames either side of the window rather than the window itself — a bracket, not a measurement. Hover a value for the frame count.</p>
+    <p style="margin-bottom:.8rem"><b style="color:var(--ink)">Worst swing so far: 38 points</b> (typical 18). You are asking how <em>wrong</em> a forecast could be — a tail question — so the worst case is the honest number and the mean understates it. A night reading 45% four days out could plausibly land anywhere within ±38 of that.</p><p class="note" style="margin-bottom:.8rem">The observed column fills in the morning after each lead-up night, once the webcam has frames spanning it.</p><div class="scroll"><table><thead><tr><th>Night</th><th>Lead</th><th>First</th><th>Latest</th><th>Swing</th><th>Observed</th><th>Miss</th></tr></thead><tbody><tr><td>Wed 05 Aug</td><td class='n'>1d → 1d</td><td class='n'>16%</td><td class='n'>29%</td><td class='n'>13</td><td class='n dim'>—</td><td class='n dim'>—</td></tr><tr><td>Thu 06 Aug</td><td class='n'>2d → 2d</td><td class='n'>54%</td><td class='n'>57%</td><td class='n'>17</td><td class='n dim'>—</td><td class='n dim'>—</td></tr><tr><td>Fri 07 Aug</td><td class='n'>3d → 3d</td><td class='n'>92%</td><td class='n'>91%</td><td class='n'>5</td><td class='n dim'>—</td><td class='n dim'>—</td></tr><tr><td>Sat 08 Aug</td><td class='n'>4d → 4d</td><td class='n'>66%</td><td class='n'>52%</td><td class='n'>22</td><td class='n dim'>—</td><td class='n dim'>—</td></tr><tr><td>Sun 09 Aug</td><td class='n'>5d → 5d</td><td class='n'>56%</td><td class='n'>18%</td><td class='n'>38</td><td class='n dim'>—</td><td class='n dim'>—</td></tr><tr><td>Mon 10 Aug</td><td class='n'>6d → 6d</td><td class='n'>66%</td><td class='n'>77%</td><td class='n'>11</td><td class='n dim'>—</td><td class='n dim'>—</td></tr></tbody></table></div><p class="note" style="margin-top:.8rem"><b>Observed</b> is the webcam at First Connecticut Lake, about 20 km south of the shooting site. Cloud can only be scored in daylight for now, so it averages the dusk and dawn frames either side of the window rather than the window itself — a bracket, not a measurement. Hover a value for the frame count.</p>
   </div>
 
   <h2>What the percentage means</h2>
@@ -383,21 +392,26 @@ td.trail{font-family:var(--mono);font-size:1rem;letter-spacing:.12em}
 
     <h3 class="sub">Should you weight one over another?</h3>
     <p>Yes, and it changes as the trip approaches.</p>
-    <div class="scroll"><table><thead><tr><th>When</th><th>Believe</th><th>Because</th>
-      </tr></thead><tbody>
-      <tr><td class="n">Now — 7+ days</td><td><b>Nobody, individually</b></td>
-        <td>Read the spread, not the number. A ±60 spread means the atmosphere has not
-        committed yet, and any single model quoting you 23% is guessing.</td></tr>
-      <tr><td class="n">8 Aug — decision day</td><td><b>ECMWF, then UKMO</b></td>
-        <td>At 3 days these have the best track record, UKMO and ICON are both in range by
-        then, and NWS has a human in the loop. HRRR still cannot see 11 Aug.</td></tr>
-      <tr><td class="n">9–10 Aug</td><td><b>HRRR</b></td>
-        <td>3 km resolves the valley and the lakes instead of averaging them into a
-        13 km box. For terrain cloud nothing else here is close.</td></tr>
-      <tr><td class="n">On site</td><td><b>The webcam and your eyes</b></td>
-        <td>See the scoreboard above — it measures which model has actually been right at
-        this location, which beats any model's general reputation.</td></tr>
-    </tbody></table></div>
+    <table class="mtable"><tbody>
+      <tr class="mrow"><td class="n">Now — 7+ days</td>
+        <td class="r"><b>Nobody, individually</b></td></tr>
+      <tr class="mdesc"><td colspan="2">Read the spread, not the number. A ±60 spread means
+        the atmosphere has not committed yet, and any single model quoting you 23% is
+        guessing.</td></tr>
+      <tr class="mrow"><td class="n">8 Aug — decision day</td>
+        <td class="r"><b>ECMWF, then UKMO</b></td></tr>
+      <tr class="mdesc"><td colspan="2">At 3 days these have the best track record, UKMO and
+        ICON are both in range by then, and NWS has a human in the loop. HRRR still cannot
+        see 11 Aug.</td></tr>
+      <tr class="mrow"><td class="n">9–10 Aug</td><td class="r"><b>HRRR</b></td></tr>
+      <tr class="mdesc"><td colspan="2">3 km resolves the valley and the lakes instead of
+        averaging them into a 13 km box. For terrain cloud nothing else here is close.</td></tr>
+      <tr class="mrow"><td class="n">On site</td>
+        <td class="r"><b>The webcam and your eyes</b></td></tr>
+      <tr class="mdesc"><td colspan="2">See the scoreboard above — it measures which model has
+        actually been right at this location, which beats any model's general
+        reputation.</td></tr>
+    </tbody></table>
 
     <p class="note" style="margin-top:1rem"><b>The honest caveat:</b> night-time low cloud
     and valley fog are the weakest thing every global model does. They parameterise
@@ -409,7 +423,7 @@ td.trail{font-family:var(--mono);font-size:1rem;letter-spacing:.12em}
   <div style="margin-top:2.5rem;padding-top:1.2rem;border-top:1px solid var(--rule);
               color:var(--muted);font-size:.84rem">
     <a href="index.html" style="color:var(--accent)">← Trip plan</a>
-    <div class="vint"><div class="vk">Page built</div><div class="vv">Tue 04 Aug 2026, 15:28 EDT</div><div class="vk">NWS package</div><div class="vv">issued Tue 04 Aug 14:19 EDT</div><div class="vk">AIFS</div><div class="vv">12Z run · published 04 Aug 13:40</div><div class="vk">ECMWF</div><div class="vv">06Z run · published 04 Aug 09:06</div><div class="vk">GFS</div><div class="vv">12Z run · published 04 Aug 13:52</div><div class="vk">HRRR</div><div class="vv">17Z run · published 04 Aug 15:00</div><div class="vk">ICON</div><div class="vv">12Z run · published 04 Aug 11:53</div><div class="vk">JMA</div><div class="vv">06Z run · published 04 Aug 11:32</div><div class="vk">UKMO</div><div class="vv">06Z run · published 04 Aug 09:16</div><div class="vk">GEM</div><div class="vv">run time unknown</div></div>
+    <div class="vint"><div class="vk">Page built</div><div class="vv">Tue 04 Aug 2026, 15:37 EDT</div><div class="vk">NWS package</div><div class="vv">issued Tue 04 Aug 14:19 EDT</div><div class="vk">AIFS</div><div class="vv">12Z run · published 04 Aug 13:40</div><div class="vk">ECMWF</div><div class="vv">06Z run · published 04 Aug 09:06</div><div class="vk">GFS</div><div class="vv">12Z run · published 04 Aug 13:52</div><div class="vk">HRRR</div><div class="vv">17Z run · published 04 Aug 15:00</div><div class="vk">ICON</div><div class="vv">12Z run · published 04 Aug 11:53</div><div class="vk">JMA</div><div class="vv">06Z run · published 04 Aug 11:32</div><div class="vk">UKMO</div><div class="vv">06Z run · published 04 Aug 09:16</div><div class="vk">GEM</div><div class="vv">run time unknown</div></div>
     <p style="margin-top:.7rem;opacity:.8">Rebuilt hourly from
     <span style="font-family:var(--mono)">api.weather.gov</span>, Open-Meteo and the lake webcam.</p>
     <p style="margin-top:.35rem;opacity:.8">Each model is a snapshot of a different run — so a

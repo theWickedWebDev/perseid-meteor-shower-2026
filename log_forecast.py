@@ -989,7 +989,8 @@ h3.sub{{font-family:var(--serif);color:var(--ink);font-size:1rem;margin:1.8rem 0
 .mtable tr.mrow td{{padding-top:.9rem;border-top:1px solid var(--rule)}}
 .mtable tr.mrow:first-child td{{border-top:0;padding-top:.2rem}}
 .mtable tr.mdesc td{{padding:0 0 .5rem;color:var(--body)}}
-.mtable td.r{{text-align:right;white-space:nowrap}}
+.mtable td.r{{text-align:right}}
+.mtable td.r .pill{{white-space:nowrap}}
 .wf{{color:var(--muted);margin-top:.2rem}}
 .pill{{font-family:var(--mono);font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;padding:.15rem .4rem;border-radius:3px;white-space:nowrap;border:1px solid}}
 .pill.on{{color:var(--good);border-color:var(--good)}}
@@ -1153,21 +1154,26 @@ td.trail{{font-family:var(--mono);font-size:1rem;letter-spacing:.12em}}
 
     <h3 class="sub">Should you weight one over another?</h3>
     <p>Yes, and it changes as the trip approaches.</p>
-    <div class="scroll"><table><thead><tr><th>When</th><th>Believe</th><th>Because</th>
-      </tr></thead><tbody>
-      <tr><td class="n">Now — 7+ days</td><td><b>Nobody, individually</b></td>
-        <td>Read the spread, not the number. A ±60 spread means the atmosphere has not
-        committed yet, and any single model quoting you 23% is guessing.</td></tr>
-      <tr><td class="n">8 Aug — decision day</td><td><b>ECMWF, then UKMO</b></td>
-        <td>At 3 days these have the best track record, UKMO and ICON are both in range by
-        then, and NWS has a human in the loop. HRRR still cannot see 11 Aug.</td></tr>
-      <tr><td class="n">9–10 Aug</td><td><b>HRRR</b></td>
-        <td>3 km resolves the valley and the lakes instead of averaging them into a
-        13 km box. For terrain cloud nothing else here is close.</td></tr>
-      <tr><td class="n">On site</td><td><b>The webcam and your eyes</b></td>
-        <td>See the scoreboard above — it measures which model has actually been right at
-        this location, which beats any model's general reputation.</td></tr>
-    </tbody></table></div>
+    <table class="mtable"><tbody>
+      <tr class="mrow"><td class="n">Now — 7+ days</td>
+        <td class="r"><b>Nobody, individually</b></td></tr>
+      <tr class="mdesc"><td colspan="2">Read the spread, not the number. A ±60 spread means
+        the atmosphere has not committed yet, and any single model quoting you 23% is
+        guessing.</td></tr>
+      <tr class="mrow"><td class="n">8 Aug — decision day</td>
+        <td class="r"><b>ECMWF, then UKMO</b></td></tr>
+      <tr class="mdesc"><td colspan="2">At 3 days these have the best track record, UKMO and
+        ICON are both in range by then, and NWS has a human in the loop. HRRR still cannot
+        see 11 Aug.</td></tr>
+      <tr class="mrow"><td class="n">9–10 Aug</td><td class="r"><b>HRRR</b></td></tr>
+      <tr class="mdesc"><td colspan="2">3 km resolves the valley and the lakes instead of
+        averaging them into a 13 km box. For terrain cloud nothing else here is close.</td></tr>
+      <tr class="mrow"><td class="n">On site</td>
+        <td class="r"><b>The webcam and your eyes</b></td></tr>
+      <tr class="mdesc"><td colspan="2">See the scoreboard above — it measures which model has
+        actually been right at this location, which beats any model's general
+        reputation.</td></tr>
+    </tbody></table>
 
     <p class="note" style="margin-top:1rem"><b>The honest caveat:</b> night-time low cloud
     and valley fog are the weakest thing every global model does. They parameterise
