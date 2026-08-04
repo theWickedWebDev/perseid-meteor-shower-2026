@@ -985,7 +985,7 @@ h2{{font-family:var(--serif);color:var(--ink);font-size:1.15rem;margin:2.2rem 0 
 .verdict{{font-family:var(--mono);font-size:.66rem;letter-spacing:.12em;text-transform:uppercase}}
 h3.sub{{font-family:var(--serif);color:var(--ink);font-size:1rem;margin:1.8rem 0 .5rem}}
 .mtable{{width:100%;table-layout:auto}}
-.mtable td{{vertical-align:baseline;border:0;padding:.35rem .5rem .1rem 0}}
+.mtable td{{vertical-align:baseline;border:0;padding:.35rem .5rem .1rem 0;white-space:normal;overflow-wrap:anywhere}}
 .mtable tr.mrow td{{padding-top:.9rem;border-top:1px solid var(--rule)}}
 .mtable tr.mrow:first-child td{{border-top:0;padding-top:.2rem}}
 .mtable tr.mdesc td{{padding:0 0 .5rem;color:var(--body)}}
