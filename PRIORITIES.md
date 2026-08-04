@@ -64,7 +64,7 @@ from the cabin at all:
 
 - Leave ~7:15, work the moose corridor north through sunset
 - Arrive the spot ~8:30, set up in civil twilight
-- Core 9:56 – 11:25 PM at a **verified 204.4° bearing over a ~10° horizon**
+- Core 9:54 – 11:17 PM (Night 2) at a **verified 204.4° bearing over a ~10° horizon**
 - Back at the cabin ~12:10 for the meteor hours
 
 **Every clear night follows this shape.** The cabin's low southern horizon stops mattering —
@@ -121,4 +121,7 @@ many nights as you want and better calibration.
 The core over water at Bortle 2 is the one image that only exists if you make it in this
 90-minute window, on one of these three nights, at that spot.
 
-**9:56 to 11:25 PM. Ninety minutes. That's the trip.**
+**9:54 to 11:17 PM. Eighty-three minutes. That's the trip.**
+
+Per night the 10° deadline is 11:21 / 11:17 / 11:13 PM — it is not the same time each
+evening. If the arrival survey finds the treeline nearer 7.3°, add about 29 minutes.

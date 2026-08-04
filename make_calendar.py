@@ -46,7 +46,10 @@ PRETRIP = [
 ]
 
 # ── shared lake-night skeleton ───────────────────────────────────────────
-def lake_night(day, deep_target, deep_note, extra=None):
+def lake_night(day, deep_target, deep_note, extra=None, core_deadline="23:25"):
+    # everything from "Back at the cabin" onward happens after midnight, so it belongs
+    # to the following calendar day
+    nxt = (datetime.strptime(day, "%Y-%m-%d") + timedelta(days=1)).strftime("%Y-%m-%d")
     ev = [
         (day, "17:00", 15, "Assemble the rig ON THE PORCH",
          "Head, counterweights, OTA, balance RA and DEC, cables dressed. Comfortable and lit - "
@@ -92,26 +95,29 @@ def lake_night(day, deep_target, deep_note, extra=None):
         (day, "23:00",  5, "Switch to PORTRAIT",
          "Band standing vertical out of the water. Core dead centre at 11.8 deg. "
          "This is the postcard."),
-        (day, "23:25", 15, "CORE DEADLINE - 10 deg. South is finished",
-         "Last frames. Pack up."),
+        (day, core_deadline, 15, "CORE DEADLINE - 10 deg. South is finished",
+         "Last frames. Pack up. Verified against astropy for this specific night - the core "
+         "sets four minutes earlier each night, so this is not the same time every evening. "
+         "If the arrival survey finds the treeline lower than 10 deg you gain roughly another "
+         "half hour; re-check on site."),
         (day, "23:45",  5, "Depart the lake",
          "Moose peep on the way back to the cabin."),
-        (day, "00:10",  0, "Back at the cabin",
+        (nxt, "00:10",  0, "Back at the cabin",
          "Check ntfy / dashboard. Pull the SD card, copy to the desktop, verify two or "
          "three frames opened and are sharp. Fresh card in."),
-        (day, "00:15",  5, "Carry the scope out from the porch",
+        (nxt, "00:15",  5, "Carry the scope out from the porch",
          "Already at ambient, camera already cold. Onto the tripod - alt/az untouched, so this "
          "Polar align CHECK - the plate may have shifted and the ground settles, so expect a small "
          "adjustment. Not from scratch. DEW HEATERS ON NOW, low setting. "
          "Target 2-5C above ambient, no more - err low on the triplet."),
-        (day, "01:00", 10, f"Scope on {deep_target}", deep_note),
-        (day, "01:00",  5, "Canon meteor run - Cassiopeia/M31 field",
+        (nxt, "01:00", 10, f"Scope on {deep_target}", deep_note),
+        (nxt, "01:00",  5, "Canon meteor run - Cassiopeia/M31 field",
          "20s, f/1.8, ISO 3200, continuous. Radiant in the lower-left corner. "
          "Dew heater on the lens."),
-        (day, "02:00", 15, "PERSEID PEAK HOURS",
+        (nxt, "02:00", 15, "PERSEID PEAK HOURS",
          "Radiant climbs 47 to 61 deg. Rates roughly triple over the evening. Camera runs "
          "itself - both of you outside, in chairs, looking up."),
-        (day, "03:45", 15, "Astronomical twilight - stop capture",
+        (nxt, "03:45", 15, "Astronomical twilight - stop capture",
          "Park the mount, ramp cooling off gradually, pull cards. SCOPE BACK ON THE PORCH, not "
          "into the warm cabin - cold optics in warm humid air fog instantly."),
     ]
@@ -184,6 +190,7 @@ NIGHT2 = lake_night(
     "Red core, blue rim, black dust river - the best colour target of the trip. Transits "
     "1:19 at 87.8 deg, essentially zenith. WARNING: near-zenith meridian flips are the "
     "awkward ones. Supervise it, or start after 1:25 and skip the flip entirely.",
+    core_deadline="23:17",
 )
 
 NIGHT3 = lake_night(
@@ -208,6 +215,7 @@ NIGHT3 = lake_night(
          "Draco's head passes the NW door at 37 deg, the only recognizable thing that does "
          "so during your cabin hours. Radiant ~60 deg off, near-ideal for trail length."),
     ],
+    core_deadline="23:13",
 )
 
 # ── ics emitters ─────────────────────────────────────────────────────────
@@ -229,10 +237,15 @@ def fold(line):
     return "\r\n".join(out)
 
 def to_utc(datestr, hhmm):
+    """Local wall-clock on `datestr` to UTC. The date is taken literally.
+
+    This deliberately does NOT roll small hours to the next day. It used to, which
+    double-shifted every entry that already carried the correct post-midnight date and
+    also pushed 11:00 daytime tasks a day late. Entries after midnight now name the day
+    they actually fall on, which is the only representation with one meaning.
+    """
     d = datetime.strptime(datestr, "%Y-%m-%d")
     h, m = map(int, hhmm.split(":"))
-    if h < 12:                      # small hours belong to the next calendar day
-        d += timedelta(days=1)
     return d.replace(hour=h, minute=m) + timedelta(hours=UTC_OFFSET)
 
 def event(idx, day, hhmm, alarm, summary, desc):

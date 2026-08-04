@@ -40,8 +40,8 @@ sits above 10° over a lake. Everything here exists to make that 90 minutes work
 
 **The site bearing was recovered from EXIF.** A 2023 iPhone photo taken at the lake still had
 `GPSImgDirection` — 204.43° true. Cross-checking it against the moon's computed position at
-that exact timestamp agreed to within 5°, which validated both the phone's compass and the
-ephemeris. Three other copies of nearby photos had been stripped by Google Photos and were
+that exact timestamp agreed to within **0.7°**, which validated both the phone's compass and
+the ephemeris. Three other copies of nearby photos had been stripped by Google Photos and were
 useless. See [HORIZON_PHOTOS.md](HORIZON_PHOTOS.md).
 
 **The cabin's horizons were plate-solved from old snapshots.** Three February photos were

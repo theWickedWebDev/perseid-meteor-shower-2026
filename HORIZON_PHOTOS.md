@@ -47,17 +47,22 @@ from the EXIF `Orientation` tag (Rotate 90 CW / Rotate 180 both appear here and 
 | FOV | 69.4° long axis → **69.4° tall × 54.9° wide** |
 
 **Independent cross-check:** the moon's computed position at that exact instant was
-**azimuth 209.1°, altitude 19.5°**. The phone's compass said 204.4° and the moon sits just
-right of frame centre. Agreement within ~5° — compass and ephemeris validate each other.
+**azimuth 203.7°, altitude 16.8°** (topocentric apparent). The phone's compass said 204.4°
+and the moon sits just right of frame centre. **Agreement within 0.7°** — compass and
+ephemeris validate each other to well under a degree.
+
+> Corrected 4 Aug 2026 — previously 209.1° / 19.5°, a geocentric position that also missed
+> in azimuth. Recomputed with astropy.
 
 **Frame covers azimuth 177°–232°**, which contains the entire southern program: Trifid
 (186°→216°), core (190°→217°), Rho Oph (208°→220°).
 
-Treeline ≈ 10°, estimated against the moon fiducial. To tighten it — scale is
+Treeline ≈ **7.3°, provisional** — the old 10° was anchored to the moon fiducial while it
+carried a +2.7° error. To measure it properly, scale is
 **4032 px / 69.4° = 58.1 px per degree**:
 
 ```
-treeline altitude = 19.5° − (px from moon centre down to treeline) / 58.1
+treeline altitude = 16.8° − (px from moon centre down to treeline) / 58.1
 ```
 
 ---

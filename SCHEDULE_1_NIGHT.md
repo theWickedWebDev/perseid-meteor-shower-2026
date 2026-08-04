@@ -28,7 +28,7 @@ Fewer frames each. Move on before you're finished. That's the whole strategy.
 **Go to the lake.** Do it anyway:
 
 - The core over water is the one image you cannot make anywhere else, ever
-- The southern window is 9:56–11:25 PM regardless of where you stand
+- The southern window is 9:54–11:17 PM regardless of where you stand
 - The scope can't be left outside, so it can't image while you're gone under *any* plan —
   there's nothing to give up by leaving
 - Stay at the cabin instead and you get M8/M20 on the refractor and drive home without the

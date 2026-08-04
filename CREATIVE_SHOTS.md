@@ -3,7 +3,7 @@
 Night 3's main event. Also the first thing folded into a shortened trip, because it shares the
 core's window and can't happen without it.
 
-**Hard constraint: the core is up from 9:56 to 11:25 PM and nothing else.** Everything here
+**Hard constraint: the core is up from 9:54 to 11:17 PM (Night 2) and nothing else.** Everything here
 happens inside that ninety minutes, and it competes directly with the tracked sky panels. Budget
 **the last 20–25 minutes** — get the stacking frames first, then switch to people.
 

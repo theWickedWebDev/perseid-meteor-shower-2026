@@ -53,8 +53,8 @@ END:VEVENT
 BEGIN:VEVENT
 UID:pittsburg2026-003@stephen
 DTSTAMP:20260802T000000Z
-DTSTART:20260810T150000Z
-DTEND:20260810T151000Z
+DTSTART:20260809T150000Z
+DTEND:20260809T151000Z
 SUMMARY:Verify 12V regulation under load
 DESCRIPTION:WARNING: 4S pack reaches 16.8V\, EQ6-R is rated 11-16V. Meter
   the distribution box under load and confirm 12.0-13.8V out.
@@ -314,8 +314,8 @@ END:VEVENT
 BEGIN:VEVENT
 UID:pittsburg2026-021@stephen
 DTSTAMP:20260802T000000Z
-DTSTART:20260813T041500Z
-DTEND:20260813T042500Z
+DTSTART:20260812T041500Z
+DTEND:20260812T042500Z
 SUMMARY:Scope to the Veil / Cygnus Loop
 DESCRIPTION:Just past its 12:17 transit so it's west of the meridian - no
   flip all night. Teal OIII and crimson Ha filaments.
@@ -328,8 +328,8 @@ END:VEVENT
 BEGIN:VEVENT
 UID:pittsburg2026-022@stephen
 DTSTAMP:20260802T000000Z
-DTSTART:20260813T043000Z
-DTEND:20260813T044000Z
+DTSTART:20260812T043000Z
+DTEND:20260812T044000Z
 SUMMARY:Canon to the meteor field
 DESCRIPTION:20s\, f/1.8\, ISO 3200\, continuous.
 BEGIN:VALARM
@@ -341,8 +341,8 @@ END:VEVENT
 BEGIN:VEVENT
 UID:pittsburg2026-023@stephen
 DTSTAMP:20260802T000000Z
-DTSTART:20260813T060000Z
-DTEND:20260813T061000Z
+DTSTART:20260812T060000Z
+DTEND:20260812T061000Z
 SUMMARY:Perseids building
 DESCRIPTION:6SE on NGC 7331 + Stephan's Quintet while it's high. Then M31
  \, M33\, Saturn.
@@ -355,8 +355,8 @@ END:VEVENT
 BEGIN:VEVENT
 UID:pittsburg2026-024@stephen
 DTSTAMP:20260802T000000Z
-DTSTART:20260813T074500Z
-DTEND:20260813T075500Z
+DTSTART:20260812T074500Z
+DTEND:20260812T075500Z
 SUMMARY:Twilight - stop capture
 DESCRIPTION:Then TEARDOWN PRACTICE: pull the OTA and counterweights\, lif
  t the head off without touching alt/az\, and move it TO THE PORCH - that
@@ -563,10 +563,14 @@ END:VEVENT
 BEGIN:VEVENT
 UID:pittsburg2026-038@stephen
 DTSTAMP:20260802T000000Z
-DTSTART:20260813T032500Z
-DTEND:20260813T033500Z
+DTSTART:20260813T031700Z
+DTEND:20260813T032700Z
 SUMMARY:CORE DEADLINE - 10 deg. South is finished
-DESCRIPTION:Last frames. Pack up.
+DESCRIPTION:Last frames. Pack up. Verified against astropy for this speci
+ fic night - the core sets four minutes earlier each night\, so this is n
+ ot the same time every evening. If the arrival survey finds the treeline
+  lower than 10 deg you gain roughly another half hour\; re-check on site
+ .
 BEGIN:VALARM
 TRIGGER:-PT15M
 ACTION:DISPLAY
@@ -872,10 +876,14 @@ END:VEVENT
 BEGIN:VEVENT
 UID:pittsburg2026-059@stephen
 DTSTAMP:20260802T000000Z
-DTSTART:20260814T032500Z
-DTEND:20260814T033500Z
+DTSTART:20260814T031300Z
+DTEND:20260814T032300Z
 SUMMARY:CORE DEADLINE - 10 deg. South is finished
-DESCRIPTION:Last frames. Pack up.
+DESCRIPTION:Last frames. Pack up. Verified against astropy for this speci
+ fic night - the core sets four minutes earlier each night\, so this is n
+ ot the same time every evening. If the arrival survey finds the treeline
+  lower than 10 deg you gain roughly another half hour\; re-check on site
+ .
 BEGIN:VALARM
 TRIGGER:-PT15M
 ACTION:DISPLAY
@@ -1033,8 +1041,8 @@ END:VEVENT
 BEGIN:VEVENT
 UID:pittsburg2026-070@stephen
 DTSTAMP:20260802T000000Z
-DTSTART:20260815T065500Z
-DTEND:20260815T070500Z
+DTSTART:20260814T065500Z
+DTEND:20260814T070500Z
 SUMMARY:Doorway frames - ten minutes\, not a session
 DESCRIPTION:Draco's head passes the NW door at 37 deg\, the only recogniz
  able thing that does so during your cabin hours. Radiant ~60 deg off\, n

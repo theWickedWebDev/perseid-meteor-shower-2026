@@ -55,9 +55,14 @@ Elevation: 666 m / 2,185 ft  (phone GPS — routinely ±50 m; horizontal fix was
 | Composite FOV | 69.4° along the long axis |
 
 **Independent cross-check:** the moon's computed position at that exact timestamp and
-location was **azimuth 209.1°, altitude 19.5°**. The phone's compass reported the camera
-at 204.4°, and the moon sits just right of frame center. Agreement within ~5° — the phone
-compass and the ephemeris validate each other.
+location was **azimuth 203.7°, altitude 16.8°** (topocentric apparent — includes the ~0.95°
+lunar parallax and refraction). The phone's compass reported the camera at 204.4°, and the
+moon sits just right of frame center. **Agreement within 0.7°** — the phone compass and the
+ephemeris validate each other to well under a degree.
+
+> Corrected 4 Aug 2026. This previously read 209.1° / 19.5°, computed geocentrically and
+> wrong in azimuth besides. Recomputed with astropy. The conclusion was right and is now
+> much better supported; the treeline recipe below inherited the altitude error.
 
 **Frame coverage.** Portrait at 26 mm equiv = 69.4° tall × 54.9° wide. Centered on 204.4°,
 that spans **azimuth 177° to 232°** — which contains the entire southern program.
@@ -73,14 +78,18 @@ stripped copies could not.
 ### Lake spot — SOLVED
 
 - **View bearing 204.4° (SSW)** — dead center of the target arc
-- **Treeline ≈ 10°** (Stephen's estimate, derived by comparing against the moon in IMG_8460)
+- **Treeline ≈ 7.3°, PROVISIONAL** — was 10°, but that came off the moon fiducial when it
+  carried a +2.7° altitude error. Correcting the anchor drops the treeline by the same amount.
+  Direction is favourable: it buys about **29 more minutes on the core each night**. Treat as
+  provisional until the 360° horizon survey on arrival measures it directly — that task is
+  already first on the Night 1 schedule.
 - Water in the foreground, gravel/flat launch area, no artificial light
 
 Verification method if it needs tightening: the moon in IMG_8460 is a calibrated fiducial at
-19.5° altitude. Frame is 4032 px over 69.4° → **58.1 px per degree**.
+**16.8°** altitude. Frame is 4032 px over 69.4° → **58.1 px per degree**.
 
 ```
-treeline altitude = 19.5° − (pixels from moon center down to treeline) / 58.1
+treeline altitude = 16.8° − (pixels from moon center down to treeline) / 58.1
 ```
 
 ### Cabin — MEASURED FROM PHOTOS
@@ -128,34 +137,46 @@ Solar noon **12:50 PM**. Sun declination +15.1°.
 | Polaris visible | ~8:45–9:00 PM |
 | Nautical twilight ends (−12°) | 9:11 PM |
 | **First usable sky frames (−15°)** | **9:30 PM** |
-| **Astronomical dark (−18°)** | **9:56 PM** |
+| **Astronomical dark (−18°)** | **9:56 / 9:54 / 9:52 PM** (nights 1 / 2 / 3) |
 | Astronomical twilight begins | 3:43 AM |
 | Sunrise | 5:41 AM |
 
-**Usable dark ≈ 5 h 47 m per night.**
+**Usable dark ≈ 5 h 53 m per night**, lengthening by about 2 minutes a night.
 
-Note: waiting for full dark costs almost nothing. The core transits at 9:12 PM and altitude
-changes slowly near transit — only 0.5° is lost between 9:30 and 9:56. **The hard deadline
+Note: waiting for full dark costs almost nothing. The core transits at 9:06 PM and altitude
+changes slowly near transit — only 0.5° is lost between 9:30 and 9:54. **The hard deadline
 is setup, not darkness. Be aligned and framed by 9:15.**
 
 ---
 
 ## 5. Milky Way core — Sgr A*, RA 17h 45m 40s, Dec −29° 00'
 
-**Transit 9:12 PM at 15.75° — 44 minutes before astronomical dark.** Already sinking west
+**Transit 9:06 PM at 15.74° — 48 minutes before astronomical dark.** Already sinking west
 by the time the sky is usable.
+
+Recomputed with astropy 4 Aug 2026 for **Night 2 (12 Aug)**. The earlier table ran up to 0.4°
+high and quoted one deadline for all three nights; the core actually sets about four minutes
+earlier each night.
 
 | Time | Altitude | Azimuth |
 |---|---|---|
-| 9:30 PM | 15.6° | 188° |
-| **9:56 PM** | **15.1°** | **190°** |
-| 10:30 PM | 13.6° | 200° |
-| 11:00 PM | 11.8° | 205° |
-| 11:25 PM | 10.0° | 212° |
-| 11:30 PM | 9.4° | 213° |
-| Midnight | 6.5° | 217° |
+| 9:06 PM | 15.74° | 179° |
+| 9:30 PM | 15.54° | 185° |
+| **9:54 PM** | **14.94°** | **191°** |
+| 10:30 PM | 13.32° | 199° |
+| 11:00 PM | 11.33° | 205° |
+| **11:17 PM** | **9.97°** | **209°** |
+| 11:30 PM | 8.82° | 211° |
+| 11:46 PM | 7.29° | 215° |
+| Midnight | 5.84° | 217° |
 
-**Usable window with a 10° ridge: 9:56 – 11:25 PM. Ninety minutes.**
+**Usable window with a 10° ridge: 9:54 – 11:17 PM. Eighty-three minutes.**
+
+Per-night deadline at 10°: **11:21 PM / 11:17 PM / 11:13 PM** for nights 1 / 2 / 3.
+
+If the arrival survey confirms the treeline is nearer 7.3° than 10°, those become
+**11:50 / 11:46 / 11:42 PM** — about 29 extra minutes a night, which is a third more core
+time than the plan currently assumes.
 
 The frame bearing of 204.4° means the core **enters on the left, crosses frame center at
 about 11:00 PM, and exits right**. The composition improves for the first hour and then

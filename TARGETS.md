@@ -164,7 +164,7 @@ Dec +73 gives you is generous tripod clearance, so set a large meridian limit de
 reflection at Rho Oph itself, gold around Antares, red Ha, black dust threading through.**
 
 - **9:56 – 10:45 PM** — band diagonal → **landscape**, 18 mm
-- **11:00 – 11:25 PM** — band vertical out of the SW → **portrait**, rising from the water
+- **11:00 – 11:17 PM** — band vertical out of the SW → **portrait**, rising from the water
 - Aim **azimuth 204°**
 
 Rho Oph dies at 10:30. Core dies at 11:25. Hard deadlines.

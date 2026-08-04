@@ -71,7 +71,7 @@ still the best 20 minutes available all trip.
 
 ### 11:00 PM – 12:00 AM · **CORE'S LAST HOUR. THEN SWITCH.**
 
-- Core: 11.8° → 6.5°. **Hard deadline 11:25 PM.**
+- Core: 11.3° → 5.8°. **Hard deadline 11:21 / 11:17 / 11:13 PM, nights 1 / 2 / 3.**
 - M8/M20: 18.6° → 13.4°, still fine
 - Veil transits 12:17 AM at 75.6°
 
