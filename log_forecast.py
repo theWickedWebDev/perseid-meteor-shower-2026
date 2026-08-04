@@ -37,17 +37,26 @@ LATE_HR = (1, 2, 3)         # 12:45–03:45 EDT — Perseid peak + refractor, at
 DARK    = (18, 7)           # hourly strips run 6 PM–7 AM: the shooting window plus
                             # context either side, so a trend into or out of it is visible
 GO      = 30                # go/no-go threshold, % cloud cover
+SUCKER  = 40                # 30-40%: not a go, but breaks open — OH_SHIT.md territory
 
 # Second opinion: Open-Meteo exposes individual models rather than a blend. ECMWF is the
 # most skillful global model and is genuinely independent of NWS's GFS/NAM-based product.
 # The point isn't more data — it's that MODEL AGREEMENT IS A CONFIDENCE SIGNAL. A narrow
 # spread means the atmosphere is predictable; a wide one means nobody knows yet.
+# Reach varies a lot and changes daily, so models are not filtered by range here — a
+# model simply contributes to the nights it can see. UKMO (~7 d) and HRRR (48 h) are
+# useless for the trip today and become the best sources available in the final days.
 OM_MODELS = [("ecmwf_ifs025", "ECMWF"), ("gfs_seamless", "GFS"),
-             ("icon_seamless", "ICON"), ("gem_seamless", "GEM")]
+             ("icon_seamless", "ICON"), ("gem_seamless", "GEM"),
+             ("ecmwf_aifs025_single", "AIFS"), ("jma_gsm", "JMA"),
+             ("ukmo_global_deterministic_10km", "UKMO"),
+             ("ncep_hrrr_conus", "HRRR")]
 # Open-Meteo publishes per-dataset run metadata. The slugs differ from the model
 # parameter names used in the forecast call, and not every dataset stays current —
 # anything older than 48 h is treated as unknown rather than printed as fact.
-OM_META = [("ECMWF", "ecmwf_ifs025"), ("GFS", "ncep_gfs013"), ("ICON", "dwd_icon")]
+OM_META = [("ECMWF", "ecmwf_ifs025"), ("GFS", "ncep_gfs013"), ("ICON", "dwd_icon"),
+           ("GEM", "cmc_gem_gdps"), ("AIFS", "ecmwf_aifs025_single"), ("JMA", "jma_gsm"),
+           ("UKMO", "ukmo_global_deterministic_10km"), ("HRRR", "ncep_hrrr_conus")]
 
 OM_URL = ("https://api.open-meteo.com/v1/forecast?latitude={la}&longitude={lo}"
           "&hourly=cloud_cover&models={m}&timezone=America%2FNew_York&forecast_days=14")
@@ -253,7 +262,12 @@ def svg_chart(hist):
     p = [f'<svg viewBox="0 0 {W} {H}" role="img" aria-label="Predicted core-window sky cover '
          f'for each trip night, by forecast date" preserveAspectRatio="xMidYMid meet">']
 
-    # go-zone band
+    # Two bands. Under 30% is a go. 30-40% is not, but it is the range where the deck
+    # breaks often enough to be worth sitting outside for — the OH_SHIT.md case.
+    p.append(f'<rect class="sband" x="{L}" y="{py(SUCKER):.1f}" width="{pw}" '
+             f'height="{py(GO)-py(SUCKER):.1f}"/>')
+    p.append(f'<text class="sbandlab" x="{L+6}" y="{py(GO)-4:.1f}">'
+             f'{GO}-{SUCKER}% — sucker holes</text>')
     p.append(f'<rect class="band" x="{L}" y="{py(GO):.1f}" width="{pw}" '
              f'height="{T+ph-py(GO):.1f}"/>')
     p.append(f'<text class="bandlab" x="{L+6}" y="{T+ph-8:.1f}">under {GO}% — go</text>')
@@ -392,33 +406,47 @@ def agreement_svg(latest):
                 rows.append(x); out.append(len(rows) - 1)
         return out
 
-    rowsH, W, PAD = 92, 720, 92
+    W, PAD = 720, 92
     nights = [(l, latest["nights"][l]) for l, _ in NIGHTS]
-    H = rowsH * len(nights) + 26
     tw = W - PAD - 118
     def x(v): return PAD + tw * v / 100
 
+    # Pre-pass: the number of sources varies (models drop in and out by range), and with
+    # eight of them the name and value labels tier several deep. Measure the deepest
+    # stack first and size the rows to it, rather than trusting a fixed height that was
+    # only ever right for four models.
+    prep, up, dn = [], 1, 1
+    for label, nd in nights:
+        mods = members(nd)
+        if not mods:
+            prep.append((label, None))
+            continue
+        pts = sorted(mods.items(), key=lambda kv: kv[1])
+        xs = [x(v) for _, v in pts]
+        lt, vt = tier(xs, 40), tier(xs, 24)     # names need ~40px, numbers ~24px
+        up, dn = max(up, max(lt) + 1), max(dn, max(vt) + 1)
+        prep.append((label, (nd, mods, pts, xs, lt, vt)))
+    rowsH = max(92, 24 + up * 12 + 22 + dn * 12)
+    H = rowsH * len(nights) + 26
+
     p = [f'<svg viewBox="0 0 {W} {H}" role="img" aria-label="Spread between forecast models '
          f'for each night" preserveAspectRatio="xMidYMid meet">']
+    p.append(f'<rect class="sband" x="{x(GO):.1f}" y="14" '
+             f'width="{x(SUCKER)-x(GO):.1f}" height="{H-30}"/>')
     p.append(f'<rect class="band" x="{PAD}" y="14" width="{x(GO)-PAD:.1f}" height="{H-30}"/>')
     for v in (0, 25, 50, 75, 100):
         p.append(f'<line class="grid" x1="{x(v):.1f}" y1="14" x2="{x(v):.1f}" y2="{H-16}"/>')
         p.append(f'<text class="ax" x="{x(v):.1f}" y="{H-4}" text-anchor="middle">{v}%</text>')
 
-    for i, (label, nd) in enumerate(nights):
-        y = 46 + i * rowsH
+    for i, (label, got) in enumerate(prep):
+        y = 20 + up * 12 + i * rowsH
         p.append(f'<text class="nlab" x="0" y="{y+4}">{label}</text>')
-        mods = members(nd)
-        if not mods:
+        if not got:
             p.append(f'<text class="ax" x="{PAD}" y="{y+4}">no model data</text>')
             continue
+        nd, mods, pts, xs, lt, vt = got
         lo, hi = min(mods.values()), max(mods.values())
         p.append(f'<line class="rng" x1="{x(lo):.1f}" y1="{y}" x2="{x(hi):.1f}" y2="{y}"/>')
-
-        pts = sorted(mods.items(), key=lambda kv: kv[1])
-        xs  = [x(v) for _, v in pts]
-        lt  = tier(xs, 40)        # model names need ~40px
-        vt  = tier(xs, 24)        # numbers need ~24px
 
         for (name, v), px_, tl, tv in zip(pts, xs, lt, vt):
             ly = y - 13 - tl * 12
@@ -676,12 +704,12 @@ def write_page(hist):
     for n, v in sorted(rr.items()):
         if len(v) < 3:
             continue
-        t = datetime.fromtimestamp(v[2], timezone.utc).astimezone(EDT)
-        while t <= now:
-            t += timedelta(hours=6)
-        upcoming.append((t, n))
+        nt = datetime.fromtimestamp(v[2], timezone.utc).astimezone(EDT)
+        while nt <= now:
+            nt += timedelta(hours=6)
+        upcoming.append((nt, n))
     upcoming.sort()
-    nextmodels = " · ".join(f"{n} ~{t:%H:%M}" for t, n in upcoming[:3])
+    nextmodels = " · ".join(f"{u:%H:%M} {n}" for u, n in upcoming[:3])
     # The countdown must be computed in the browser — baked into the HTML it starts
     # decaying the moment the page is built. data-cron-min is the cron minute (:05).
     nextline = (f'<div class="next" data-cron-min="5">'
@@ -693,8 +721,13 @@ def write_page(hist):
             ("NWS package", f"issued {issued} EDT")]
     for n, (i, a, *_) in sorted(rr.items()):
         vint.append((n, f"{i} run · published {a}"))
-    if rr and "GEM" not in rr:
-        vint.append(("GEM", "run time unknown"))
+    # Any model whose metadata feed is stale or missing — GEM's has been unmaintained for
+    # months — still forecasts fine; only its run time is unknown. Say so rather than
+    # omitting it, so a source never silently disappears from the vintage list.
+    if rr:
+        for _, n in OM_MODELS:
+            if n not in rr:
+                vint.append((n, "run time unknown"))
     runline = "".join(f'<div class="vk">{k}</div><div class="vv">{v}</div>' for k, v in vint)
 
     # Which sources actually reach the trip nights. A model that is merely short-range
@@ -772,7 +805,7 @@ def write_page(hist):
 :root{{
   --ground:#F1F3F7; --surface:#FFFFFF; --ink:#171C26; --body:#3B4453; --muted:#6C7789;
   --rule:#D3D9E4; --accent:#B5721A; --good:#2E6B4F; --warn:#B5721A; --bad:#B03A2C;
-  --band:rgba(46,107,79,.09);
+  --band:rgba(46,107,79,.09); --sband:rgba(181,114,26,.10);
   --s0:#2a78d6; --s1:#eb6834; --s2:#1baf7a;
   --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
   --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
@@ -781,23 +814,23 @@ def write_page(hist):
 @media (prefers-color-scheme:dark){{:root{{
   --ground:#0A0D14; --surface:#121722; --ink:#E7ECF5; --body:#BAC4D4; --muted:#7A8698;
   --rule:#232B39; --accent:#E3A445; --good:#6FBF95; --warn:#E3A445; --bad:#E8705C;
-  --band:rgba(111,191,149,.10);
+  --band:rgba(111,191,149,.10); --sband:rgba(181,114,26,.10);
   --s0:#3987e5; --s1:#d95926; --s2:#199e70;
 }}}}
 :root[data-theme="light"]{{
   --ground:#F1F3F7; --surface:#FFFFFF; --ink:#171C26; --body:#3B4453; --muted:#6C7789;
   --rule:#D3D9E4; --accent:#B5721A; --good:#2E6B4F; --warn:#B5721A; --bad:#B03A2C;
-  --band:rgba(46,107,79,.09); --s0:#2a78d6; --s1:#eb6834; --s2:#1baf7a;
+  --band:rgba(46,107,79,.09); --sband:rgba(181,114,26,.10); --s0:#2a78d6; --s1:#eb6834; --s2:#1baf7a;
 }}
 :root[data-theme="dark"]{{
   --ground:#0A0D14; --surface:#121722; --ink:#E7ECF5; --body:#BAC4D4; --muted:#7A8698;
   --rule:#232B39; --accent:#E3A445; --good:#6FBF95; --warn:#E3A445; --bad:#E8705C;
-  --band:rgba(111,191,149,.10); --s0:#3987e5; --s1:#d95926; --s2:#199e70;
+  --band:rgba(111,191,149,.10); --sband:rgba(181,114,26,.10); --s0:#3987e5; --s1:#d95926; --s2:#199e70;
 }}
 :root[data-night="on"]{{
   --ground:#000; --surface:#0A0000; --ink:#FF4A22; --body:#C8351A; --muted:#7E2210;
   --rule:#3A0F06; --accent:#FF6A34; --good:#FF6A34; --warn:#C8351A; --bad:#7E2210;
-  --band:rgba(255,106,52,.10);
+  --band:rgba(255,106,52,.10); --sband:rgba(181,114,26,.10);
   --s0:#FF6A34; --s1:#FF6A34; --s2:#FF6A34;
 }}
 *{{box-sizing:border-box}}
@@ -836,6 +869,9 @@ h2{{font-family:var(--serif);color:var(--ink);font-size:1.15rem;margin:2.2rem 0 
 .good{{color:var(--good)}} .warn{{color:var(--warn)}} .bad{{color:var(--bad)}} .dim{{color:var(--muted)}}
 svg{{width:100%;height:auto;display:block}}
 .band{{fill:var(--band)}}
+.sband{{fill:var(--sband)}}
+.sbandlab{{fill:var(--warn);font-family:var(--mono);font-size:9px;letter-spacing:.08em;
+  text-transform:uppercase;opacity:.8}}
 .bandlab{{fill:var(--good);font-family:var(--mono);font-size:9px;letter-spacing:.08em;
   text-transform:uppercase;opacity:.85}}
 .grid{{stroke:var(--rule);stroke-width:1}}
