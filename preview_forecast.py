@@ -107,8 +107,34 @@ def build():
                 "hour_labels": hours, "rows": rows,
             }
 
+        # Trip odds tighten as the pivot night converges — the whole point of the display.
+        # Night 1 fades, Night 2 firms up, Night 3 decays, and the joint number holds up
+        # because you only need one of them.
+        per = {"Night 1": [30, 28, 34, 26, 21][i],
+               "Night 2": [38, 41, 48, 57, 72][i],
+               "Night 3": [35, 33, 30, 26, 18][i]}
+        joint = [62, 66, 71, 76, 81][i]
+        # fog: night 2 goes calm and saturated as the ridge builds — the classic trap where
+        # the best-forecast night is the one that fogs
+        cond = {}
+        for lab, _ in lf.ALL:
+            r = {"hours": 14}
+            if lab == "Night 2":
+                r.update(fog_hours=[0, 0, 1, 3, 4][i], spread=[4.1, 3.2, 1.8, 0.9, 0.4][i],
+                         wind=[14.0, 11.0, 6.2, 3.1, 1.8][i])
+            elif lab == "Night 3":
+                r.update(fog_hours=0, spread=5.4, wind=18.0)
+            else:
+                r.update(fog_hours=[1, 1, 0, 0, 0][i], spread=2.6, wind=7.4)
+            if lab.startswith("Lead-up") or i >= 3:
+                r["aod"] = [0.12, 0.18, 0.24, 0.36, 0.41][i]
+                r["pm25"] = [4.0, 6.5, 9.0, 14.0, 17.5][i]
+            cond[lab] = r
+
         hist.append({
             "taken": taken.isoformat(),
+            "trip": {"per": per, "joint": joint, "n": 31},
+            "cond": cond,
             "issued": (taken - timedelta(hours=5)).astimezone().isoformat(),
             "grid": "GYX 28,125 (MOCK)",
             "runs": {"ECMWF": ("06Z", f"{taken:%d %b} 09:06"),
