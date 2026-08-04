@@ -687,6 +687,65 @@ def calibration(hist):
 WEBCAM_OVERRIDE = None      # preview_forecast.py sets this to render mock frames
 
 
+
+# Who runs each model, what it is good for, and where it lets you down. Ordered by how
+# much weight it deserves for THIS question — night cloud over a valley in northern NH.
+MODEL_NOTES = [
+ ("ECMWF", "ECMWF · Europe", "9 km",
+  "Highest medium-range skill of any global model. The one to weight at 4–10 days.",
+  "Too coarse to resolve a valley; known to overdo low stratus in moist northwest flow."),
+ ("HRRR", "NOAA · US", "3 km",
+  "Convection-allowing and terrain-resolving — the only model here that can see your "
+  "valley instead of averaging it away. Once it reaches your night, believe it over "
+  "everything else.",
+  "48 h ceiling. It will not cover 11 Aug until about 9 Aug — after your 8 Aug decision."),
+ ("UKMO", "Met Office · UK", "10 km",
+  "Usually second only to ECMWF on verification scores.",
+  "About 7 days on the free tier, so it arrives late in the argument."),
+ ("GEM", "Environment Canada", "15 km",
+  "Your weather arrives from Quebec, and this is the model whose home turf sits upstream "
+  "of you.",
+  "Open-Meteo's run metadata for it has been unmaintained for months, so its vintage "
+  "reads as unknown even though the forecast is current."),
+ ("ICON", "DWD · Germany", "13 km",
+  "Skill comparable to GFS or better at short range.",
+  "180 h ceiling — silent on the trip nights until roughly 7 Aug."),
+ ("AIFS", "ECMWF · Europe", "31 km",
+  "Machine-learning model trained on ERA5 reanalysis. It fails differently from the "
+  "physics models, which is the entire reason it earns a vote.",
+  "Smooths extremes — a genuinely clear or genuinely socked-in night gets pulled toward "
+  "the middle."),
+ ("GFS", "NOAA · US", "13 km",
+  "Updates four times a day out to 16 days, so it is the first to show a pattern change.",
+  "Run-to-run volatility is real. One GFS swing is not news; three in a row is."),
+ ("JMA", "Japan Met Agency", "20 km",
+  "A genuinely independent forecast system, which is worth something in an ensemble.",
+  "Least tuned for North America. A tiebreaker, not a lead."),
+ ("NWS", "US forecaster-edited blend", "2.5 km grid",
+  "A human has adjusted a model blend for local effects — worth real weight inside 3 days.",
+  "Built largely on GFS and the NBM, so it is not independent of GFS. Stops at 7 days."),
+]
+
+
+def model_notes(latest):
+    """Reference table for the sources, marked with who is actually contributing today."""
+    live = set()
+    for label, _ in NIGHTS:
+        live |= set(members(latest["nights"][label]))
+    rows = []
+    for name, who, grid, good, bad in MODEL_NOTES:
+        inplay = name in live
+        tag = ('<span class="pill on">in play</span>' if inplay
+               else '<span class="pill off">out of range</span>')
+        rows.append(
+            f'<tr><td><b>{name}</b><br><span class="dim">{who}</span></td>'
+            f'<td class="n">{grid}</td><td>{tag}</td>'
+            f'<td>{good}<br><span class="dim">Watch for: {bad}</span></td></tr>')
+    return (
+        '<div class="scroll"><table class="mtable"><thead><tr><th>Source</th><th>Grid</th>'
+        '<th>Now</th><th>What it is good for</th></tr></thead><tbody>'
+        + "".join(rows) + '</tbody></table></div>')
+
 def write_page(hist):
     latest = hist[-1]
     t = datetime.fromisoformat(latest["taken"])
@@ -863,6 +922,11 @@ h2{{font-family:var(--serif);color:var(--ink);font-size:1.15rem;margin:2.2rem 0 
 .big{{font-family:var(--mono);font-size:1.7rem;line-height:1.1;margin-top:.3rem;
   font-variant-numeric:tabular-nums}}
 .verdict{{font-family:var(--mono);font-size:.66rem;letter-spacing:.12em;text-transform:uppercase}}
+h3.sub{{font-family:var(--serif);color:var(--ink);font-size:1rem;margin:1.8rem 0 .5rem}}
+.mtable td{{vertical-align:top}}
+.pill{{font-family:var(--mono);font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;padding:.15rem .4rem;border-radius:3px;white-space:nowrap;border:1px solid}}
+.pill.on{{color:var(--good);border-color:var(--good)}}
+.pill.off{{color:var(--muted);border-color:var(--rule)}}
 .mrange{{font-family:var(--mono);font-size:.72rem;margin-top:.45rem;padding-top:.4rem;
   border-top:1px solid var(--rule);color:var(--muted)}}
 .mrange b{{color:var(--body)}}
@@ -1012,6 +1076,37 @@ td.trail{{font-family:var(--mono);font-size:1rem;letter-spacing:.12em}}
       </tbody></table></div>
     <p class="note" style="margin-top:.9rem">Threshold {GO}% = top of "mostly clear."
     Caveat: it's a whole-dome average and can't say <em>where</em> the cloud is.</p>
+  </div>
+
+  <h2>The sources</h2>
+  <div class="card">
+    <p class="lede">Every number on this page is the median across these. None of them is
+    the answer on its own.</p>
+    <div style="margin-top:1rem">{model_notes(latest)}</div>
+
+    <h3 class="sub">Should you weight one over another?</h3>
+    <p>Yes, and it changes as the trip approaches.</p>
+    <div class="scroll"><table><thead><tr><th>When</th><th>Believe</th><th>Because</th>
+      </tr></thead><tbody>
+      <tr><td class="n">Now — 7+ days</td><td><b>Nobody, individually</b></td>
+        <td>Read the spread, not the number. A ±60 spread means the atmosphere has not
+        committed yet, and any single model quoting you 23% is guessing.</td></tr>
+      <tr><td class="n">8 Aug — decision day</td><td><b>ECMWF, then UKMO</b></td>
+        <td>At 3 days these have the best track record, UKMO and ICON are both in range by
+        then, and NWS has a human in the loop. HRRR still cannot see 11 Aug.</td></tr>
+      <tr><td class="n">9–10 Aug</td><td><b>HRRR</b></td>
+        <td>3 km resolves the valley and the lakes instead of averaging them into a
+        13 km box. For terrain cloud nothing else here is close.</td></tr>
+      <tr><td class="n">On site</td><td><b>The webcam and your eyes</b></td>
+        <td>See the scoreboard above — it measures which model has actually been right at
+        this location, which beats any model's general reputation.</td></tr>
+    </tbody></table></div>
+
+    <p class="note" style="margin-top:1rem"><b>The honest caveat:</b> night-time low cloud
+    and valley fog are the weakest thing every global model does. They parameterise
+    boundary-layer cloud across a 13–25 km box over terrain that changes on a 1 km scale.
+    A clear synoptic pattern can still deliver a fogged-in lake at 3 AM, and none of these
+    will have told you. That is what the webcam is for.</p>
   </div>
 
   <div style="margin-top:2.5rem;padding-top:1.2rem;border-top:1px solid var(--rule);
