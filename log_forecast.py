@@ -144,7 +144,9 @@ def snapshot():
             "date": day,
             "lead": (d0.date() - stamp.date()).days,
             "core": round(sum(core) / len(core)) if core else None,
-            "late": round(sum(late) / len(late)) if late else None,
+            "core_best": min(core) if core else None,      # clearest single hour — "is there
+            "late": round(sum(late) / len(late)) if late else None,   # a shootable moment?"
+            "late_best": min(late) if late else None,
             "dark": round(sum(have) / len(have)) if have else None,
             "pop":  max([r["pop"] for r in rows if r["pop"] is not None], default=None),
             "flat": len(set(have)) == 1 if have else None,
@@ -458,6 +460,8 @@ def write_page(hist):
         verdict = ("no data" if v is None else
                    "GO" if v <= GO else "marginal" if v <= 55 else "poor")
         vc = "dim" if v is None else ("good" if v <= GO else "warn" if v <= 55 else "bad")
+        cb = nd.get("core_best")
+        lb = nd.get("late_best")
         lt = nd.get("late")
         ml = nd.get("models_late") or {}
         ltxt = ("—" if lt is None else f"{lt}%")
@@ -474,8 +478,12 @@ def write_page(hist):
             f'<div class="ncard"><span class="swatch s{si}"></span>'
             f'<b>{label}</b><span class="dim">{d:%a %d %b} · lead {nd["lead"]}d</span>'
             f'<span class="big {vc}">{"—" if v is None else str(v)+"%"}</span>'
-            f'<span class="verdict {vc}">NWS · {verdict}</span>{mline}'
-            f'<span class="mrange">1–4 AM <b>{ltxt}</b>{lrange}</span></div>')
+            f'<span class="verdict {vc}">NWS mean · {verdict}</span>'
+            f'<span class="mrange">best hour <b>{"—" if cb is None else str(cb)+"%"}</b>'
+            f'{"" if cb is None else " · " + ("shootable" if cb <= GO else "no clear hour")}</span>'
+            f'{mline}'
+            f'<span class="mrange">1–4 AM <b>{ltxt}</b>'
+            f'{"" if lb is None else f" · best {lb}%"}{lrange}</span></div>')
 
     def band(v):
         return "good" if v <= GO else "warn" if v <= 55 else "bad"
@@ -661,6 +669,18 @@ text.good{{fill:var(--good)}} text.warn{{fill:var(--warn)}} text.bad{{fill:var(-
 
   <h2>How much each night has moved</h2>
   <div class="card"><div class="scroll">{delta_table(hist)}</div></div>
+
+  <h2>Why two numbers per night</h2>
+  <div class="card">
+    <p style="max-width:62ch"><b style="color:var(--ink)">Mean</b> answers "how much of the
+    window works." <b style="color:var(--ink)">Best hour</b> answers "is there a shootable
+    moment at all" — and that's the one the go/no-go actually turns on, because the mission
+    needs one clear stretch, not a uniformly clear window.</p>
+    <p style="max-width:62ch; margin-top:.7rem">90% at 10 PM and 10% at 11 PM averages to
+    "50%, marginal" — while the truth is <b style="color:var(--ink)">45 perfectly usable
+    minutes</b>. The mean would argue against a night you'd want. Read the best hour first,
+    then the mean to see how much of the window it buys you, then the strip below for the shape.</p>
+  </div>
 
   <h2>Hour by hour</h2>
   <div class="card">

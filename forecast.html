@@ -132,7 +132,7 @@ text.good{fill:var(--good)} text.warn{fill:var(--warn)} text.bad{fill:var(--bad)
 </div></div>
 
 <div class="wrap">
-  <div class="eyebrow" style="margin-top:2rem">Fetched Tue 04 Aug, 14:15 EDT · forecast issued
+  <div class="eyebrow" style="margin-top:2rem">Fetched Tue 04 Aug, 14:21 EDT · forecast issued
     Tue 04 Aug 08:26 · gridpoint GYX 28,125</div>
   <h1>Forecast trend</h1>
   <p style="max-width:62ch"><b>The chart and the go/no-go use the core window, 10–11:30 PM</b> —
@@ -142,7 +142,7 @@ text.good{fill:var(--good)} text.warn{fill:var(--warn)} text.bad{fill:var(--bad)
   clear for one and clouded for the other. Each point is one forecast run — so the lines show <b>how the prediction for a
   given night has moved as the lead time shortened</b>, not the weather itself.</p>
 
-  <div class="cards"><div class="ncard"><span class="swatch s0"></span><b>Night 1</b><span class="dim">Tue 11 Aug · lead 7d</span><span class="big bad">57%</span><span class="verdict bad">NWS · poor</span><span class="mrange">models <b>23–82%</b> <span class="bad">±59</span></span><span class="mrange">1–4 AM <b>57%</b> · models 5–96%</span></div><div class="ncard"><span class="swatch s1"></span><b>Night 2</b><span class="dim">Wed 12 Aug · lead 8d</span><span class="big dim">—</span><span class="verdict dim">NWS · no data</span><span class="mrange">models <b>38–92%</b> <span class="bad">±54</span></span><span class="mrange">1–4 AM <b>—</b> · models 70–89%</span></div><div class="ncard"><span class="swatch s2"></span><b>Night 3</b><span class="dim">Thu 13 Aug · lead 9d</span><span class="big dim">—</span><span class="verdict dim">NWS · no data</span><span class="mrange">models <b>18–100%</b> <span class="bad">±82</span></span><span class="mrange">1–4 AM <b>—</b> · models 1–100%</span></div></div>
+  <div class="cards"><div class="ncard"><span class="swatch s0"></span><b>Night 1</b><span class="dim">Tue 11 Aug · lead 7d</span><span class="big bad">57%</span><span class="verdict bad">NWS mean · poor</span><span class="mrange">best hour <b>57%</b> · no clear hour</span><span class="mrange">models <b>23–82%</b> <span class="bad">±59</span></span><span class="mrange">1–4 AM <b>57%</b> · best 57% · models 5–96%</span></div><div class="ncard"><span class="swatch s1"></span><b>Night 2</b><span class="dim">Wed 12 Aug · lead 8d</span><span class="big dim">—</span><span class="verdict dim">NWS mean · no data</span><span class="mrange">best hour <b>—</b></span><span class="mrange">models <b>38–92%</b> <span class="bad">±54</span></span><span class="mrange">1–4 AM <b>—</b> · models 70–89%</span></div><div class="ncard"><span class="swatch s2"></span><b>Night 3</b><span class="dim">Thu 13 Aug · lead 9d</span><span class="big dim">—</span><span class="verdict dim">NWS mean · no data</span><span class="mrange">best hour <b>—</b></span><span class="mrange">models <b>18–100%</b> <span class="bad">±82</span></span><span class="mrange">1–4 AM <b>—</b> · models 1–100%</span></div></div>
 
   <div class="card">
     <svg viewBox="0 0 720 320" role="img" aria-label="Predicted core-window sky cover for each trip night, by forecast date" preserveAspectRatio="xMidYMid meet">
@@ -159,7 +159,7 @@ text.good{fill:var(--good)} text.warn{fill:var(--warn)} text.bad{fill:var(--bad)
 <line class="grid" x1="46" y1="18.0" x2="612" y2="18.0"/>
 <text class="ax" x="38" y="22.0" text-anchor="end">100%</text>
 <text class="ax" x="329.0" y="296" text-anchor="middle">04 Aug</text>
-<text class="ax dim" x="329.0" y="310" text-anchor="middle">14:15</text>
+<text class="ax dim" x="329.0" y="310" text-anchor="middle">14:21</text>
 <line class="rng0" x1="325.0" y1="218.2" x2="325.0" y2="64.8"/>
 <line class="rng1" x1="329.0" y1="179.2" x2="329.0" y2="38.8"/>
 <line class="rng2" x1="333.0" y1="231.2" x2="333.0" y2="18.0"/>
@@ -176,6 +176,18 @@ text.good{fill:var(--good)} text.warn{fill:var(--warn)} text.bad{fill:var(--bad)
 
   <h2>How much each night has moved</h2>
   <div class="card"><div class="scroll"><p class="note">Only one snapshot so far — run this again tomorrow and the movement column appears.</p></div></div>
+
+  <h2>Why two numbers per night</h2>
+  <div class="card">
+    <p style="max-width:62ch"><b style="color:var(--ink)">Mean</b> answers "how much of the
+    window works." <b style="color:var(--ink)">Best hour</b> answers "is there a shootable
+    moment at all" — and that's the one the go/no-go actually turns on, because the mission
+    needs one clear stretch, not a uniformly clear window.</p>
+    <p style="max-width:62ch; margin-top:.7rem">90% at 10 PM and 10% at 11 PM averages to
+    "50%, marginal" — while the truth is <b style="color:var(--ink)">45 perfectly usable
+    minutes</b>. The mean would argue against a night you'd want. Read the best hour first,
+    then the mean to see how much of the window it buys you, then the strip below for the shape.</p>
+  </div>
 
   <h2>Hour by hour</h2>
   <div class="card">
@@ -267,7 +279,7 @@ text.good{fill:var(--good)} text.warn{fill:var(--warn)} text.bad{fill:var(--bad)
   <h2>Every reading</h2>
   <div class="card"><div class="scroll"><table>
     <thead><tr><th>Forecast run</th><th>Night 1</th><th>Night 2</th><th>Night 3</th></tr></thead>
-    <tbody><tr><td>04 Aug 14:15</td><td class="n"><span class="val bad">57%</span><span class="delta dim">new</span></td><td class="n dim">—</td><td class="n dim">—</td></tr></tbody></table></div>
+    <tbody><tr><td>04 Aug 14:21</td><td class="n"><span class="val bad">57%</span><span class="delta dim">new</span></td><td class="n dim">—</td><td class="n dim">—</td></tr></tbody></table></div>
     <p class="note">Core-window mean cloud cover. <b class="good">Green ≤30%</b> ·
     <b class="warn">amber ≤55%</b> · <b class="bad">red above</b>. The arrow is the change since
     that night's previous reading — <b class="good">↓ green is improving</b> (less cloud),
