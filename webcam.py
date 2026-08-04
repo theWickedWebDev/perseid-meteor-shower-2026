@@ -144,15 +144,21 @@ def main():
     log = [e for e in log if e["time"] != entry["time"]]
     log.append(entry)
     log.sort(key=lambda e: e["time"])
-    json.dump(log, open(LOG, "w"), indent=1)
 
-    # prune old frames
+    # Prune old frames. Only ever touch .jpg files we could have written, and never let a
+    # stray file or a subdirectory kill the run — webcam.py goes first in publish.sh, so an
+    # exception here costs the forecast refresh too.
+    log = log[-KEEP * 3:]
     keep = {e["shot"] for e in log[-KEEP:]}
     for f in sorted(os.listdir(SHOTS)):
-        p = f"{SHOTS}/{f}"
-        if p not in keep:
-            os.remove(p)
-    log = log[-KEEP * 3:]
+        path = f"{SHOTS}/{f}"
+        if path in keep or not f.lower().endswith(".jpg"):
+            continue
+        try:
+            if os.path.isfile(path):
+                os.remove(path)
+        except OSError as ex:
+            print(f"  could not prune {path}: {ex}")
     json.dump(log, open(LOG, "w"), indent=1)
 
     if night:

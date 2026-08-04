@@ -14,9 +14,11 @@ if ! $PY log_forecast.py; then
     echo "$(date '+%F %T')  log_forecast failed — rebuilding pages from stored history"
     $PY - <<'EOF' || echo "  fallback rebuild failed too"
 import json, os, log_forecast as lf
-if os.path.exists(lf.HIST):
-    h = json.load(open(lf.HIST))
+h = json.load(open(lf.HIST)) if os.path.exists(lf.HIST) else []
+if h:                      # write_page does hist[-1]; an empty list is an IndexError
     lf.write_page(h); lf.write_log(h)
+else:
+    print("  no stored history to rebuild from")
 EOF
 fi
 

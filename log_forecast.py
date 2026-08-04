@@ -37,8 +37,13 @@ CORE_HR = (22, 23)          # 21:56–23:30 EDT — Milky Way core, at the lake
 LATE_HR = (1, 2, 3)         # 12:45–03:45 EDT — Perseid peak + refractor, at the cabin
 DARK    = (18, 7)           # hourly strips run 6 PM–7 AM: the shooting window plus
                             # context either side, so a trend into or out of it is visible
+DARK_HOURS = [f"{h:02d}" for h in list(range(18, 24)) + list(range(0, 8))]
 GO      = 30                # go/no-go threshold, % cloud cover
 SUCKER  = 40                # 30-40%: not a go, but breaks open — OH_SHIT.md territory
+SCORE_MIN_N = 12            # scored webcam frames before the model ranking means anything
+SCORE_MIN_SPREAD = 30       # ...and they must span this much cloud, or every model wins
+NO_CONSENSUS = 40           # spread at or above this and no median is worth a verdict;
+                            # matches the "no consensus" label on the agreement chart
 
 # Second opinion: Open-Meteo exposes individual models rather than a blend. ECMWF is the
 # most skillful global model and is genuinely independent of NWS's GFS/NAM-based product.
@@ -153,6 +158,32 @@ def open_meteo():
     return out
 
 
+KEEP_FULL = 12      # entries retaining full hourly detail; older ones keep only what the
+                    # page actually reads back — the consensus, the per-model window values
+
+
+def compact(hist):
+    """Drop hourly detail from old entries, preserving every rendered number.
+
+    Only the newest entry is drawn hour-by-hour; older ones contribute a single point to
+    the trend chart and a row to the movement table. Keeping their full hourly arrays cost
+    about 19 KB each and would have reached ~2.7 MB by the end of the trip, rewritten and
+    committed hourly. The consensus is computed and stored before the source is removed,
+    so no displayed value changes.
+    """
+    for e in hist[:-KEEP_FULL]:
+        for nd in e.get("nights", {}).values():
+            if "cons" in nd or not nd.get("models_hourly"):
+                continue
+            for key, late in (("cons", False), ("cons_late", True)):
+                c = consensus(nd, late)
+                if c:
+                    nd[key] = list(c)
+            for k in ("rows", "models_hourly", "hour_labels"):
+                nd.pop(k, None)
+    return hist
+
+
 def snapshot():
     p = get(f"https://api.weather.gov/points/{SITE[1]},{SITE[2]}")["properties"]
     grid = get(p["forecastGridData"])["properties"]
@@ -199,7 +230,11 @@ def snapshot():
             "models": (om.get(label) or {}).get("core", {}),
             "models_late": (om.get(label) or {}).get("late", {}),
             "models_hourly": (om.get(label) or {}).get("hourly", {}),
-            "hour_labels": (om.get(label) or {}).get("hours", []),
+            # Derived from DARK, not from the Open-Meteo payload. It used to come from
+            # the payload, so an Open-Meteo outage silently took out the hourly strips,
+            # the ensemble profile and the best-hour figure — while NWS hourly sky cover
+            # sat unused in "rows" the whole time.
+            "hour_labels": DARK_HOURS,
             "rows": rows,
         }
     return entry
@@ -278,10 +313,18 @@ def svg_chart(hist):
         p.append(f'<line class="grid" x1="{L}" y1="{py(v):.1f}" x2="{L+pw}" y2="{py(v):.1f}"/>')
         p.append(f'<text class="ax" x="{L-8}" y="{py(v)+4:.1f}" text-anchor="end">{v}%</text>')
 
-    # x labels
-    for i, d in enumerate(xs):
-        p.append(f'<text class="ax" x="{px(i):.1f}" y="{T+ph+18:.0f}" '
-                 f'text-anchor="middle">{d:%d %b}</text>')
+    # X labels, thinned. A two-line stamp needs ~34 px and the plot is only `pw` wide, so
+    # past roughly 16 snapshots every label would be drawn on top of its neighbour. Keep
+    # every nth, always including the newest, and show the date only when the day changes.
+    step = max(1, -(-n * 34 // max(int(pw), 1)))
+    keep = sorted({0, n - 1} | set(range(n - 1, -1, -step)))
+    prev_day = None
+    for i in sorted(keep):
+        d = xs[i]
+        if d.strftime("%d %b") != prev_day:
+            p.append(f'<text class="ax" x="{px(i):.1f}" y="{T+ph+18:.0f}" '
+                     f'text-anchor="middle">{d:%d %b}</text>')
+            prev_day = d.strftime("%d %b")
         p.append(f'<text class="ax dim" x="{px(i):.1f}" y="{T+ph+32:.0f}" '
                  f'text-anchor="middle">{d:%H:%M}</text>')
 
@@ -345,6 +388,12 @@ def consensus(nd, late=False):
     series — otherwise "best hour" can come out worse than the window containing it.
     lo/hi stay per-source window means, so the spread compares whole forecasts.
     """
+    # Compacted history entries carry the already-computed answer, because the hourly
+    # series it was derived from has been dropped. Without this, compaction would quietly
+    # change every historical point on the trend chart.
+    cached = nd.get("cons_late" if late else "cons")
+    if cached:
+        return tuple(cached)
     m = members(nd, late)
     if not m:
         return None
@@ -466,8 +515,9 @@ def agreement_svg(latest):
             p.append(f'<path class="nws" d="M{x(cx):.1f},{y-9} L{x(cx)+6:.1f},{y} '
                      f'L{x(cx):.1f},{y+9} L{x(cx)-6:.1f},{y} Z"/>')
         spread = hi - lo
-        verd = "agree" if spread < 20 else "some spread" if spread < 40 else "no consensus"
-        cls  = "good" if spread < 20 else "warn" if spread < 40 else "bad"
+        verd = ("agree" if spread < 20 else
+                "some spread" if spread < NO_CONSENSUS else "no consensus")
+        cls = "good" if spread < 20 else "warn" if spread < NO_CONSENSUS else "bad"
         p.append(f'<text class="spread {cls}" x="{W-112}" y="{y-2}">±{spread}</text>')
         p.append(f'<text class="spreadlab {cls}" x="{W-112}" y="{y+12}">{verd}</text>')
     p.append("</svg>")
@@ -493,6 +543,12 @@ def webcam_section(log=None):
     for e in day:
         for m, v in (e.get("models") or {}).items():
             errs.setdefault(m, []).append(abs(v - e["cloud"]))
+    # A ranking needs enough checks AND enough variety to mean anything. Three consecutive
+    # clear frames give every model a near-perfect score and rank pure noise, so the table
+    # shows n from the start but only claims a winner once there is something to separate.
+    n_obs = len(day)
+    spread_obs = (max(e["cloud"] for e in day) - min(e["cloud"] for e in day)) if day else 0
+    trustworthy = n_obs >= SCORE_MIN_N and spread_obs >= SCORE_MIN_SPREAD
     score = ""
     if any(len(v) >= 2 for v in errs.values()):
         rows = "".join(
@@ -500,10 +556,15 @@ def webcam_section(log=None):
             f"<td class='n {'good' if sum(v)/len(v) < 12 else 'warn' if sum(v)/len(v) < 25 else 'bad'}'>"
             f"{sum(v)/len(v):.0f} pts</td></tr>"
             for m, v in sorted(errs.items(), key=lambda kv: sum(kv[1]) / len(kv[1])))
+        verdict = ('<p class="note">Lowest = believe that one.</p>' if trustworthy else
+                   f'<p class="note"><b>Not yet a ranking.</b> {n_obs} scored frame'
+                   f'{"s" if n_obs != 1 else ""} spanning {spread_obs} points of cloud — '
+                   f'a winner needs at least {SCORE_MIN_N} frames across '
+                   f'{SCORE_MIN_SPREAD} points. Under a steady clear sky every model looks '
+                   f'perfect and the order is noise.</p>')
         score = ('<div class="scroll" style="margin-top:1rem"><table><thead><tr>'
                  '<th>Model</th><th>Checks</th><th>Mean error vs camera</th></tr></thead><tbody>'
-                 + rows + '</tbody></table></div>'
-                 '<p class="note">Lowest = believe that one.</p>')
+                 + rows + '</tbody></table></div>' + verdict)
 
     cells = []
     for e in reversed(log[-30:]):
@@ -529,7 +590,7 @@ def webcam_section(log=None):
     return f'''
   <h2>Ground truth — the webcam</h2>
   <div class="card">
-    <p class="lede">First Connecticut Lake, ~15 km from the site. Hourly frame, cloud estimated,
+    <p class="lede">First Connecticut Lake, 16.7 km SSW of the site. Hourly frame, cloud estimated,
     compared against what each model said for that hour.</p>
     <div class="live"><iframe src="https://www.youtube.com/embed/wNxk-XC8Z5s"
       title="First Connecticut Lake live webcam" loading="lazy" allowfullscreen
@@ -660,8 +721,10 @@ SUN_MIN = 15.0   # deg. Below this the R/B cloud test is not trustworthy — a l
 def sun_alt(dt, lat, lon):
     """Solar elevation in degrees. NOAA low-precision algorithm, good to ~0.1 deg.
 
-    Validated against the almanac for this site: computes sunset 20:03 and sunrise 05:39
-    EDT for 4 Aug 2026, against published values of about 20:05 and 05:30.
+    Validated at WEBCAM_SITE (45.0958, -71.2600), which is where observed() uses it:
+    computes sunset 20:03 and sunrise 05:39 EDT for 4 Aug 2026, against published values
+    of about 20:05 and 05:30. Other coordinates give other times — the numbers above are
+    not a general claim about the function.
     """
     import math
     u = dt.astimezone(timezone.utc)
@@ -767,7 +830,7 @@ def calibration(hist, wlog=None):
             '<th>Latest</th><th>Swing</th><th>Observed</th><th>Miss</th></tr></thead><tbody>'
             + "".join(rows) + '</tbody></table></div>'
             + '<p class="note" style="margin-top:.8rem"><b>Observed</b> is the webcam at '
-            'First Connecticut Lake, about 20 km south of the shooting site. Cloud can only '
+            'First Connecticut Lake, 16.7 km SSW of the shooting site. Cloud can only '
             'be scored while the sun is more than 15° up, so this is the last trustworthy look '
             'before dark and the first after dawn — a bracket around the night, not a '
             'measurement of it. '
@@ -911,9 +974,18 @@ def write_page(hist):
         d = datetime.strptime(nd["date"], "%Y-%m-%d")
         cons = consensus(nd)
         v = cons[0] if cons else None
-        verdict = ("no data" if v is None else
-                   "GO" if v <= GO else "marginal" if v <= 55 else "poor")
-        vc = "dim" if v is None else ("good" if v <= GO else "warn" if v <= 55 else "bad")
+        # The verdict is gated on agreement, not just the median. A 30% median drawn from
+        # sources spanning 4-82% is not a GO - it is one model's opinion winning a vote,
+        # and calling it GO is exactly the overconfidence this page exists to prevent.
+        spread = cons[3] if cons else None
+        if v is None:
+            verdict, vc = "no data", "dim"
+        elif spread is not None and spread >= NO_CONSENSUS:
+            verdict = f"UNRESOLVED · sources span {cons[1]}–{cons[2]}%"
+            vc = "warn" if v <= 55 else "bad"
+        else:
+            verdict = "GO" if v <= GO else "marginal" if v <= 55 else "poor"
+            vc = "good" if v <= GO else "warn" if v <= 55 else "bad"
         prev = next((consensus(h["nights"][label])[0] for h in reversed(hist[:-1])
                      if consensus(h["nights"].get(label, {}))), None)
         if v is not None and prev is not None and v != prev:
@@ -1182,7 +1254,7 @@ td.trail{{font-family:var(--mono);font-size:1rem;letter-spacing:.12em}}
         <tr><td class="n">63–87%</td><td>Mostly cloudy</td><td class="bad">Occasional sucker holes</td></tr>
         <tr><td class="n">88–100%</td><td>Overcast</td><td class="bad">Nothing</td></tr>
       </tbody></table></div>
-    <p class="note" style="margin-top:.9rem">Threshold {GO}% = top of "mostly clear."
+    <p class="note" style="margin-top:.9rem">Threshold {GO}% sits inside "mostly clear" (13–37%), deliberately short of its top.
     Caveat: it's a whole-dome average and can't say <em>where</em> the cloud is.</p>
   </div>
 
@@ -1287,6 +1359,7 @@ def main():
         return
     hist.append(new)
     hist.sort(key=lambda e: e["taken"])
+    compact(hist)
     json.dump(hist, open(HIST, "w"), indent=1)
     write_log(hist)
     write_page(hist)
