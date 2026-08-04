@@ -160,11 +160,12 @@ td.trail{font-family:var(--mono);font-size:1rem;letter-spacing:.12em}
   <div class="eyebrow" style="margin-top:2rem">Fetched Tue 04 Aug, 17:53 EDT · forecast issued
     Tue 04 Aug 14:19 · gridpoint GYX 28,125</div>
   <h1>Forecast trend</h1>
-  <div class="next" data-cron-min="5"><span id="nextcheck"><b>Next check 16:05</b> <span class="dim">— in 51 min, then hourly</span></span><span class="dim"> · next model data: ICON ~17:53 · GFS ~19:52 · ECMWF ~21:06</span></div>
+  <div class="next" data-cron-min="5"><span id="nextcheck"><b>Next check 16:05</b> <span class="dim">— in 45 min, then hourly</span></span><span class="dim"> · next model data: ICON ~17:53 · GFS ~19:52 · ECMWF ~21:06</span></div>
   <p class="lede">Cloud cover. <b>Core window 10–11:30 PM</b> decides go/no-go; <b>1–4 AM</b> is
   Perseids and the scope. Each point is one forecast run.</p>
 
-  <div class="cards"><div class="ncard"><span class="swatch s0"></span><b>Night 1</b><span class="dim">Tue 11 Aug · lead 7d</span><span class="big warn">51%</span><span class="verdict warn">NWS mean · marginal<span class="step good">↓6 since last</span></span><span class="mrange">best hour <b>10 PM · 51%</b> · no clear hour</span><span class="mrange">models <b>23–82%</b> <span class="bad">±59</span></span><span class="mrange">1–4 AM <b>51%</b> · best 1 AM 51% · models 5–96%</span></div><div class="ncard"><span class="swatch s1"></span><b>Night 2</b><span class="dim">Wed 12 Aug · lead 8d</span><span class="big dim">—</span><span class="verdict dim">NWS mean · no data</span><span class="mrange">best hour <b>—</b></span><span class="mrange">models <b>38–92%</b> <span class="bad">±54</span></span><span class="mrange">1–4 AM <b>—</b> · models 70–89%</span></div><div class="ncard"><span class="swatch s2"></span><b>Night 3</b><span class="dim">Thu 13 Aug · lead 9d</span><span class="big dim">—</span><span class="verdict dim">NWS mean · no data</span><span class="mrange">best hour <b>—</b></span><span class="mrange">models <b>18–100%</b> <span class="bad">±82</span></span><span class="mrange">1–4 AM <b>—</b> · models 1–100%</span></div></div>
+  <div class="cards"><div class="ncard"><span class="swatch s0"></span><b>Night 1</b><span class="dim">Tue 11 Aug · lead 7d</span><span class="big warn">51%</span><span class="verdict warn">4-source median · marginal<span class="step good">↓3 since last</span></span><span class="mrange">best hour <b>10 PM · 48%</b> · no clear hour</span><span class="mrange" title="ECMWF, GEM, GFS, NWS">4 sources <b>23–82%</b> <span class="bad">±59</span></span><span class="mrange">1–4 AM <b>77%</b> · best 1 AM 68% · sources 5–96%</span></div><div class="ncard"><span class="swatch s1"></span><b>Night 2</b><span class="dim">Wed 12 Aug · lead 8d</span><span class="big bad">56%</span><span class="verdict bad">3-source median · poor<span class="step dim">→ no change</span></span><span class="mrange">best hour <b>10 PM · 56%</b> · no clear hour</span><span class="mrange" title="ECMWF, GEM, GFS">3 sources <b>38–92%</b> <span class="bad">±54</span></span><span class="mrange">1–4 AM <b>78%</b> · best 1 AM 73% · sources 70–89%</span></div><div class="ncard"><span class="swatch s2"></span><b>Night 3</b><span class="dim">Thu 13 Aug · lead 9d</span><span class="big bad">58%</span><span class="verdict bad">3-source median · poor<span class="step dim">→ no change</span></span><span class="mrange">best hour <b>11 PM · 56%</b> · no clear hour</span><span class="mrange" title="ECMWF, GEM, GFS">3 sources <b>18–100%</b> <span class="bad">±82</span></span><span class="mrange">1–4 AM <b>89%</b> · best 1 AM 81% · sources 1–100%</span></div></div>
+  <p class="note">Median of <b>ECMWF, GEM, GFS, NWS</b>, weighted equally. The number under each night is the middle opinion, not an average — one model going rogue moves the range, not the verdict. <b>ICON</b> does not forecast this far out yet and will join nearer the date.</p>
 
   <div class="card">
     <svg viewBox="0 0 720 320" role="img" aria-label="Predicted core-window sky cover for each trip night, by forecast date" preserveAspectRatio="xMidYMid meet">
@@ -190,18 +191,26 @@ td.trail{font-family:var(--mono);font-size:1rem;letter-spacing:.12em}
 <line class="rng1" x1="612.0" y1="179.2" x2="612.0" y2="38.8"/>
 <line class="rng2" x1="50.0" y1="231.2" x2="50.0" y2="18.0"/>
 <line class="rng2" x1="616.0" y1="231.2" x2="616.0" y2="18.0"/>
-<path class="s0" d="M46.0,129.8 L612.0,145.4" fill="none"/>
-<circle class="s0 dot" cx="46.0" cy="129.8" r="4.5"/>
+<path class="s0" d="M46.0,137.6 L612.0,145.4" fill="none"/>
+<circle class="s0 dot" cx="46.0" cy="137.6" r="4.5"/>
 <circle class="s0 dot" cx="612.0" cy="145.4" r="4.5"/>
 <text class="s0 lab" x="624.0" y="149.4">Night 1 · 51%</text>
+<path class="s1" d="M46.0,132.4 L612.0,132.4" fill="none" stroke-dasharray="7 4"/>
+<circle class="s1 dot" cx="46.0" cy="132.4" r="4.5"/>
+<circle class="s1 dot" cx="612.0" cy="132.4" r="4.5"/>
+<text class="s1 lab" x="624.0" y="136.4">Night 2 · 56%</text>
+<path class="s2" d="M46.0,127.2 L612.0,127.2" fill="none" stroke-dasharray="2 4"/>
+<circle class="s2 dot" cx="46.0" cy="127.2" r="4.5"/>
+<circle class="s2 dot" cx="612.0" cy="127.2" r="4.5"/>
+<text class="s2 lab" x="624.0" y="131.2">Night 3 · 58%</text>
 <line class="axis" x1="46" y1="278" x2="612" y2="278"/>
 </svg>
-    <p class="note">Lower is better. Dot &amp; line = NWS · pale bar = model spread.
+    <p class="note">Lower is better. Dot &amp; line = consensus · pale bar = source spread.
     <b style="color:var(--ink)">Bars getting shorter = consensus forming.</b></p>
   </div>
 
   <h2>How much each night has moved</h2>
-  <div class="card"><div class="scroll"><table><thead><tr><th>Night</th><th>First</th><th>Latest</th><th>Change</th><th>Each step</th><th>Range</th><th>Model spread</th></tr></thead><tbody><tr><td>Night 1</td><td class='n'>57%</td><td class='n'>51%</td><td class='n better'>↓ 6</td><td class='trail'><span class="good">↓</span></td><td class='n'>6</td><td class='n '>±59 → ±59</td></tr><tr><td>Night 2</td><td colspan='4' class='dim'>no data yet</td></tr><tr><td>Night 3</td><td colspan='4' class='dim'>no data yet</td></tr></tbody></table></div></div>
+  <div class="card"><div class="scroll"><table><thead><tr><th>Night</th><th>First</th><th>Latest</th><th>Change</th><th>Each step</th><th>Range</th><th>Model spread</th></tr></thead><tbody><tr><td>Night 1</td><td class='n'>54%</td><td class='n'>51%</td><td class='n '>↓ 3</td><td class='trail'><span class="good">↓</span></td><td class='n'>3</td><td class='n '>±59 → ±59</td></tr><tr><td>Night 2</td><td class='n'>56%</td><td class='n'>56%</td><td class='n '>→ 0</td><td class='trail'><span class="dim">→</span></td><td class='n'>0</td><td class='n '>±54 → ±54</td></tr><tr><td>Night 3</td><td class='n'>58%</td><td class='n'>58%</td><td class='n '>→ 0</td><td class='trail'><span class="dim">→</span></td><td class='n'>0</td><td class='n '>±82 → ±82</td></tr></tbody></table></div></div>
 
   
   <h2>Ground truth — the webcam</h2>
@@ -250,6 +259,11 @@ td.trail{font-family:var(--mono);font-size:1rem;letter-spacing:.12em}
 <circle class="mdot" cx="352.1" cy="46" r="5"/>
 <text class="mlab" x="352.1" y="33" text-anchor="middle">ECMWF</text>
 <text class="mval" x="352.1" y="65" text-anchor="middle">51</text>
+<line class="lead" x1="352.1" y1="39" x2="352.1" y2="24"/>
+<line class="lead" x1="352.1" y1="53" x2="352.1" y2="69"/>
+<circle class="mdot" cx="352.1" cy="46" r="5"/>
+<text class="mlab" x="352.1" y="21" text-anchor="middle">NWS</text>
+<text class="mval" x="352.1" y="77" text-anchor="middle">51</text>
 <circle class="mdot" cx="510.2" cy="46" r="5"/>
 <text class="mlab" x="510.2" y="33" text-anchor="middle">GEM</text>
 <text class="mval" x="510.2" y="65" text-anchor="middle">82</text>
@@ -267,6 +281,7 @@ td.trail{font-family:var(--mono);font-size:1rem;letter-spacing:.12em}
 <circle class="mdot" cx="561.2" cy="138" r="5"/>
 <text class="mlab" x="561.2" y="125" text-anchor="middle">GEM</text>
 <text class="mval" x="561.2" y="157" text-anchor="middle">92</text>
+<path class="nws" d="M377.6,129 L383.6,138 L377.6,147 L371.6,138 Z"/>
 <text class="spread bad" x="608" y="136">±54</text>
 <text class="spreadlab bad" x="608" y="150">no consensus</text>
 <text class="nlab" x="0" y="234">Night 3</text>
@@ -280,16 +295,17 @@ td.trail{font-family:var(--mono);font-size:1rem;letter-spacing:.12em}
 <circle class="mdot" cx="602.0" cy="230" r="5"/>
 <text class="mlab" x="602.0" y="217" text-anchor="middle">ECMWF</text>
 <text class="mval" x="602.0" y="249" text-anchor="middle">100</text>
+<path class="nws" d="M387.8,221 L393.8,230 L387.8,239 L381.8,230 Z"/>
 <text class="spread bad" x="608" y="228">±82</text>
 <text class="spreadlab bad" x="608" y="242">no consensus</text>
 </svg></div>
-    <p class="note">Dots = models · bar = range · ◇ = NWS · shaded = under 30%</p>
+    <p class="note">Dots = each source · bar = range · ◇ = consensus median · shaded = under 30%</p>
   </div>
 
   <h2>Calibration — the nights before the trip</h2>
   <div class="card">
     <p class="lede">Nights before the trip, which verify while you watch — so this measures how far a forecast actually travels in this pattern.</p>
-    <p style="margin-bottom:.8rem"><b style="color:var(--ink)">Worst swing so far: 16 points</b> (typical 8). You are asking how <em>wrong</em> a forecast could be — a tail question — so the worst case is the honest number and the mean understates it. A night reading 45% four days out could plausibly land anywhere within ±16 of that.</p><div class="scroll"><table><thead><tr><th>Night</th><th>Lead</th><th>First</th><th>Latest</th><th>Swing</th></tr></thead><tbody><tr><td>Wed 05 Aug</td><td class='n'>1d → 1d</td><td class='n'>42%</td><td class='n'>52%</td><td class='n'>10</td></tr><tr><td>Thu 06 Aug</td><td class='n'>2d → 2d</td><td class='n'>54%</td><td class='n'>60%</td><td class='n'>6</td></tr><tr><td>Fri 07 Aug</td><td class='n'>3d → 3d</td><td class='n'>65%</td><td class='n'>59%</td><td class='n'>6</td></tr><tr><td>Sat 08 Aug</td><td class='n'>4d → 4d</td><td class='n'>53%</td><td class='n'>69%</td><td class='n'>16</td></tr><tr><td>Sun 09 Aug</td><td class='n'>5d → 5d</td><td class='n'>62%</td><td class='n'>56%</td><td class='n'>6</td></tr><tr><td>Mon 10 Aug</td><td class='n'>6d → 6d</td><td class='n'>64%</td><td class='n'>63%</td><td class='n'>1</td></tr></tbody></table></div>
+    <p style="margin-bottom:.8rem"><b style="color:var(--ink)">Worst swing so far: 8 points</b> (typical 3). You are asking how <em>wrong</em> a forecast could be — a tail question — so the worst case is the honest number and the mean understates it. A night reading 45% four days out could plausibly land anywhere within ±8 of that.</p><div class="scroll"><table><thead><tr><th>Night</th><th>Lead</th><th>First</th><th>Latest</th><th>Swing</th></tr></thead><tbody><tr><td>Wed 05 Aug</td><td class='n'>1d → 1d</td><td class='n'>16%</td><td class='n'>16%</td><td class='n'>0</td></tr><tr><td>Thu 06 Aug</td><td class='n'>2d → 2d</td><td class='n'>54%</td><td class='n'>60%</td><td class='n'>6</td></tr><tr><td>Fri 07 Aug</td><td class='n'>3d → 3d</td><td class='n'>92%</td><td class='n'>92%</td><td class='n'>0</td></tr><tr><td>Sat 08 Aug</td><td class='n'>4d → 4d</td><td class='n'>66%</td><td class='n'>74%</td><td class='n'>8</td></tr><tr><td>Sun 09 Aug</td><td class='n'>5d → 5d</td><td class='n'>56%</td><td class='n'>52%</td><td class='n'>4</td></tr><tr><td>Mon 10 Aug</td><td class='n'>6d → 6d</td><td class='n'>66%</td><td class='n'>66%</td><td class='n'>0</td></tr></tbody></table></div>
   </div>
 
   <h2>What the percentage means</h2>

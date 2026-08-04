@@ -50,10 +50,17 @@ combined with their EXIF timestamps that fixes altitude and azimuth exactly, whi
 treeline height in each direction without ever standing there with a compass.
 
 **The forecast tooling tracks model disagreement, not just the forecast.** `log_forecast.py`
-pulls NWS gridpoint data plus ECMWF, GFS and GEM via Open-Meteo, and renders
+pulls NWS gridpoint data plus ECMWF, GFS, ICON and GEM via Open-Meteo, and renders
 [forecast.html](forecast.html). The useful output isn't the number — it's the *spread*. At nine
 days out, GFS and ECMWF disagreed by 82 points about the same night. Watching that spread
 narrow is the actual go/no-go signal.
+
+**No number on the page comes from a single source.** Every figure — the headline percentage,
+the verdict, the best hour, the trend chart, the movement table — is the median across every
+source that reaches that night, taken hour by hour and then averaged over the window. NWS is one
+member of the ensemble, not the answer; it stops at 7 days, so the trip nights are carried by the
+models alone until the grid reaches them. Median rather than mean, because with GEM at 92 and
+ECMWF at 38 for the same night a mean invents a number nobody forecast.
 
 ## Tooling
 

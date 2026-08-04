@@ -283,8 +283,8 @@ def svg_chart(hist):
 
     # series
     for si, (label, _) in enumerate(NIGHTS):
-        pts = [(i, e["nights"][label]["core"]) for i, e in enumerate(hist)
-               if e["nights"][label]["core"] is not None]
+        pts = [(i, consensus(e["nights"][label])[0]) for i, e in enumerate(hist)
+               if consensus(e["nights"][label])]
         if not pts:
             continue
         dash = SERIES[si][2]
@@ -304,13 +304,72 @@ def svg_chart(hist):
     return "\n".join(p)
 
 
-def mrange(nd):
-    """(lo, hi, spread) across models for a night, or None."""
-    m = nd.get("models") or {}
+def members(nd, late=False):
+    """{source: cloud%} for the window — every model plus NWS, as equal members.
+
+    NWS is one opinion among several, not the answer. It is the only member that
+    stops at 7 days, so for the trip nights it is simply absent early on and the
+    ensemble carries on without it.
+    """
+    m = dict(nd.get("models_late" if late else "models") or {})
+    n = nd.get("late" if late else "core")
+    if n is not None:
+        m["NWS"] = n
+    return m
+
+
+def consensus(nd, late=False):
+    """(value, lo, hi, spread, n) — the ensemble's view of a window, or None.
+
+    Median rather than mean: with GEM at 92 and ECMWF at 38 for the same night, a
+    mean invents a number no model actually forecasts and lets one outlier drag the
+    verdict. The median is the middle opinion, and it survives one model going rogue.
+
+    The median is taken hour by hour and then averaged across the window, rather
+    than the other way round, so that the best-hour figure is drawn from the same
+    series — otherwise "best hour" can come out worse than the window containing it.
+    lo/hi stay per-source window means, so the spread compares whole forecasts.
+    """
+    m = members(nd, late)
     if not m:
         return None
-    lo, hi = min(m.values()), max(m.values())
-    return lo, hi, hi - lo
+    v = sorted(m.values())
+    k = len(v)
+    mid = v[k // 2] if k % 2 else (v[k // 2 - 1] + v[k // 2]) / 2
+    eh = ens_hourly(nd)
+    hv = [eh[f"{h:02d}"] for h in (LATE_HR if late else CORE_HR) if f"{h:02d}" in eh]
+    val = int(round(sum(hv) / len(hv))) if hv else int(round(mid))
+    return val, v[0], v[-1], v[-1] - v[0], k
+
+
+def ens_hourly(nd):
+    """{hour: median across all members} — the ensemble's own hourly profile."""
+    hrs = nd.get("hour_labels") or []
+    mh = nd.get("models_hourly") or {}
+    nws = {r["h"][:2]: r["sky"] for r in (nd.get("rows") or [])}
+    out = {}
+    for i, h in enumerate(hrs):
+        vals = [row[i] for row in mh.values() if i < len(row) and row[i] is not None]
+        if nws.get(h) is not None:
+            vals.append(nws[h])
+        if vals:
+            s = sorted(vals)
+            k = len(s)
+            out[h] = int(round(s[k // 2] if k % 2 else (s[k // 2 - 1] + s[k // 2]) / 2))
+    return out
+
+
+def best_hour(nd, hours):
+    """(cloud%, hour) of the clearest hour in the window by ensemble median, or (None, None)."""
+    eh = ens_hourly(nd)
+    p = [(eh[f"{h:02d}"], h) for h in hours if f"{h:02d}" in eh]
+    return min(p) if p else (None, None)
+
+
+def mrange(nd, late=False):
+    """(lo, hi, spread) across all members — kept for the spread columns."""
+    c = consensus(nd, late)
+    return None if c is None else (c[1], c[2], c[3])
 
 
 def agreement_svg(latest):
@@ -349,7 +408,7 @@ def agreement_svg(latest):
     for i, (label, nd) in enumerate(nights):
         y = 46 + i * rowsH
         p.append(f'<text class="nlab" x="0" y="{y+4}">{label}</text>')
-        mods = nd.get("models") or {}
+        mods = members(nd)
         if not mods:
             p.append(f'<text class="ax" x="{PAD}" y="{y+4}">no model data</text>')
             continue
@@ -372,10 +431,11 @@ def agreement_svg(latest):
             p.append(f'<text class="mlab" x="{px_:.1f}" y="{ly}" text-anchor="middle">{name}</text>')
             p.append(f'<text class="mval" x="{px_:.1f}" y="{vy}" text-anchor="middle">{v}</text>')
 
-        nws = nd.get("core")
-        if nws is not None:
-            p.append(f'<path class="nws" d="M{x(nws):.1f},{y-9} L{x(nws)+6:.1f},{y} '
-                     f'L{x(nws):.1f},{y+9} L{x(nws)-6:.1f},{y} Z"/>')
+        c = consensus(nd)
+        if c is not None:
+            cx = c[0]
+            p.append(f'<path class="nws" d="M{x(cx):.1f},{y-9} L{x(cx)+6:.1f},{y} '
+                     f'L{x(cx):.1f},{y+9} L{x(cx)-6:.1f},{y} Z"/>')
         spread = hi - lo
         verd = "agree" if spread < 20 else "some spread" if spread < 40 else "no consensus"
         cls  = "good" if spread < 20 else "warn" if spread < 40 else "bad"
@@ -521,8 +581,8 @@ def delta_table(hist):
                 'second forecast package lands — see the next-check time at the top.</p>')
     rows = []
     for label, _ in NIGHTS:
-        vals = [(datetime.fromisoformat(e["taken"]), e["nights"][label]["core"])
-                for e in hist if e["nights"][label]["core"] is not None]
+        vals = [(datetime.fromisoformat(e["taken"]), consensus(e["nights"][label])[0])
+                for e in hist if consensus(e["nights"][label])]
         if not vals:
             rows.append(f"<tr><td>{label}</td><td colspan='4' class='dim'>no data yet</td></tr>")
             continue
@@ -531,8 +591,8 @@ def delta_table(hist):
         swing = max(v for _, v in vals) - min(v for _, v in vals)
         arrow = "→" if d == 0 else ("↑" if d > 0 else "↓")
         cls = "worse" if d > 5 else ("better" if d < -5 else "")
-        seq = [e["nights"][label]["core"] for e in hist
-               if e["nights"].get(label, {}).get("core") is not None]
+        seq = [consensus(e["nights"][label])[0] for e in hist
+               if consensus(e["nights"].get(label, {}))]
         trail = "".join(
             f'<span class="{"bad" if b > a else "good" if b < a else "dim"}">'
             f'{"↑" if b > a else "↓" if b < a else "→"}</span>'
@@ -566,8 +626,8 @@ def calibration(hist):
                 'between day 5 and day 1.</p>')
     rows, moves = [], []
     for label, day in LEADUP:
-        vals = [(e["nights"][label]["lead"], e["nights"][label]["core"])
-                for e in hist if e["nights"].get(label, {}).get("core") is not None]
+        vals = [(e["nights"][label]["lead"], consensus(e["nights"][label])[0])
+                for e in hist if consensus(e["nights"].get(label, {}))]
         if len(vals) < 2:
             continue
         d = datetime.strptime(day, "%Y-%m-%d")
@@ -631,16 +691,33 @@ def write_page(hist):
     if rr and "GEM" not in rr:
         vint.append(("GEM", "run time unknown"))
     runline = "".join(f'<div class="vk">{k}</div><div class="vv">{v}</div>' for k, v in vint)
+
+    # Which sources actually reach the trip nights. A model that is merely short-range
+    # would otherwise look like a broken feed — ICON only runs 180 h, so it cannot see
+    # 11 Aug until roughly 7 Aug, and NWS gridpoint stops at 7 days.
+    inm, allm = set(), {n for _, n in OM_MODELS} | {"NWS"}
+    for label, _ in NIGHTS:
+        inm |= set(members(latest["nights"][label]))
+    missing = sorted(allm - inm)
+    srcnote = (f'Median of <b>{", ".join(sorted(inm))}</b>, weighted equally. '
+               f'The number under each night is the middle opinion, not an average — '
+               f'one model going rogue moves the range, not the verdict.')
+    if missing:
+        srcnote += (f' <b>{", ".join(missing)}</b> '
+                    f'{"do" if len(missing) > 1 else "does"} not forecast this far out yet '
+                    f'and will join nearer the date.')
+
     cards = []
     for si, (label, _) in enumerate(NIGHTS):
         nd = latest["nights"][label]
         d = datetime.strptime(nd["date"], "%Y-%m-%d")
-        v = nd["core"]
+        cons = consensus(nd)
+        v = cons[0] if cons else None
         verdict = ("no data" if v is None else
                    "GO" if v <= GO else "marginal" if v <= 55 else "poor")
         vc = "dim" if v is None else ("good" if v <= GO else "warn" if v <= 55 else "bad")
-        prev = next((h["nights"][label]["core"] for h in reversed(hist[:-1])
-                     if h["nights"].get(label, {}).get("core") is not None), None)
+        prev = next((consensus(h["nights"][label])[0] for h in reversed(hist[:-1])
+                     if consensus(h["nights"].get(label, {}))), None)
         if v is not None and prev is not None and v != prev:
             dv = v - prev
             step = (f'<span class="step {"bad" if dv > 0 else "good"}">'
@@ -649,25 +726,26 @@ def write_page(hist):
             step = '<span class="step dim">→ no change</span>'
         else:
             step = ''
-        cb, cbh = nd.get("core_best"), nd.get("core_best_hr")
-        lb, lbh = nd.get("late_best"), nd.get("late_best_hr")
-        lt = nd.get("late")
-        ml = nd.get("models_late") or {}
+        cb, cbh = best_hour(nd, CORE_HR)
+        lb, lbh = best_hour(nd, LATE_HR)
+        lcons = consensus(nd, late=True)
+        lt = lcons[0] if lcons else None
         ltxt = ("—" if lt is None else f"{lt}%")
-        lrange = (f" · models {min(ml.values())}–{max(ml.values())}%" if ml else "")
-        r = mrange(nd)
-        if r:
-            lo, hi, sp = r
+        lrange = (f" · sources {lcons[1]}–{lcons[2]}%" if lcons else "")
+        if cons:
+            _, lo, hi, sp, k = cons
             scls = "good" if sp < 20 else "warn" if sp < 40 else "bad"
-            mline = (f'<span class="mrange">models <b>{lo}–{hi}%</b> '
+            src = ", ".join(sorted(members(nd)))
+            mline = (f'<span class="mrange" title="{src}">{k} sources <b>{lo}–{hi}%</b> '
                      f'<span class="{scls}">±{sp}</span></span>')
         else:
-            mline = '<span class="mrange dim">no model data</span>'
+            mline = '<span class="mrange dim">no data</span>'
         cards.append(
             f'<div class="ncard"><span class="swatch s{si}"></span>'
             f'<b>{label}</b><span class="dim">{d:%a %d %b} · lead {nd["lead"]}d</span>'
             f'<span class="big {vc}">{"—" if v is None else str(v)+"%"}</span>'
-            f'<span class="verdict {vc}">NWS mean · {verdict}{step}</span>'
+            f'<span class="verdict {vc}">{cons[4] if cons else 0}-source median · '
+            f'{verdict}{step}</span>'
             f'<span class="mrange">best hour '
             f'<b>{"—" if cb is None else hr12(cbh) + " · " + str(cb) + "%"}</b>'
             f'{"" if cb is None else " · " + ("shootable" if cb <= GO else "no clear hour")}</span>'
@@ -845,10 +923,11 @@ td.trail{{font-family:var(--mono);font-size:1rem;letter-spacing:.12em}}
   Perseids and the scope. Each point is one forecast run.</p>
 
   <div class="cards">{"".join(cards)}</div>
+  <p class="note">{srcnote}</p>
 
   <div class="card">
     {svg_chart(hist)}
-    <p class="note">Lower is better. Dot &amp; line = NWS · pale bar = model spread.
+    <p class="note">Lower is better. Dot &amp; line = consensus · pale bar = source spread.
     <b style="color:var(--ink)">Bars getting shorter = consensus forming.</b></p>
   </div>
 
@@ -867,7 +946,7 @@ td.trail{{font-family:var(--mono);font-size:1rem;letter-spacing:.12em}}
   <h2>Do the models agree?</h2>
   <div class="card">
     <div>{agreement_svg(latest)}</div>
-    <p class="note">Dots = models · bar = range · ◇ = NWS · shaded = under {GO}%</p>
+    <p class="note">Dots = each source · bar = range · ◇ = consensus median · shaded = under {GO}%</p>
   </div>
 
   <h2>Calibration — the nights before the trip</h2>
