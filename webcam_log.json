@@ -1,0 +1,14 @@
+[
+ {
+  "time": "2026-08-04T14:00:00-04:00",
+  "cloud": 0,
+  "night": false,
+  "shot": "webcam/2026-08-04T14.jpg",
+  "models": {
+   "ECMWF": 1,
+   "GFS": 0,
+   "ICON": 0,
+   "GEM": 0
+  }
+ }
+]

@@ -325,6 +325,82 @@ def agreement_svg(latest):
     return "\n".join(p)
 
 
+def webcam_section():
+    """Live view, an hourly filmstrip with the forecast above each frame, and a scoreboard.
+
+    The filmstrip is the point: scroll it and you can see what a given forecast number
+    actually looked like out of the window.
+    """
+    if not os.path.exists("webcam_log.json"):
+        return ""
+    log = json.load(open("webcam_log.json"))
+    day = [e for e in log if not e["night"] and e["cloud"] is not None]
+    if not day:
+        return ""
+
+    # scoreboard: mean absolute error per model
+    errs = {}
+    for e in day:
+        for m, v in (e.get("models") or {}).items():
+            errs.setdefault(m, []).append(abs(v - e["cloud"]))
+    score = ""
+    if any(len(v) >= 2 for v in errs.values()):
+        rows = "".join(
+            f"<tr><td>{m}</td><td class='n'>{len(v)}</td>"
+            f"<td class='n {'good' if sum(v)/len(v) < 12 else 'warn' if sum(v)/len(v) < 25 else 'bad'}'>"
+            f"{sum(v)/len(v):.0f} pts</td></tr>"
+            for m, v in sorted(errs.items(), key=lambda kv: sum(kv[1]) / len(kv[1])))
+        score = ('<div class="scroll" style="margin-top:1rem"><table><thead><tr>'
+                 '<th>Model</th><th>Checks</th><th>Mean error</th></tr></thead><tbody>'
+                 + rows + '</tbody></table></div>'
+                 '<p class="note">How far each model has been from what the camera actually '
+                 'showed, same hour. <b>Lowest is the one to believe for the trip nights.</b></p>')
+
+    cells = []
+    for e in reversed(log[-30:]):
+        t = datetime.fromisoformat(e["time"])
+        ms = e.get("models") or {}
+        if e["night"]:
+            fc = f'<span class="fc dim">{min(ms.values())}–{max(ms.values())}%</span>' if ms else \
+                 '<span class="fc dim">—</span>'
+            obs = '<span class="obs dim">night</span>'
+        else:
+            fc = (f'<span class="fc">{min(ms.values())}–{max(ms.values())}%</span>'
+                  if ms else '<span class="fc dim">—</span>')
+            if ms:
+                d = abs(e["cloud"] - sum(ms.values()) / len(ms))
+                cl = "good" if d < 15 else "warn" if d < 30 else "bad"
+            else:
+                cl = ""
+            obs = f'<span class="obs {cl}">{e["cloud"]}%</span>'
+        img = (f'<img src="{e["shot"]}" alt="webcam {t:%d %b %H:%M}" loading="lazy">'
+               if os.path.exists(e["shot"]) else '<div class="noimg"></div>')
+        cells.append(f'<figure class="shot"><span class="hr">{t:%a %H:%M}</span>{fc}{img}{obs}</figure>')
+
+    return f'''
+  <h2>Ground truth — the webcam</h2>
+  <div class="card">
+    <p style="max-width:62ch">First Connecticut Lake, about 15 km from the shooting site. Every
+    hour a frame is grabbed and cloud cover estimated from it, then compared against what each
+    model predicted <em>for that same hour</em>. <b style="color:var(--ink)">That turns model
+    disagreement into a score</b> — after a few days you know which model to believe rather than
+    guessing.</p>
+    <div class="live"><iframe src="https://www.youtube.com/embed/wNxk-XC8Z5s"
+      title="First Connecticut Lake live webcam" loading="lazy" allowfullscreen
+      referrerpolicy="strict-origin-when-cross-origin"></iframe></div>
+    <p class="note">Live stream — needs a connection. Frames below are archived.</p>
+    {score}
+    <h3 style="margin-top:1.4rem">Hour by hour, forecast above the photo</h3>
+    <div class="film scroll">{"".join(cells)}</div>
+    <p class="note"><b>Range above</b> is what the models said for that hour;
+    <b>number below</b> is what the camera actually showed.
+    <b class="good">Green</b> = within 15 points, <b class="warn">amber</b> within 30,
+    <b class="bad">red</b> beyond. Cloud is estimated by red/blue ratio, which only works in
+    daylight — night frames are archived but not scored.</p>
+  </div>
+'''
+
+
 def hourly_strips(latest):
     """Hour-by-hour cloud cover per night, per source. Structure, not averages.
 
@@ -593,6 +669,18 @@ svg{{width:100%;height:auto;display:block}}
 .axis{{stroke:var(--rule);stroke-width:1}}
 .ax{{fill:var(--muted);font-family:var(--mono);font-size:10px}}
 .ax.dim{{opacity:.6;font-size:9px}}
+.live{{position:relative;padding-top:56.25%;margin-top:1rem;border-radius:4px;overflow:hidden;
+  background:var(--sunken)}}
+.live iframe{{position:absolute;inset:0;width:100%;height:100%;border:0}}
+.film{{display:flex;gap:.5rem;padding-bottom:.5rem;margin-top:.6rem}}
+.shot{{margin:0;flex:0 0 152px;display:flex;flex-direction:column;gap:.15rem;
+  background:var(--surface);border:1px solid var(--rule);border-radius:4px;padding:.4rem}}
+.shot img{{width:100%;height:86px;object-fit:cover;border-radius:2px;display:block;
+  background:var(--sunken)}}
+.shot .noimg{{width:100%;height:86px;border-radius:2px;background:var(--sunken)}}
+.shot .hr{{font-family:var(--mono);font-size:.62rem;letter-spacing:.06em;color:var(--muted)}}
+.shot .fc{{font-family:var(--mono);font-size:.72rem;color:var(--accent);font-weight:600}}
+.shot .obs{{font-family:var(--mono);font-size:.8rem;font-weight:700;margin-top:.15rem}}
 .striprow{{margin-bottom:1.4rem}}
 .striphead{{display:flex;gap:.6rem;align-items:baseline;margin-bottom:.3rem}}
 .striphead b{{color:var(--ink)}}
@@ -681,6 +769,8 @@ text.good{{fill:var(--good)}} text.warn{{fill:var(--warn)}} text.bad{{fill:var(-
     minutes</b>. The mean would argue against a night you'd want. Read the best hour first,
     then the mean to see how much of the window it buys you, then the strip below for the shape.</p>
   </div>
+
+  {webcam_section()}
 
   <h2>Hour by hour</h2>
   <div class="card">
@@ -804,7 +894,8 @@ def main():
                 tuple(sorted((l, tuple(sorted((e["nights"][l].get("models") or {}).items())))
                              for l, _ in ALL if l in e["nights"])))
     if hist and fingerprint(hist[-1]) == fingerprint(new):
-        print("no new NWS package and no model changes — nothing logged")
+        print("no new NWS package and no model changes")
+        write_page(hist)          # webcam data still moves hourly, so rebuild anyway
         return
     hist.append(new)
     hist.sort(key=lambda e: e["taken"])
