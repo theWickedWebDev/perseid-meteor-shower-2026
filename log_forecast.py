@@ -651,13 +651,42 @@ def delta_table(hist):
             + "".join(rows) + "</tbody></table>")
 
 
-def calibration(hist):
-    """How much has a night's forecast actually moved as its lead time shrank?"""
+def observed(day, wlog):
+    """What the webcam actually saw across the dark window for `day`.
+
+    Returns (mean, n_hours, night_hours) or None. The window is the same 6 PM-7 AM span
+    the strips use, spilling into the following morning.
+
+    Only daylight frames carry a cloud number today, so in practice this averages the
+    dusk and dawn frames bracketing the night rather than the night itself — reported
+    honestly as such. Nothing here needs changing if night detection is calibrated
+    later; those hours simply start contributing.
+    """
+    if not wlog:
+        return None
+    nxt = (datetime.strptime(day, "%Y-%m-%d") + timedelta(days=1)).strftime("%Y-%m-%d")
+    want = {f"{day}T{h:02d}" for h in range(DARK[0], 24)} | \
+           {f"{nxt}T{h:02d}" for h in range(0, DARK[1] + 1)}
+    vals, dark = [], 0
+    for e in wlog:
+        if e["time"][:13] not in want:
+            continue
+        if e.get("cloud") is None:
+            dark += 1
+        else:
+            vals.append(e["cloud"])
+    if not vals:
+        return None
+    return round(sum(vals) / len(vals)), len(vals), dark
+
+
+def calibration(hist, wlog=None):
+    """How much has a night's forecast moved as its lead time shrank — and was it right?"""
     if len(hist) < 2:
         return ('<p class="note">Fills in over the next day or two, once these nights have been '
                 'forecast more than once — then it shows how far a forecast actually travels '
                 'between day 5 and day 1.</p>')
-    rows, moves = [], []
+    rows, moves, misses = [], [], []
     for label, day in LEADUP:
         vals = [(e["nights"][label]["lead"], consensus(e["nights"][label])[0])
                 for e in hist if consensus(e["nights"].get(label, {}))]
@@ -667,9 +696,21 @@ def calibration(hist):
         lo, hi = min(v for _, v in vals), max(v for _, v in vals)
         first, last = vals[0][1], vals[-1][1]
         moves.append(hi - lo)
+        ob = observed(day, wlog)
+        if ob:
+            om, n, dk = ob
+            miss = last - om
+            mcls = "good" if abs(miss) <= 10 else "warn" if abs(miss) <= 25 else "bad"
+            obs_td = (f"<td class='n' title='{n} usable frames"
+                      f"{f', {dk} too dark to score' if dk else ''}'>{om}%</td>")
+            miss_td = (f"<td class='n {mcls}'>{'+' if miss > 0 else ''}{miss}</td>")
+            misses.append(abs(miss))
+        else:
+            obs_td = "<td class='n dim'>—</td>"
+            miss_td = "<td class='n dim'>—</td>"
         rows.append(f"<tr><td>{d:%a %d %b}</td><td class='n'>{vals[0][0]}d → {vals[-1][0]}d</td>"
                     f"<td class='n'>{first}%</td><td class='n'>{last}%</td>"
-                    f"<td class='n'>{hi-lo}</td></tr>")
+                    f"<td class='n'>{hi-lo}</td>{obs_td}{miss_td}</tr>")
     if not rows:
         return ('<p class="note">Not enough readings yet for the lead-up nights to show '
                 'movement — check back tomorrow.</p>')
@@ -679,12 +720,31 @@ def calibration(hist):
             f'could be — a tail question — so the worst case is the honest number and the mean '
             f'understates it. A night reading 45% four days out could plausibly land anywhere '
             f'within ±{mx} of that.</p>'
-            '<div class="scroll"><table><thead><tr><th>Night</th><th>Lead</th><th>First</th>'
-            '<th>Latest</th><th>Swing</th></tr></thead><tbody>' + "".join(rows) +
-            '</tbody></table></div>')
+            + (f'<p style="margin-bottom:.8rem">Against the webcam, the final forecast has '
+               f'missed by <b style="color:var(--ink)">{sum(misses)/len(misses):.0f} points '
+               f'on average</b>, worst {max(misses)}. Positive means it forecast more cloud '
+               f'than showed up.</p>' if misses else
+               '<p class="note" style="margin-bottom:.8rem">The observed column fills in the '
+               'morning after each lead-up night, once the webcam has frames spanning it.</p>')
+            + '<div class="scroll"><table><thead><tr><th>Night</th><th>Lead</th><th>First</th>'
+            '<th>Latest</th><th>Swing</th><th>Observed</th><th>Miss</th></tr></thead><tbody>'
+            + "".join(rows) + '</tbody></table></div>'
+            + '<p class="note" style="margin-top:.8rem"><b>Observed</b> is the webcam at '
+            'First Connecticut Lake, about 20 km south of the shooting site. Cloud can only '
+            'be scored in daylight for now, so it averages the dusk and dawn frames either '
+            'side of the window rather than the window itself — a bracket, not a '
+            'measurement. Hover a value for the frame count.</p>')
 
 
 WEBCAM_OVERRIDE = None      # preview_forecast.py sets this to render mock frames
+
+
+def _wlog():
+    """The webcam log, or an empty list if it has not been written yet."""
+    try:
+        return json.load(open("webcam_log.json"))
+    except Exception:
+        return []
 
 
 
@@ -737,14 +797,15 @@ def model_notes(latest):
         inplay = name in live
         tag = ('<span class="pill on">in play</span>' if inplay
                else '<span class="pill off">out of range</span>')
+        # Two rows per source: the identity line, then the prose spanning the full width.
+        # Prose in its own column forces a horizontal scrollbar on a phone.
         rows.append(
-            f'<tr><td><b>{name}</b><br><span class="dim">{who}</span></td>'
-            f'<td class="n">{grid}</td><td>{tag}</td>'
-            f'<td>{good}<br><span class="dim">Watch for: {bad}</span></td></tr>')
-    return (
-        '<div class="scroll"><table class="mtable"><thead><tr><th>Source</th><th>Grid</th>'
-        '<th>Now</th><th>What it is good for</th></tr></thead><tbody>'
-        + "".join(rows) + '</tbody></table></div>')
+            f'<tr class="mrow"><td><b>{name}</b> '
+            f'<span class="dim">{who}</span></td>'
+            f'<td class="n">{grid}</td><td class="r">{tag}</td></tr>'
+            f'<tr class="mdesc"><td colspan="3">{good}'
+            f'<div class="wf">Watch for: {bad}</div></td></tr>')
+    return ('<table class="mtable"><tbody>' + "".join(rows) + '</tbody></table>')
 
 def write_page(hist):
     latest = hist[-1]
@@ -923,7 +984,13 @@ h2{{font-family:var(--serif);color:var(--ink);font-size:1.15rem;margin:2.2rem 0 
   font-variant-numeric:tabular-nums}}
 .verdict{{font-family:var(--mono);font-size:.66rem;letter-spacing:.12em;text-transform:uppercase}}
 h3.sub{{font-family:var(--serif);color:var(--ink);font-size:1rem;margin:1.8rem 0 .5rem}}
-.mtable td{{vertical-align:top}}
+.mtable{{width:100%;table-layout:auto}}
+.mtable td{{vertical-align:baseline;border:0;padding:.35rem .5rem .1rem 0}}
+.mtable tr.mrow td{{padding-top:.9rem;border-top:1px solid var(--rule)}}
+.mtable tr.mrow:first-child td{{border-top:0;padding-top:.2rem}}
+.mtable tr.mdesc td{{padding:0 0 .5rem;color:var(--body)}}
+.mtable td.r{{text-align:right;white-space:nowrap}}
+.wf{{color:var(--muted);margin-top:.2rem}}
 .pill{{font-family:var(--mono);font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;padding:.15rem .4rem;border-radius:3px;white-space:nowrap;border:1px solid}}
 .pill.on{{color:var(--good);border-color:var(--good)}}
 .pill.off{{color:var(--muted);border-color:var(--rule)}}
@@ -1059,7 +1126,7 @@ td.trail{{font-family:var(--mono);font-size:1rem;letter-spacing:.12em}}
   <h2>Calibration — the nights before the trip</h2>
   <div class="card">
     <p class="lede">Nights before the trip, which verify while you watch — so this measures how far a forecast actually travels in this pattern.</p>
-    {calibration(hist)}
+    {calibration(hist, WEBCAM_OVERRIDE or _wlog())}
   </div>
 
   <h2>What the percentage means</h2>
