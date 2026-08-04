@@ -72,22 +72,25 @@ def build():
             spread = SPREAD_BY_LEAD.get(max(lead, 0), 20)
             centre = v if v is not None else clamp(rng.uniform(30, 70))
 
-            hours = [f"{h:02d}" for h in list(range(21, 24)) + list(range(0, 5))]
+            hours = [f"{h:02d}" for h in list(range(lf.DARK[0], 24))
+                     + list(range(0, lf.DARK[1] + 1))]
             mh, mc, ml = {}, {}, {}
             for k, name in enumerate(MODELS):
                 # spread the models symmetrically around the NWS value
                 off = (k - (len(MODELS) - 1) / 2) * (spread / max(len(MODELS) - 1, 1))
-                row = curve(rng, clamp(centre + off))
+                row = curve(rng, clamp(centre + off), hours=len(hours))
                 mh[name] = row
-                mc[name] = clamp(sum(row[1:3]) / 2)          # 22,23 → core window
-                ml[name] = clamp(sum(row[4:7]) / 3)          # 01,02,03 → late window
+                hi = {h: j for j, h in enumerate(hours)}
+                mc[name] = clamp(sum(row[hi[f"{h:02d}"]] for h in lf.CORE_HR) / len(lf.CORE_HR))
+                ml[name] = clamp(sum(row[hi[f"{h:02d}"]] for h in lf.LATE_HR) / len(lf.LATE_HR))
 
-            nws_row = curve(rng, centre)
+            nws_row = curve(rng, centre, hours=len(hours))
             rows = [{"h": f"{h}:00", "sky": nws_row[j],
                      "pop": clamp(nws_row[j] - 25), "dew": 14.0}
                     for j, h in enumerate(hours)]
-            core_p = [(nws_row[1], 22), (nws_row[2], 23)]
-            late_p = [(nws_row[4], 1), (nws_row[5], 2), (nws_row[6], 3)]
+            hi_ = {h: j for j, h in enumerate(hours)}
+            core_p = [(nws_row[hi_[f"{h:02d}"]], h) for h in lf.CORE_HR]
+            late_p = [(nws_row[hi_[f"{h:02d}"]], h) for h in lf.LATE_HR]
             core = [v for v, _ in core_p]
             late = [v for v, _ in late_p]
 

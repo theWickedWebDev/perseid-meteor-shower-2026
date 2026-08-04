@@ -34,7 +34,8 @@ LEADUP  = [(f"Lead-up {d[-2:]}", d) for d in
 ALL     = NIGHTS + LEADUP
 CORE_HR = (22, 23)          # 21:56–23:30 EDT — Milky Way core, at the lake
 LATE_HR = (1, 2, 3)         # 12:45–03:45 EDT — Perseid peak + refractor, at the cabin
-DARK    = (21, 4)           # 21:56–03:45 EDT — full astronomical dark
+DARK    = (18, 7)           # hourly strips run 6 PM–7 AM: the shooting window plus
+                            # context either side, so a trend into or out of it is visible
 GO      = 30                # go/no-go threshold, % cloud cover
 
 # Second opinion: Open-Meteo exposes individual models rather than a blend. ECMWF is the
@@ -530,6 +531,12 @@ def delta_table(hist):
         swing = max(v for _, v in vals) - min(v for _, v in vals)
         arrow = "→" if d == 0 else ("↑" if d > 0 else "↓")
         cls = "worse" if d > 5 else ("better" if d < -5 else "")
+        seq = [e["nights"][label]["core"] for e in hist
+               if e["nights"].get(label, {}).get("core") is not None]
+        trail = "".join(
+            f'<span class="{"bad" if b > a else "good" if b < a else "dim"}">'
+            f'{"↑" if b > a else "↓" if b < a else "→"}</span>'
+            for a, b in zip(seq, seq[1:])) or '<span class="dim">—</span>'
         sp0 = next((mrange(e["nights"][label]) for e in hist
                     if mrange(e["nights"][label])), None)
         spN = next((mrange(e["nights"][label]) for e in reversed(hist)
@@ -542,10 +549,12 @@ def delta_table(hist):
         else:
             spcell = "<td class='n dim'>—</td>"
         rows.append(f"<tr><td>{label}</td><td class='n'>{first}%</td><td class='n'>{last}%</td>"
-                    f"<td class='n {cls}'>{arrow} {abs(d)}</td><td class='n'>{swing}</td>"
-                    f"{spcell}</tr>")
+                    f"<td class='n {cls}'>{arrow} {abs(d)}</td>"
+                    f"<td class='trail'>{trail}</td>"
+                    f"<td class='n'>{swing}</td>{spcell}</tr>")
     return ("<table><thead><tr><th>Night</th><th>First</th><th>Latest</th>"
-            "<th>Change</th><th>Range</th><th>Model spread</th></tr></thead><tbody>"
+            "<th>Change</th><th>Each step</th><th>Range</th><th>Model spread</th>"
+            "</tr></thead><tbody>"
             + "".join(rows) + "</tbody></table>")
 
 
@@ -624,6 +633,16 @@ def write_page(hist):
         verdict = ("no data" if v is None else
                    "GO" if v <= GO else "marginal" if v <= 55 else "poor")
         vc = "dim" if v is None else ("good" if v <= GO else "warn" if v <= 55 else "bad")
+        prev = next((h["nights"][label]["core"] for h in reversed(hist[:-1])
+                     if h["nights"].get(label, {}).get("core") is not None), None)
+        if v is not None and prev is not None and v != prev:
+            dv = v - prev
+            step = (f'<span class="step {"bad" if dv > 0 else "good"}">'
+                    f'{"↑" if dv > 0 else "↓"}{abs(dv)} since last</span>')
+        elif v is not None and prev == v:
+            step = '<span class="step dim">→ no change</span>'
+        else:
+            step = ''
         cb, cbh = nd.get("core_best"), nd.get("core_best_hr")
         lb, lbh = nd.get("late_best"), nd.get("late_best_hr")
         lt = nd.get("late")
@@ -642,7 +661,7 @@ def write_page(hist):
             f'<div class="ncard"><span class="swatch s{si}"></span>'
             f'<b>{label}</b><span class="dim">{d:%a %d %b} · lead {nd["lead"]}d</span>'
             f'<span class="big {vc}">{"—" if v is None else str(v)+"%"}</span>'
-            f'<span class="verdict {vc}">NWS mean · {verdict}</span>'
+            f'<span class="verdict {vc}">NWS mean · {verdict}{step}</span>'
             f'<span class="mrange">best hour '
             f'<b>{"—" if cb is None else hr12(cbh) + " · " + str(cb) + "%"}</b>'
             f'{"" if cb is None else " · " + ("shootable" if cb <= GO else "no clear hour")}</span>'
@@ -652,30 +671,6 @@ def write_page(hist):
 
     def band(v):
         return "good" if v <= GO else "warn" if v <= 55 else "bad"
-
-    built = []
-    for i, e in enumerate(hist):                      # chronological, so deltas look backwards
-        et = datetime.fromisoformat(e["taken"])
-        cells = []
-        for l, _ in NIGHTS:
-            v = e["nights"][l]["core"]
-            if v is None:
-                cells.append('<td class="n dim">—</td>')
-                continue
-            prev = next((hist[j]["nights"][l]["core"] for j in range(i - 1, -1, -1)
-                         if hist[j]["nights"][l]["core"] is not None), None)
-            if prev is None:
-                delta = '<span class="delta dim">new</span>'
-            elif v == prev:
-                delta = '<span class="delta dim">→ 0</span>'
-            else:
-                d = v - prev
-                # less cloud is better, so a fall is good
-                delta = (f'<span class="delta {"bad" if d > 0 else "good"}">'
-                         f'{"↑" if d > 0 else "↓"} {abs(d)}</span>')
-            cells.append(f'<td class="n"><span class="val {band(v)}">{v}%</span>{delta}</td>')
-        built.append(f"<tr><td>{et:%d %b %H:%M}</td>{''.join(cells)}</tr>")
-    rowsrc = list(reversed(built))                    # newest first for display
 
     html = f"""<!DOCTYPE html>
 <html lang="en">
@@ -773,7 +768,7 @@ svg{{width:100%;height:auto;display:block}}
 .striprow{{margin-bottom:1rem}}
 .striphead{{display:flex;gap:.6rem;align-items:baseline;margin-bottom:.3rem}}
 .striphead b{{color:var(--ink)}}
-.striprow svg{{max-width:440px}}
+.striprow svg{{max-width:560px}}
 .cloud{{fill:var(--ink)}}
 .cellb{{fill:none;stroke:var(--rule);stroke-width:1}}
 .nodata{{fill:none;stroke:var(--rule);stroke-width:1;stroke-dasharray:2 2}}
@@ -812,6 +807,8 @@ td.better{{color:var(--good);font-weight:600}} td.worse{{color:var(--bad);font-w
 text.good{{fill:var(--good)}} text.warn{{fill:var(--warn)}} text.bad{{fill:var(--bad)}}
 .delta{{display:inline-block;margin-left:.4rem;font-size:.76rem;font-weight:600;
   letter-spacing:.02em}}
+.step{{display:inline-block;margin-left:.45rem;font-weight:700}}
+td.trail{{font-family:var(--mono);font-size:1rem;letter-spacing:.12em}}
 .note{{color:var(--muted);font-size:.85rem;margin:.6rem 0 0}}
 .lede{{color:var(--body);font-size:.94rem;max-width:64ch;margin:0 0 .2rem}}
 .next{{margin:.5rem 0 .9rem;padding:.5rem .75rem;background:var(--surface);
@@ -856,7 +853,7 @@ text.good{{fill:var(--good)}} text.warn{{fill:var(--warn)}} text.bad{{fill:var(-
   <div class="card">
     <p class="lede">Darker = more cloud. Rows are sources.</p>
     <div style="margin-top:1.2rem" class="scroll">{hourly_strips(latest)}</div>
-    <p class="note">EDT, 9 PM–4 AM. Amber box = core window. Dashed = no data.</p>
+    <p class="note">EDT, 6 PM–7 AM. Amber box = core window. Dashed = no data.</p>
   </div>
 
   <h2>Do the models agree?</h2>
@@ -869,17 +866,6 @@ text.good{{fill:var(--good)}} text.warn{{fill:var(--warn)}} text.bad{{fill:var(-
   <div class="card">
     <p class="lede">Nights before the trip, which verify while you watch — so this measures how far a forecast actually travels in this pattern.</p>
     {calibration(hist)}
-  </div>
-
-  <h2>Every reading</h2>
-  <div class="card"><div class="scroll"><table>
-    <thead><tr><th>Forecast run</th><th>Night 1</th><th>Night 2</th><th>Night 3</th></tr></thead>
-    <tbody>{"".join(rowsrc)}</tbody></table></div>
-    <p class="note">Core-window mean cloud cover. <b class="good">Green ≤30%</b> ·
-    <b class="warn">amber ≤55%</b> · <b class="bad">red above</b>. The arrow is the change since
-    that night's previous reading — <b class="good">↓ green is improving</b> (less cloud),
-    <b class="bad">↑ red is deteriorating</b>. Full hourly detail in
-    <span style="font-family:var(--mono)">FORECAST_LOG.md</span>.</p>
   </div>
 
   <h2>What the percentage means</h2>
