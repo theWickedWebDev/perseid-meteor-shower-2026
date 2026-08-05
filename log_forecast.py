@@ -44,6 +44,8 @@ DARK    = (18, 7)           # hourly strips run 6 PM–7 AM: the shooting window
 DARK_HOURS = [f"{h:02d}" for h in list(range(18, 24)) + list(range(0, 8))]
 GO      = 30                # go/no-go threshold, % cloud cover
 SUCKER  = 40                # 30-40%: not a go, but breaks open — OH_SHIT.md territory
+CORE_UP_MIN = 10.0          # deg. Below this the core is in the treeline, so a low
+                            # flux reading is geometry, not weather — see nightwatch_section
 SCORE_MIN_N = 12            # scored webcam frames before the model ranking means anything
 SCORE_MIN_SPREAD = 30       # ...and they must span this much cloud, or every model wins
 NO_CONSENSUS = 40           # spread at or above this and no median is worth a verdict;
@@ -1130,15 +1132,31 @@ def nightwatch_section(log):
         return ""
     # An entry with no flux is one where the measurement did not run, which is not the
     # same as a sky with no stars. Plotting it as a zero bar reads as "socked in".
-    log = [e for e in log if (e.get("targets", {}).get("core") or {}).get("flux") is not None]
+    # A reading only says something about cloud while the target is above the treeline.
+    # The core sets around 23:20 and is below the horizon by 01:30, so the back half of
+    # every night reads zero flux for reasons that have nothing to do with the sky. On the
+    # night of 4/5 Aug the satellite recorded 0% cloud all night while this section showed
+    # red and said "nothing coming through" — pure geometry, reported as weather.
+    log = [e for e in log
+           if (e.get("targets", {}).get("core") or {}).get("flux") is not None
+           and ((e.get("targets", {}).get("core") or {}).get("alt") or -99) >= CORE_UP_MIN]
     if not log:
-        return ""
+        return ('<h2>Can the core actually be seen? '
+                '<a class="ev" href="nightwatch.html">see the frames →</a></h2>\n'
+                '<div class="card"><p class="lede">The Milky Way core is below the treeline '
+                'right now, so there is nothing to measure. This section reports again after '
+                'astronomical dark tomorrow, while the core is above 10°.</p></div>')
     rows = log[-40:]
     latest = rows[-1]
     t = datetime.fromisoformat(latest["time"])
     core = (latest.get("targets") or {}).get("core") or {}
     rho = (latest.get("targets") or {}).get("rho") or {}
-    fl = [max(0.0, (e.get("targets", {}).get("core") or {}).get("flux", 0) or 0) for e in rows]
+    # density, not raw flux — flux falls as the aperture eats into the treeline, which is
+    # geometry rather than sky. Altitude is shown alongside because extinction still bites:
+    # 3.7 air masses at 16 degrees against 5.5 at 10.
+    fl = [max(0.0, (e.get("targets", {}).get("core") or {}).get("density")
+                   or (e.get("targets", {}).get("core") or {}).get("flux", 0) or 0)
+          for e in rows]
     mx = max(fl + [1])
 
     cells = []
@@ -1161,7 +1179,7 @@ def nightwatch_section(log):
     # the region's brightest stars change through the night: Antares sets around midnight
     # and Fomalhaut takes over, so the clear-sky baseline steps down on its own.
     n = core.get("stars")
-    f = core.get("flux") or 0
+    f = core.get("density") or core.get("flux") or 0
     ref = max(fl) if fl else 0
     frac = (f / ref) if ref else 0
     if frac >= 0.5:
@@ -1176,11 +1194,12 @@ def nightwatch_section(log):
             f'its own star field to bearing 178.5°, 94° wide. The Milky Way core sits at '
             f'{core.get("alt", "—")}° altitude in that frame, Rho Ophiuchi at '
             f'{rho.get("alt", "—")}°. Same sky, 16.6 km away.</p>'
-            f'<div class="nwbig {vc}">{f:,.0f}<span> flux in the core region '
-            f'({frac:.0%} of tonight\'s best)</span></div>'
+            f'<div class="nwbig {vc}">{f:,.1f}<span> light density in the core region '
+            f'({frac:.0%} of the run\'s best)</span></div>'
             f'<p class="tripsub">{t:%a %d %b %H:%M} — {verdict}. '
-            f'{n if n is not None else "—"} sources above threshold, brightest '
-            f'{core.get("peak", 0):.0f}× the noise.</p>'
+            f'{n if n is not None else "—"} sources above threshold, core at '
+            f'<b>{core.get("alt", "—")}°</b> through {core.get("airmass", 0):.1f} air '
+            f'masses.</p>'
             f'<div class="nwstrip">{"".join(cells)}</div>'
             f'<p class="note">One bar per capture through the night, height is light '
             f'collected in the core region. Rho currently reads flux '
@@ -1219,6 +1238,11 @@ def crosscheck(nightlog, satlog):
     for e in nightlog:
         c = (e.get("targets", {}).get("core") or {})
         if c.get("flux") is None:
+            continue
+        # Below the treeline a zero reading is the target having set. Counting those as
+        # "satellite says clear, no stars visible" manufactured fog that was not there:
+        # two of four such disagreements on the first night were purely geometric.
+        if (c.get("alt") or -99) < CORE_UP_MIN:
             continue
         se = sat.get(e["time"][:13])
         if not se:

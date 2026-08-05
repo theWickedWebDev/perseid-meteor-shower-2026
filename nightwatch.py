@@ -226,7 +226,7 @@ def analyse(files):
             "_res": res, "_mask": mask, "_stack": stack}
 
 
-def region_stats(res, mask, cx, cy, radius=RADIUS):
+def region_stats(res, mask, cx, cy, radius=RADIUS, **kwargs):
     """Continuous measures for a target region, not just a count above a threshold.
 
     A count is fragile: two captures two minutes apart gave 15 sources and then 5, purely
@@ -243,10 +243,26 @@ def region_stats(res, mask, cx, cy, radius=RADIUS):
     bg = np.median(np.abs(v - np.median(v))) * 1.4826 or 1.0
     # NOT "px" — that key already holds the target's pixel coordinates, and overwriting
     # it with a pixel count silently broke the evidence image.
+    # Raw flux is not comparable between readings, and this bit me. As the target sinks,
+    # two things shrink it for reasons that are not weather:
+    #   the aperture overlaps the masked treeline, so it holds fewer sky pixels — a third
+    #     of them between 16 and 10 degrees on the night of 4/5 Aug
+    #   the light travels through more atmosphere — 3.6 air masses at 16 deg, 5.6 at 10
+    # `density` divides out the first. `airmass` records the second so readings can be
+    # compared like with like, or corrected later. Neither is applied to `flux` itself,
+    # which stays raw.
+    import math
+    area = int(reg.sum())
+    alt = kwargs.get("alt")
+    am = None
+    if alt is not None and alt > 0:
+        am = round(1.0 / max(math.sin(math.radians(alt)) + 0.0001, 0.02), 2)
     return {"flux": round(float(v[v > 3 * bg].sum()), 1),
             "peak": round(float(v.max() / bg), 1),
             "n3": int((v > 3 * bg).sum()),
-            "area": int(reg.sum())}
+            "area": area,
+            "density": round(float(v[v > 3 * bg].sum()) / area * 1000, 3) if area else None,
+            "airmass": am}
 
 
 def run_once():
@@ -271,7 +287,7 @@ def run_once():
         cx, cy = t["px"]
         t["stars"] = sum(1 for s in a["sources"]
                          if (s["x"] - cx) ** 2 + (s["y"] - cy) ** 2 < RADIUS ** 2)
-        t.update(region_stats(res, mask, cx, cy) or {})
+        t.update(region_stats(res, mask, cx, cy, alt=t.get("alt")) or {})
     # Keep the stacked frame as evidence, stretched so faint stars are actually visible,
     # with the target regions ringed. A number nobody can check is worth little.
     shot = None
