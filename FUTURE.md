@@ -1,7 +1,15 @@
-# Future — generalise this to any site and any target
+# Future
 
 Noted 5 Aug 2026, during the trip build. Nothing here is scheduled; it is the shape of the
 thing if it gets picked up after 14 August.
+
+Two directions, and they are separable. The first keeps the astronomy and drops the
+location. The second drops the astronomy entirely and keeps the one thing this project
+does that nothing else does.
+
+---
+
+# Direction one — any site, any target
 
 ## The idea
 
@@ -84,3 +92,66 @@ It loses a webcam and gains the one thing this project keeps apologising for: en
 - a day for the horizon profile
 - the skill curve starts uncalibrated and needs a few weeks of logging before it means
   anything, so it should say so on the page rather than imply confidence it has not earned
+
+---
+
+# Direction two — a general weather forecast
+
+Not astronomy at all. Possibly the stronger idea, and it needs less work than direction one.
+
+## Don't build a weather app
+
+Weather apps exist, they are fine, and a hand-rolled one would be worse at all the ordinary
+parts. The value here is a thin layer sitting *on top* of an ordinary forecast, doing three
+things no consumer app does. Keep the surface small.
+
+## The three things
+
+**1. Show the disagreement instead of hiding it.**
+
+Every consumer app collapses six models into one confident number. This one already renders
+`Models 0–98%` and refuses to call a night when the IQR crosses 40. That single behaviour —
+*the models do not agree, so I am not going to pretend* — is the whole differentiator, and
+it is already built and already shipping.
+
+**2. Publish a measured skill horizon, per variable.**
+
+This is the piece worth building. Cloud, temperature and rain have completely different
+forecastability, and no app distinguishes them: a day-9 rain percentage is rendered in the
+same typeface as tomorrow's. The skill machinery here already scores forecasts against the
+previous-runs API. Run it per variable and the page can state, measured rather than assumed:
+
+```
+temperature   trustworthy to day 7
+cloud         to day 4
+rain amount   to day 2
+rain timing   don't
+```
+
+Measured at the location in question, not quoted from a paper. Most of the frustration with
+forecasts is not that they are wrong, it is that they never say which of their own numbers
+to believe.
+
+**3. Fall back to the base rate, out loud.**
+
+When the forecast adds nothing over climatology — which at this site is anywhere past day 6
+for cloud — say so and give the 30-year number instead. Already implemented for the trip
+nights; generalises directly.
+
+## What would need changing
+
+The data layer is largely done. `inject_schedule.py` already pulls temperature,
+precipitation, probability, wind and WMO codes hourly, and the daytime section already
+renders them with icons. Most of the work is re-pointing existing plumbing.
+
+The verdicts are what is astronomy-specific. `GO <= 30%` cloud means nothing to a person
+deciding about a walk. Replace it with a small set of ordinary questions, each with its own
+threshold on its own variable — will the walk stay dry, do I need a coat, is it worth
+hanging washing out. That is configuration, not architecture.
+
+## Why this one might be better than direction one
+
+It benefits from the same fixed-site advantage — every day logged, error bars that converge
+— but it does not have to wait for clear nights to learn anything. Every day is a data
+point, including the overcast ones. The skill curve would calibrate several times faster
+than an astronomy version of the same thing.
