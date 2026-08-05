@@ -1599,32 +1599,28 @@ def webcam_section(log=None):
         cam = (e.get("cloud") if (e.get("cloud") is not None and not e["night"]
                                   and sun_alt(t, *WEBCAM_SITE) >= SUN_MIN) else None)
         camtag = (f'<span class="camv" title="what the camera at Lopstick saw, from the '
-                  f'red/blue ratio of the sky">/ Cam: {cam}%</span>'
-                  if cam is not None else '')
+                  f'red/blue ratio of the sky">Cam: {cam}%</span>'
+                  if cam is not None else '<span class="camv dim">Cam: —</span>')
         fc = (f'<span class="fc{" dim" if e["night"] else ""}" '
               f'title="range across {len(ms)} models for this hour, at the shooting site">'
-              f'Models {min(ms.values())}–{max(ms.values())}%</span>{camtag}'
-              if ms else f'<span class="fc dim">Models —</span>{camtag}')
+              f'Models {min(ms.values())}–{max(ms.values())}%</span>'
+              if ms else '<span class="fc dim">Models —</span>')
 
         # The number under the photo is the SATELLITE, not the camera — it has a verified
         # value for every hour, dark included, which the camera does not.
+        # No colour on any of these. The satellite value used to be tinted by its distance
+        # from the model mean, which looked like a quality light and was an agreement light
+        # — 90% satellite against 85% models rendered green. Three plain numbers, stacked,
+        # let the reader do the comparing.
         sv = satby.get(e["time"][:13])
-        if sv is None:
-            obs = '<span class="obs dim">Sat: —</span>'
-        else:
-            if ms:
-                d = abs(sv - sum(ms.values()) / len(ms))
-                cl = "good" if d < 15 else "warn" if d < 30 else "bad"
-            else:
-                cl = ""
-            obs = (f'<span class="obs {cl}" title="GOES satellite over the shooting '
-                   f'site; colour is distance from the model mean, not how clear it is">'
-                   f'Sat: {sv}%</span>')
+        obs = ('<span class="obs dim">Sat: —</span>' if sv is None else
+               f'<span class="obs" title="GOES satellite over the shooting site">'
+               f'Sat: {sv}%</span>')
 
         img = (f'<img src="{e["shot"]}" alt="webcam {t:%d %b %H:%M}" loading="lazy">'
                if os.path.exists(e["shot"]) else '<div class="noimg"></div>')
         cells.append(f'<figure class="shot"><span class="hr">{t:%a %H:%M}</span>'
-                     f'<span class="fcrow">{fc}</span>{img}{obs}</figure>')
+                     f'<span class="fcrow">{fc}{camtag}{obs}</span>{img}</figure>')
 
     return f'''
   <h2>Ground truth — satellite and webcam</h2>
@@ -1646,18 +1642,15 @@ def webcam_section(log=None):
     {score}
     <h3 style="margin-top:1.4rem">Hour by hour, forecast above the photo</h3>
     <div class="film scroll">{"".join(cells)}</div>
-    <p class="note"><b>Models</b> is the range across the four models for that hour and
-    <b>Cam</b> is what the frame itself shows, from the red/blue ratio of the sky.
-    <b>Sat</b> below is the GOES satellite. Its colour is
-    <b class="good">within 15</b> / <b class="warn">30</b> / <b class="bad">beyond</b>
-    the model mean — <em>agreement, not clear sky</em>: a satellite reading of 90% against
-    models of 85% is still green. Models and satellite are both for the shooting site;
-    only Cam describes the place in the photograph, 16.6 km away. The camera figure
-    appears only where the sun was high enough for it to mean anything — at dusk a
-    reddened sky reads as cloud, so those hours show no Cam value rather than a number we
-    would disbelieve. Where the models sit near zero and the camera does not, that is thin
-    cirrus: the models threshold it away, and it is the one thing that ruins a night the
-    forecast called clear.</p>
+    <p class="note">Three readings of the same hour, deliberately uncoloured so they are
+    compared rather than ranked. <b>Models</b> is the range across the four models,
+    <b>Cam</b> is what the frame itself shows from the red/blue ratio of the sky, and
+    <b>Sat</b> is the GOES satellite. Models and Sat are both for the shooting site; only
+    Cam describes the place in the photograph, 16.6 km away. Cam is blank wherever the sun
+    sat too low for it to mean anything — a reddened sky reads as cloud, so those hours
+    show nothing rather than a number we would disbelieve. Where Models sit near zero and
+    Cam does not, that is thin cirrus: the models threshold it away, and it is the one
+    thing that ruins a night the forecast called clear.</p>
   </div>
 '''
 
@@ -2480,12 +2473,12 @@ svg{{width:100%;height:auto;display:block}}
   background:var(--sunken)}}
 .shot .noimg{{width:100%;height:86px;border-radius:2px;background:var(--sunken)}}
 .shot .hr{{font-family:var(--mono);font-size:.62rem;letter-spacing:.06em;color:var(--muted)}}
-.shot .fcrow{{display:flex;gap:.25rem;align-items:baseline;justify-content:flex-start;
-  white-space:nowrap}}
-.shot .fc{{font-family:var(--mono);font-size:.72rem;color:var(--accent);font-weight:600}}
-.shot .camv{{font-family:var(--mono);font-size:.72rem;color:var(--muted);font-weight:600}}
-.shot .obs{{font-family:var(--mono);font-size:.72rem;font-weight:700;margin-top:.15rem;
-  display:block}}
+.shot .fcrow{{display:flex;flex-direction:column;gap:.05rem;align-items:flex-start;
+  margin:.15rem 0 .3rem;white-space:nowrap}}
+.shot .fcrow span{{font-family:var(--mono);font-size:.7rem;font-weight:600;
+  color:var(--body);font-variant-numeric:tabular-nums}}
+.shot .fcrow span.dim{{color:var(--muted);font-weight:400}}
+
 .striprow{{margin-bottom:1rem}}
 .striphead{{display:flex;gap:.6rem;align-items:baseline;margin-bottom:.3rem}}
 .striphead b{{color:var(--ink)}}
