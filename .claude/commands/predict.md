@@ -73,9 +73,9 @@ Where the project renders a verdict, a label, or a category from a number, **rea
 and find the threshold.** Do not infer it from what is currently displayed.
 
 Predicting a value and an incompatible label is an internal contradiction, and it is an easy
-one to make: in this project a model predicted a joint probability of 74% and a verdict of
-"a better draw", when the shipped code needs +10 over the base rate — 80% — to render those
-words. Both rows cannot be right. The number is the prediction; the label follows from it.
+mistake: a model once predicted a probability and, two rows later, a verdict wording that its
+own shipped thresholds could not produce from that probability. Both rows cannot be right.
+The number is the prediction; the label follows from it by a rule you can read.
 
 ### 5. Anchor on the base rate, not on today
 
