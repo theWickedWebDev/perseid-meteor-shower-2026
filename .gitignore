@@ -19,3 +19,6 @@ venv*/
 
 # one-time pre-compaction copy of the history; git holds every version anyway
 forecast_history.precompact.json
+
+# notification state — local, not source
+.notify_trip.json

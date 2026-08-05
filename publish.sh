@@ -57,3 +57,6 @@ git commit -q -m "auto: $(date '+%F %H:%M')" || exit 0
 git pull -q --rebase origin main 2>&1 || {
     echo "$(date '+%F %T')  rebase failed — resolve by hand"; exit 1; }
 git push -q origin main && echo "$(date '+%F %T')  published"
+
+# desktop popup only when the headline number actually moves — see notify_trip.py
+$PY notify_trip.py || true
