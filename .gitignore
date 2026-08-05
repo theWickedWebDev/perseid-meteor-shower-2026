@@ -33,3 +33,5 @@ nightwatch.log
 skymask.npy
 stars_log.json
 platesolve_residuals.json
+shots/
+schedule_wx.json

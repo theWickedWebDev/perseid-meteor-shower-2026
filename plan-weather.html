@@ -1,0 +1,1091 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SANDBOX · Pittsburg NH · Aug 11–14, 2026</title>
+<meta name="color-scheme" content="dark light">
+<style>
+/* ─── tokens ─────────────────────────────────────────── */
+:root{
+  --ground:#F1F3F7; --surface:#FFFFFF; --sunken:#E6EAF1;
+  --ink:#171C26; --body:#3B4453; --muted:#6C7789;
+  --rule:#D3D9E4;
+  --accent:#B5721A;          /* sodium / headlamp amber */
+  --accent-soft:#F6EAD6;
+  --alert:#B03A2C;
+  --alert-soft:#F8E4E0;
+  --good:#2E6B4F;
+  --shadow:0 1px 2px rgba(23,28,38,.06), 0 8px 24px -12px rgba(23,28,38,.18);
+
+  --serif:ui-serif,"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+
+  --sp:clamp(1rem,3.5vw,1.6rem);
+  --measure:64ch;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --ground:#0A0D14; --surface:#121722; --sunken:#080B11;
+    --ink:#E7ECF5; --body:#BAC4D4; --muted:#7A8698;
+    --rule:#232B39;
+    --accent:#E3A445; --accent-soft:#241B0C;
+    --alert:#E8705C; --alert-soft:#2A1512;
+    --good:#6FBF95;
+    --shadow:0 1px 2px rgba(0,0,0,.5), 0 10px 30px -14px rgba(0,0,0,.8);
+  }
+}
+:root[data-theme="light"]{
+  --ground:#F1F3F7; --surface:#FFFFFF; --sunken:#E6EAF1;
+  --ink:#171C26; --body:#3B4453; --muted:#6C7789; --rule:#D3D9E4;
+  --accent:#B5721A; --accent-soft:#F6EAD6;
+  --alert:#B03A2C; --alert-soft:#F8E4E0; --good:#2E6B4F;
+  --shadow:0 1px 2px rgba(23,28,38,.06), 0 8px 24px -12px rgba(23,28,38,.18);
+}
+:root[data-theme="dark"]{
+  --ground:#0A0D14; --surface:#121722; --sunken:#080B11;
+  --ink:#E7ECF5; --body:#BAC4D4; --muted:#7A8698; --rule:#232B39;
+  --accent:#E3A445; --accent-soft:#241B0C;
+  --alert:#E8705C; --alert-soft:#2A1512; --good:#6FBF95;
+  --shadow:0 1px 2px rgba(0,0,0,.5), 0 10px 30px -14px rgba(0,0,0,.8);
+}
+/* night-vision: red monochrome, preserves dark adaptation */
+:root[data-night="on"]{
+  --ground:#000000; --surface:#0A0000; --sunken:#000000;
+  --ink:#FF4A22; --body:#C8351A; --muted:#7E2210;
+  --rule:#3A0F06;
+  --accent:#FF6A34; --accent-soft:#180500;
+  --alert:#FF6A34; --alert-soft:#180500; --good:#C8351A;
+  --shadow:none;
+}
+
+/* ─── base ───────────────────────────────────────────── */
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--ground); color:var(--body);
+  font-family:var(--sans); font-size:1rem; line-height:1.6;
+  padding-bottom:4rem;
+}
+h1,h2,h3{font-family:var(--serif); color:var(--ink); text-wrap:balance; margin:0; font-weight:600}
+h1{font-size:clamp(1.7rem,6vw,2.4rem); line-height:1.15; letter-spacing:-.01em}
+h2{font-size:clamp(1.25rem,4.4vw,1.6rem); line-height:1.2}
+h3{font-size:1.02rem; line-height:1.3}
+p{margin:0}
+a{color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent); outline-offset:3px; border-radius:2px}
+
+.wrap{max-width:52rem; margin:0 auto; padding:0 var(--sp)}
+.stack{display:flex; flex-direction:column; gap:1rem}
+.stack-lg{display:flex; flex-direction:column; gap:2.6rem}
+
+.eyebrow{
+  font-family:var(--mono); font-size:.68rem; letter-spacing:.16em;
+  text-transform:uppercase; color:var(--muted);
+}
+.num{font-family:var(--mono); font-variant-numeric:tabular-nums}
+
+/* ─── top bar ────────────────────────────────────────── */
+.bar{
+  position:sticky; top:0; z-index:20; background:var(--ground);
+  border-bottom:1px solid var(--rule);
+}
+.bar-in{
+  max-width:52rem; margin:0 auto; padding:.5rem var(--sp);
+  display:flex; align-items:center; gap:.5rem;
+}
+.bar-title{font-family:var(--mono); font-size:.7rem; letter-spacing:.12em;
+  text-transform:uppercase; color:var(--muted); margin-right:auto; white-space:nowrap}
+.btn{
+  font-family:var(--mono); font-size:.68rem; letter-spacing:.1em; text-transform:uppercase;
+  background:transparent; color:var(--body); border:1px solid var(--rule);
+  padding:.42rem .7rem; border-radius:3px; cursor:pointer; white-space:nowrap;
+}
+.btn:hover{border-color:var(--accent); color:var(--accent)}
+.btn[aria-pressed="true"]{background:var(--accent); border-color:var(--accent); color:var(--ground)}
+a.btn{text-decoration:none; display:inline-block}
+a.live-link{border-color:var(--accent); color:var(--accent); font-weight:600}
+a.live-link:hover{background:var(--accent); color:var(--ground)}
+
+/* ─── header ─────────────────────────────────────────── */
+.head{padding:2.6rem 0 .4rem}
+.head .dates{font-family:var(--mono); font-size:.78rem; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--accent)}
+.mission{
+  margin-top:1.4rem; padding:1rem 1.1rem; background:var(--surface);
+  border:1px solid var(--rule); border-left:3px solid var(--accent); border-radius:3px;
+}
+.mission strong{color:var(--ink)}
+
+/* ─── sections ───────────────────────────────────────── */
+section{scroll-margin-top:3.4rem}
+.sec-head{display:flex; align-items:baseline; gap:.7rem; flex-wrap:wrap;
+  padding-bottom:.6rem; border-bottom:1px solid var(--rule); margin-bottom:1.2rem}
+
+.card{background:var(--surface); border:1px solid var(--rule); border-radius:4px;
+  padding:1.1rem; box-shadow:var(--shadow)}
+.card.flag{border-left:3px solid var(--alert); background:var(--alert-soft)}
+.card.flag h3{color:var(--alert)}
+
+/* ─── timeline ───────────────────────────────────────── */
+.tl{display:grid; grid-template-columns:5.4rem 1fr; gap:0}
+.tl > div{padding:.62rem 0; border-top:1px solid var(--rule)}
+.tl > div:nth-child(1),.tl > div:nth-child(2){border-top:0}
+.tl-t{font-family:var(--mono); font-size:.82rem; font-variant-numeric:tabular-nums;
+  color:var(--muted); padding-right:.8rem !important}
+.tl-e{color:var(--body)}
+.tl-e b{color:var(--ink); font-weight:600}
+.tl-e .why{display:block; color:var(--muted); font-size:.88rem; margin-top:.15rem}
+.tl-row-key .tl-t{color:var(--accent)}
+.tl-row-key .tl-e b{color:var(--accent)}
+.tl-row-dead .tl-t{color:var(--alert)}
+.tl-row-dead .tl-e b{color:var(--alert)}
+
+/* ─── tables ─────────────────────────────────────────── */
+.scroll{overflow-x:auto; -webkit-overflow-scrolling:touch}
+table{border-collapse:collapse; width:100%; font-size:.9rem}
+th,td{text-align:left; padding:.5rem .7rem; border-bottom:1px solid var(--rule); white-space:nowrap}
+th{font-family:var(--mono); font-size:.66rem; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--muted); font-weight:400}
+td.n{font-family:var(--mono); font-variant-numeric:tabular-nums}
+tr:last-child td{border-bottom:0}
+td.hi{color:var(--ink); font-weight:600}
+td.dead{color:var(--alert); font-weight:600}
+
+/* sun-depth glyphs: filled = above horizon, hollow = below, y encodes degrees */
+.ic{width:17px; height:17px; vertical-align:-3px; margin-right:.55rem; flex:none}
+.ic .hz{stroke:var(--rule); stroke-width:1.1; stroke-linecap:round}
+.ic .up{fill:var(--accent); stroke:none}
+.ic .dn{fill:none; stroke:var(--muted); stroke-width:1.1}
+.ic .st{fill:var(--accent)}
+.ic .st-d{fill:var(--muted)}
+
+/* ─── night grid ─────────────────────────────────────── */
+.nights{display:grid; gap:.9rem; grid-template-columns:1fr}
+@media(min-width:44rem){.nights{grid-template-columns:repeat(3,1fr)}}
+.night h3{margin-bottom:.1rem}
+.night .when{font-family:var(--mono); font-size:.7rem; letter-spacing:.1em;
+  text-transform:uppercase; color:var(--accent); display:block; margin-bottom:.6rem}
+.night ul{margin:0; padding-left:1.05rem; font-size:.92rem}
+.night li{margin-bottom:.3rem}
+.night li::marker{color:var(--muted)}
+.pal{display:inline-block; font-family:var(--mono); font-size:.66rem; letter-spacing:.08em;
+  text-transform:uppercase; color:var(--muted); border:1px solid var(--rule);
+  padding:.15rem .45rem; border-radius:2px; margin-top:.6rem}
+
+/* ─── details ────────────────────────────────────────── */
+details{background:var(--surface); border:1px solid var(--rule); border-radius:4px}
+details + details{margin-top:.5rem}
+summary{cursor:pointer; padding:.75rem 1rem; font-family:var(--mono); font-size:.78rem;
+  letter-spacing:.06em; color:var(--ink); list-style:none; display:flex; gap:.7rem; align-items:baseline}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"+"; color:var(--accent); font-weight:700}
+details[open] summary::before{content:"–"}
+summary .hr{font-family:var(--mono); color:var(--accent); font-variant-numeric:tabular-nums;
+  min-width:6.2rem}
+.det-body{padding:0 1rem 1rem; font-size:.94rem}
+.det-body p + p{margin-top:.6rem}
+
+/* ─── checklist ──────────────────────────────────────── */
+.check{list-style:none; margin:0; padding:0}
+.check li{display:flex; gap:.7rem; padding:.55rem 0; border-top:1px solid var(--rule); align-items:baseline}
+.check li:first-child{border-top:0}
+.check .box{font-family:var(--mono); color:var(--muted)}
+.check .done{color:var(--good)}
+.check .done + span{color:var(--muted); text-decoration:line-through}
+
+/* ─── gallery ────────────────────────────────────────── */
+.gal{display:grid; gap:1rem; grid-template-columns:1fr}
+@media(min-width:40rem){.gal{grid-template-columns:repeat(3,1fr)}}
+@media(min-width:40rem){.gal-4{grid-template-columns:repeat(2,1fr)}}
+@media(min-width:56rem){.gal-4{grid-template-columns:repeat(4,1fr)}}
+.gal figure{margin:0; background:var(--surface); border:1px solid var(--rule);
+  border-radius:4px; overflow:hidden; box-shadow:var(--shadow)}
+.gal img{display:block; width:100%; height:auto; aspect-ratio:4/3; object-fit:cover;
+  background:var(--sunken)}
+.gal img.fit{object-fit:contain}
+.gal figcaption{padding:.8rem .9rem; display:flex; flex-direction:column; gap:.3rem;
+  font-size:.86rem; color:var(--muted)}
+.gal figcaption b{color:var(--ink); font-size:.95rem}
+.gal figcaption span:first-of-type{font-family:var(--mono); font-size:.7rem;
+  letter-spacing:.04em; color:var(--accent)}
+:root[data-night="on"] .gal img{filter:grayscale(1) sepia(1) hue-rotate(-32deg) saturate(4) brightness(.55)}
+
+.foot{margin-top:3rem; padding-top:1.2rem; border-top:1px solid var(--rule);
+  color:var(--muted); font-size:.84rem}
+@media (prefers-reduced-motion:reduce){*{transition:none !important; animation:none !important}}
+</style>
+</head>
+<body>
+
+<div class="bar">
+  <div class="bar-in">
+    <span class="bar-title">Pittsburg · Aug 11–14</span>
+    <a class="btn live-link" href="forecast.html">Forecast &amp; webcam →</a>
+    <button class="btn" id="theme" type="button">Theme</button>
+    <button class="btn" id="night" type="button" aria-pressed="false">Night</button>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <header class="head">
+    <div class="dates">Tue 11 – Fri 14 August 2026 · 45.088 N, 71.325 W</div>
+    <h1>Pittsburg, New&nbsp;Hampshire</h1>
+    <div class="mission">
+      <strong>The mission is the Milky Way core and the Perseids.</strong>
+      Everything else — the refractor, the 6SE, deep integration — is bonus.
+      Perseid maximum and new moon both fall inside the window, and all three nights are
+      effectively moonless.
+    </div>
+
+    <!-- FORECAST-CARDS -->
+
+<style>
+.fcards{display:grid;gap:.7rem;grid-template-columns:1fr;margin:1.1rem 0}
+@media(min-width:38rem){.fcards{grid-template-columns:repeat(3,1fr)}}
+.fc{background:var(--surface);border:1px solid var(--rule);border-radius:4px;padding:.8rem .9rem}
+.fc .fch{font-family:var(--mono);font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--muted)}
+.fc .fcn{font-family:var(--mono);font-size:1.9rem;line-height:1.1;margin:.25rem 0 .1rem;
+  font-variant-numeric:tabular-nums}
+.fc .fcv{font-family:var(--mono);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase}
+.fc .fcd{margin-top:.6rem;padding-top:.5rem;border-top:1px solid var(--rule);
+  font-family:var(--mono);font-size:.72rem;color:var(--body)}
+.fc .fcd .wx{font-size:1rem;margin-right:.2rem}
+.fcgood{color:var(--good,#2E6B4F)} .fcwarn{color:var(--warn,#B5721A)}
+.fcbad{color:var(--bad,#B03A2C)} .fcdim{color:var(--muted)}
+.fcnote{font-size:.82rem;color:var(--muted);margin:.1rem 0 0}
+</style>
+<div class="fcards"><div class="fc"><div class="fch">Night 1 · Tue 11 Aug</div><div class="fcn fcwarn">38%</div><div class="fcv fcwarn">unresolved <span class="fcdim">· 50% usable</span></div><div class="fcd"><span class="wxe">🌧️</span> 14–22°C · 4 h rain <span class="fcbad">· fog 2h</span></div></div><div class="fc"><div class="fch">Night 2 · Wed 12 Aug</div><div class="fcn fcwarn">21%</div><div class="fcv fcwarn">unresolved <span class="fcdim">· 52% usable</span></div><div class="fcd"><span class="wxe">🌧️</span> 13–21°C · 3 h drizzle</div></div><div class="fc"><div class="fch">Night 3 · Thu 13 Aug</div><div class="fcn fcbad">58%</div><div class="fcv fcbad">unresolved <span class="fcdim">· 42% usable</span></div><div class="fcd"><span class="wxe">🌧️</span> 14–20°C · 8 h rain</div></div></div><p class="fcnote"><b>82%</b> chance at least one night gives you the core — a better draw than these dates usually give (70% base rate). <a href="forecast.html">Full forecast →</a></p><p class="fcnote" style="margin-top:.3rem">Cloud in the core window, updated hourly · Wed 05 Aug 09:12 EDT</p>
+<!-- /FORECAST-CARDS -->
+    <div class="card" style="margin-top:1.1rem; border-left:3px solid var(--accent)">
+      <div class="eyebrow" style="margin-bottom:.5rem">Mount latitude setting</div>
+      <div style="display:flex; align-items:baseline; gap:.8rem; flex-wrap:wrap">
+        <span class="num" style="font-size:2.2rem; color:var(--accent); line-height:1">45.1°</span>
+        <span style="color:var(--ink); font-weight:600">at the cabin</span>
+        <span class="num" style="color:var(--muted)">· 45.2° at the lake</span>
+      </div>
+      <div class="scroll" style="margin-top:.9rem"><table>
+        <tbody>
+          <tr><td>Home pier</td><td class="n">42.82°</td></tr>
+          <tr><td class="hi">Cabin</td><td class="n hi">45.09°</td></tr>
+          <tr><td>Lake spot</td><td class="n">45.24°</td></tr>
+          <tr><td><b style="color:var(--accent)">Move it UP by</b></td><td class="n" style="color:var(--accent); font-weight:700">+2.3°</td></tr>
+        </tbody>
+      </table></div>
+      <p style="margin-top:.9rem; font-size:.86rem; color:var(--muted)">
+        Different number, same word: <b>elevation above sea level</b> is ~666 m at the lake
+        (cabin still unmeasured). That one goes into <span class="num">virtualgps</span> and
+        Stellarium, not the mount.
+      </p>
+    </div>
+  </header>
+
+  <div class="stack-lg" style="margin-top:2.4rem">
+
+  <!-- ── NIGHTLY SHAPE ─────────────────────────────── -->
+  <section id="shape">
+    <div class="sec-head"><h2>Every clear night, the same shape</h2>
+      <span class="eyebrow">Times EDT</span></div>
+<style>
+/* One line, in the description column. The first attempt put these in the time column,
+   which is narrow — they stacked three deep and overran the text beside them. */
+.swxrow{display:flex;gap:.3rem;margin-top:.45rem;flex-wrap:wrap;align-items:center}
+.swx{display:inline-flex;align-items:center;gap:.22rem;font-family:var(--mono);
+  font-size:.6rem;line-height:1;padding:.16rem .34rem;border:1px solid var(--rule);
+  border-radius:10px;background:var(--surface);white-space:nowrap}
+.swx .wxe{font-size:.72rem}
+.swx b{font-weight:600;letter-spacing:.02em}
+.swx .scl{opacity:.65;font-variant-numeric:tabular-nums}
+.swx .srn{color:var(--alert,#B03A2C);font-weight:600}
+.swx.sgood{border-color:var(--good,#2E6B4F);color:var(--good,#2E6B4F)}
+.swx.swarn{border-color:var(--warn,#B5721A);color:var(--warn,#B5721A)}
+.swx.sbad{border-color:var(--bad,#B03A2C);color:var(--bad,#B03A2C)}
+.swxnote{font-size:.8rem;color:var(--muted);margin:.2rem 0 1rem}
+/* Three chips are ~10 px wider than a 390 px phone allows, which wrapped Thursday — the
+   wettest night of the three — onto a line of its own. Tighten rather than let the
+   comparison break across rows; the whole point is reading the nights side by side. */
+@media(max-width:30rem){
+  .swxrow{gap:.22rem}
+  .swx{font-size:.55rem;padding:.15rem .26rem;gap:.16rem}
+  .swx .wxe{font-size:.66rem}
+  /* The rain icon and the red border already say "rain"; the word is what pushed the
+     third chip onto its own line. Phones have no hover, so the icon carries it alone. */
+  .swx .srn{display:none}
+}
+</style>
+<p class="swxnote">Each time carries the forecast for that hour on all three nights — the plan is the same every night, the weather is not. Shown once an hour, when the forecast changes. Border colour is cloud cover; <b>rain</b> means precipitation is forecast. Hover for temperature and wind.</p>
+<p style="max-width:var(--measure); margin-bottom:1.1rem">
+      You're driving Route 3 north at dusk every night to look for moose anyway. The lake is
+      where that drive ends — so the core gets shot from the verified 204.4° site every clear
+      night, and the cabin's low southern horizon never has to be trusted.
+    </p>
+    <div class="card">
+      <div class="tl">
+        <div class="tl-t">5:00 PM</div>
+        <div class="tl-e"><b>Assemble the rig on the porch.</b> Balance, cables, Pi, Ekos,
+          devices verified. Start the camera cooling.
+          <span class="why">Unheated porch = ambient, so the triplet acclimates for five hours
+            and there's no thermal defocus later. <b>Dew heaters OFF</b> — under a roof it can't
+            dew, and heat fights the acclimation.</span><div class="swxrow"><span class="swx sbad" title="Tue: 70% cloud · 27% rain chance · 20°C · 12 km/h wind"><span class="wxe">⛅</span><b>Tue</b><span class="scl">70%</span></span><span class="swx sbad" title="Wed: 77% cloud · 29% rain chance · 18°C · 6 km/h wind"><span class="wxe">⛅</span><b>Wed</b><span class="scl">77%</span></span><span class="swx sbad" title="Thu: 71% cloud · 33% rain chance · 16°C · 13 km/h wind"><span class="wxe">🌧️</span><b>Thu</b><span class="scl">71%</span><span class="srn">·rain</span></span></div></div>
+
+        <div class="tl-row-key tl-t">7:15 PM</div>
+        <div class="tl-row-key tl-e"><b>Load the car — PACK THE 6SE. Depart, moose drive north
+          on Route 3.</b>
+          <span class="why">Sky is useless until 9:30, so the drive costs nothing.
+            <b>The 6SE's best targets are southern and only up between 9:56 and midnight —
+            exactly when you're at the lake.</b> Leave it at the cabin and M8, M17, M16, M22 and
+            M11 simply don't happen this trip. Fork mount travels fine and the lake has the
+            horizon for them.</span><div class="swxrow"><span class="swx swarn" title="Tue: 57% cloud · 27% rain chance · 16°C · 6 km/h wind"><span class="wxe">⛅</span><b>Tue</b><span class="scl">57%</span></span><span class="swx swarn" title="Wed: 51% cloud · 29% rain chance · 14°C · 4 km/h wind"><span class="wxe">⛅</span><b>Wed</b><span class="scl">51%</span></span><span class="swx sbad" title="Thu: 98% cloud · 33% rain chance · 14°C · 5 km/h wind"><span class="wxe">🌧️</span><b>Thu</b><span class="scl">98%</span><span class="srn">·rain</span></span></div></div>
+
+        <div class="tl-t">7:58</div>
+        <div class="tl-e"><svg class="ic" viewBox="0 0 17 17" aria-hidden="true"><line class="hz" x1="1.5" y1="8" x2="15.5" y2="8"/><circle class="up" cx="8.5" cy="8" r="2.6"/></svg>Sunset.</div>
+
+        <div class="tl-t">8:10</div>
+        <div class="tl-e">Earth's shadow + Belt of Venus, <b>azimuth 112°</b> — off your right
+          heading north.
+          <span class="why">Dark band with a pink edge rising out of the east, gone by 8:35.
+            Bright twilight: ~1/10 s, f/5.6, ISO 100, underexpose a touch.</span><div class="swxrow"><span class="swx swarn" title="Tue: 44% cloud · 27% rain chance · 14°C · 3 km/h wind"><span class="wxe">🌤️</span><b>Tue</b><span class="scl">44%</span></span><span class="swx swarn" title="Wed: 35% cloud · 29% rain chance · 13°C · 3 km/h wind"><span class="wxe">🌤️</span><b>Wed</b><span class="scl">35%</span></span><span class="swx sbad" title="Thu: 100% cloud · 33% rain chance · 12°C · 5 km/h wind"><span class="wxe">🌧️</span><b>Thu</b><span class="scl">100%</span><span class="srn">·rain</span></span></div></div>
+
+        <div class="tl-t">8:30</div>
+        <div class="tl-e"><svg class="ic" viewBox="0 0 17 17" aria-hidden="true"><line class="hz" x1="1.5" y1="8" x2="15.5" y2="8"/><circle class="dn" cx="8.5" cy="9.7" r="2.4"/></svg><b>Arrive the lake.</b> Civil twilight ends (−6°). Tripod and SAM out —
+          and the 6SE, so your friend has something real to do while you work.</div>
+
+        <div class="tl-t">8:45</div>
+        <div class="tl-e"><b>Foreground exposures.</b> f/2.8, ISO 800, 60–120 s.
+          <span class="why">Glow still on the water. Only chance to get them.</span></div>
+
+        <div class="tl-t">9:00</div>
+        <div class="tl-e">Polar align the SAM. Frame to <b>azimuth 204°</b>.<div class="swxrow"><span class="swx sgood" title="Tue: 28% cloud · 16% rain chance · 13°C · 2 km/h wind"><span class="wxe">🌤️</span><b>Tue</b><span class="scl">28%</span></span><span class="swx sgood" title="Wed: 21% cloud · 19% rain chance · 12°C · 1 km/h wind"><span class="wxe">🌤️</span><b>Wed</b><span class="scl">21%</span></span><span class="swx sbad" title="Thu: 76% cloud · 17% rain chance · 11°C · 6 km/h wind"><span class="wxe">⛅</span><b>Thu</b><span class="scl">76%</span></span></div></div>
+
+        <div class="tl-t">9:15</div>
+        <div class="tl-e">Focus, check corners, lock composition.
+          <span class="why">Hard deadline isn't darkness — it's being ready for it.</span></div>
+
+        <div class="tl-t">9:30</div>
+        <div class="tl-e"><svg class="ic" viewBox="0 0 17 17" aria-hidden="true"><line class="hz" x1="1.5" y1="8" x2="15.5" y2="8"/><circle class="dn" cx="8.5" cy="12.2" r="2.4"/></svg>Sun at −15°. First usable sky frames.</div>
+
+        <div class="tl-row-key tl-t">9:56</div>
+        <div class="tl-row-key tl-e"><svg class="ic" viewBox="0 0 17 17" aria-hidden="true"><line class="hz" x1="1.5" y1="8" x2="15.5" y2="8"/><circle class="dn" cx="8.5" cy="13" r="2.4"/><path class="st" d="M4 3.4 L4.6 5 L6.2 5.6 L4.6 6.2 L4 7.8 L3.4 6.2 L1.8 5.6 L3.4 5 Z"/><path class="st-d" d="M13 2.6 L13.5 3.9 L14.8 4.4 L13.5 4.9 L13 6.2 L12.5 4.9 L11.2 4.4 L12.5 3.9 Z"/></svg><b>Astronomical dark (−18°). The core.</b> Landscape, 18 mm.
+          <span class="why">Also several at 35 mm — Rho Oph, core and Trifid in one frame.
+            Scheduler fires on M8/M20 back at the cabin.</span><div class="swxrow"><span class="swx sgood" title="Tue: 28% cloud · 16% rain chance · 13°C · 2 km/h wind"><span class="wxe">🌤️</span><b>Tue</b><span class="scl">28%</span></span><span class="swx sgood" title="Wed: 21% cloud · 19% rain chance · 12°C · 1 km/h wind"><span class="wxe">🌤️</span><b>Wed</b><span class="scl">21%</span></span><span class="swx sbad" title="Thu: 76% cloud · 17% rain chance · 11°C · 6 km/h wind"><span class="wxe">⛅</span><b>Thu</b><span class="scl">76%</span></span></div></div>
+
+        <div class="tl-t">10:15</div>
+        <div class="tl-e"><b>6SE on the southern showpieces.</b> M8, M17 Swan, M16 Eagle, M22,
+          M11 Wild Duck, M20.
+          <span class="why">Invisible from your yard, and only up until midnight. This is the
+            why-did-we-drive-here moment and it happens now or not at all.</span><div class="swxrow"><span class="swx sgood" title="Tue: 10% cloud · 16% rain chance · 13°C · 3 km/h wind"><span class="wxe">☀️</span><b>Tue</b><span class="scl">10%</span></span><span class="swx sgood" title="Wed: 8% cloud · 19% rain chance · 11°C · 3 km/h wind"><span class="wxe">☀️</span><b>Wed</b><span class="scl">8%</span></span><span class="swx swarn" title="Thu: 39% cloud · 17% rain chance · 10°C · 7 km/h wind"><span class="wxe">🌤️</span><b>Thu</b><span class="scl">39%</span></span></div></div>
+
+        <div class="tl-row-dead tl-t">10:30</div>
+        <div class="tl-row-dead tl-e"><b>Rho Oph drops below 10°. Gone for the year.</b></div>
+
+        <div class="tl-t">11:00</div>
+        <div class="tl-e"><b>Switch to portrait.</b> Band standing vertical out of the water.
+          <span class="why">Core dead centre at 11.8°.</span><div class="swxrow"><span class="swx sgood" title="Tue: 0% cloud · 16% rain chance · 12°C · 4 km/h wind"><span class="wxe">☀️</span><b>Tue</b><span class="scl">0%</span></span><span class="swx sgood" title="Wed: 0% cloud · 19% rain chance · 11°C · 6 km/h wind"><span class="wxe">☀️</span><b>Wed</b><span class="scl">0%</span></span><span class="swx sgood" title="Thu: 12% cloud · 17% rain chance · 10°C · 8 km/h wind"><span class="wxe">☀️</span><b>Thu</b><span class="scl">12%</span></span></div></div>
+
+        <div class="tl-row-dead tl-t">11:25</div>
+        <div class="tl-row-dead tl-e"><b>Core hits 10°. South is finished.</b> Pack.<div class="swxrow"><span class="swx sgood" title="Tue: 0% cloud · 16% rain chance · 12°C · 4 km/h wind"><span class="wxe">☀️</span><b>Tue</b><span class="scl">0%</span></span><span class="swx sgood" title="Wed: 0% cloud · 19% rain chance · 11°C · 6 km/h wind"><span class="wxe">☀️</span><b>Wed</b><span class="scl">0%</span></span><span class="swx sgood" title="Thu: 12% cloud · 17% rain chance · 10°C · 8 km/h wind"><span class="wxe">☀️</span><b>Thu</b><span class="scl">12%</span></span></div></div>
+
+        <div class="tl-t">11:45</div>
+        <div class="tl-e">Depart. <span class="why">Moose peep on the way back to the cabin.</span></div>
+
+        <div class="tl-t">12:10 AM</div>
+        <div class="tl-e">Cabin. Check the dashboard — M8/M20 should have ~2 h of subs.<div class="swxrow"><span class="swx sgood" title="Tue: 0% cloud · 16% rain chance · 12°C · 4 km/h wind"><span class="wxe">☀️</span><b>Tue</b><span class="scl">0%</span></span><span class="swx sgood" title="Wed: 0% cloud · 19% rain chance · 11°C · 7 km/h wind"><span class="wxe">☀️</span><b>Wed</b><span class="scl">0%</span></span><span class="swx sgood" title="Thu: 4% cloud · 17% rain chance · 10°C · 8 km/h wind"><span class="wxe">☀️</span><b>Thu</b><span class="scl">4%</span></span></div></div>
+
+        <div class="tl-t">12:15</div>
+        <div class="tl-e">Card off to the desktop. Re-align the SAM while it copies.
+          <span class="why">Swap cards, never format in the field.</span></div>
+
+        <div class="tl-row-key tl-t">12:15</div>
+        <div class="tl-row-key tl-e"><b>Carry the scope out from the porch.</b>
+          <span class="why">Whole tripod moves assembled, so alt/az survives — but the plate
+            may have shifted and the ground settles. <b>Polar align check, expect a small
+            adjustment.</b> Already at ambient, camera already cold.
+            <b>Dew heaters ON now</b>, low setting.</span></div>
+
+        <div class="tl-t">1:00</div>
+        <div class="tl-e"><b>Refractor → the night's deep target.</b>
+          Canon onto the SAM, Cassiopeia/M31 field.<div class="swxrow"><span class="swx sgood" title="Tue: 8% cloud · 16% rain chance · 11°C · 5 km/h wind"><span class="wxe">☀️</span><b>Tue</b><span class="scl">8%</span></span><span class="swx sgood" title="Wed: 2% cloud · 19% rain chance · 11°C · 7 km/h wind"><span class="wxe">☀️</span><b>Wed</b><span class="scl">2%</span></span><span class="swx sgood" title="Thu: 5% cloud · 17% rain chance · 9°C · 8 km/h wind"><span class="wxe">☀️</span><b>Thu</b><span class="scl">5%</span></span></div></div>
+
+        <div class="tl-t">1:00</div>
+        <div class="tl-e">Canon running: 20 s, f/1.8, ISO 3200, continuous. Dew heater on the lens.</div>
+
+        <div class="tl-t">1:15</div>
+        <div class="tl-e"><b>6SE swings north.</b> NGC 7331 + Stephan's Quintet while it's high,
+          then M31, M33, Saturn, the planetaries.</div>
+
+        <div class="tl-row-key tl-t">2:00–3:45</div>
+        <div class="tl-row-key tl-e"><b>Perseid peak hours.</b> Radiant climbs 47° → 61°.
+          <span class="why">Rates roughly triple over the evening. Camera runs itself —
+            both of you outside, in chairs, looking up.</span><div class="swxrow"><span class="swx sgood" title="Tue: 22% cloud · 16% rain chance · 11°C · 5 km/h wind"><span class="wxe">🌤️</span><b>Tue</b><span class="scl">22%</span></span><span class="swx sgood" title="Wed: 5% cloud · 19% rain chance · 11°C · 8 km/h wind"><span class="wxe">☀️</span><b>Wed</b><span class="scl">5%</span></span><span class="swx sgood" title="Thu: 8% cloud · 17% rain chance · 9°C · 7 km/h wind"><span class="wxe">☀️</span><b>Thu</b><span class="scl">8%</span></span></div></div>
+
+        <div class="tl-t">3:45</div>
+        <div class="tl-e"><svg class="ic" viewBox="0 0 17 17" aria-hidden="true"><line class="hz" x1="1.5" y1="8" x2="15.5" y2="8"/><circle class="dn" cx="8.5" cy="13" r="2.4"/></svg>Astronomical twilight begins (−18°). Stop capture.<div class="swxrow"><span class="swx swarn" title="Tue: 47% cloud · 16% rain chance · 11°C · 6 km/h wind"><span class="wxe">🌧️</span><b>Tue</b><span class="scl">47%</span><span class="srn">·rain</span></span><span class="swx sgood" title="Wed: 6% cloud · 12% rain chance · 10°C · 8 km/h wind"><span class="wxe">☀️</span><b>Wed</b><span class="scl">6%</span></span><span class="swx sgood" title="Thu: 9% cloud · 14% rain chance · 9°C · 6 km/h wind"><span class="wxe">☀️</span><b>Thu</b><span class="scl">9%</span></span></div></div>
+
+        <div class="tl-t">4:00</div>
+        <div class="tl-e">Park, ramp cooling off, pull cards.
+          <span class="why"><b>Scope goes back to the porch, not into the warm cabin.</b>
+            Cold optics in warm humid air fog instantly — the porch avoids it entirely.</span><div class="swxrow"><span class="swx sbad" title="Tue: 78% cloud · 16% rain chance · 12°C · 6 km/h wind"><span class="wxe">🌧️</span><b>Tue</b><span class="scl">78%</span><span class="srn">·rain</span></span><span class="swx sgood" title="Wed: 6% cloud · 12% rain chance · 10°C · 8 km/h wind"><span class="wxe">☀️</span><b>Wed</b><span class="scl">6%</span></span><span class="swx sgood" title="Thu: 11% cloud · 14% rain chance · 8°C · 5 km/h wind"><span class="wxe">☀️</span><b>Thu</b><span class="scl">11%</span></span></div></div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:1.1rem; border-left:3px solid var(--alert)">
+      <div class="eyebrow" style="margin-bottom:.35rem">Go / no-go</div>
+      <h3>Forecast trend → <a href="forecast.html">forecast.html</a></h3>
+      <p style="margin-top:.5rem; font-size:.92rem">
+        Tracks how the predicted <b style="color:var(--ink)">core-window sky cover</b> for each
+        night moves as the forecast run date advances. Re-run
+        <span class="num">python3 log_forecast.py</span> daily and the chart extends.
+      </p>
+      <p style="margin-top:.6rem; font-size:.92rem">
+        <b style="color:var(--ink)">Decision point Aug 8.</b> Pivot night is
+        <b style="color:var(--accent)">Aug 12/13</b> — Perseid maximum and new moon, the only
+        night carrying something the others don't. Go if its core window is under ~30% cloud.
+        <b style="color:var(--ink)">Sky cover, not PoP</b> — an overcast rainless night reads 0%
+        precipitation and is a total loss.
+      </p>
+    </div>
+
+    <div class="card" style="margin-top:1.1rem; border-left:3px solid var(--accent)">
+      <div class="eyebrow" style="margin-bottom:.35rem">7:00 PM · every lake night</div>
+      <h3 style="font-size:1.25rem">Load the car</h3>
+
+      <div style="margin-top:.9rem; padding:.75rem .9rem; background:var(--accent-soft);
+                  border:1px solid var(--accent); border-radius:3px">
+        <b style="color:var(--accent); font-size:1.05rem">☐ PACK THE 6SE</b>
+        <span style="display:block; margin-top:.25rem; font-size:.9rem">
+          Fork, tripod, eyepieces, 32 mm Plössl. <b style="color:var(--ink)">Leave the EQ wedge
+          home</b> — it does nothing for visual. Its best targets are southern and only up
+          9:56–midnight, exactly when you're at the lake. Leave it behind and M8, M17, M16, M22
+          and M11 don't happen this trip.
+        </span>
+      </div>
+
+      <ul class="check" style="margin-top:.9rem; font-size:.93rem">
+        <li><span class="box">☐</span><span><b style="color:var(--ink)">Canon + Sigma</b> — 72 mm UV/IR filter fitted, lens hood on</span></li>
+        <li><span class="box">☐</span><span><b style="color:var(--ink)">4× LP-E17, charged</b> the day before</span></li>
+        <li><span class="box">☐</span><span><b style="color:var(--ink)">SAM + tripod</b>, latitude wedge at 45° · <b style="color:var(--ink)">AA lithiums + a spare pair</b></span></li>
+        <li><span class="box">☐</span><span>Something to drop the tripod to <b style="color:var(--ink)">~0.5 m</b> for the creative session</span></li>
+        <li><span class="box">☐</span><span><b style="color:var(--ink)">Lead-acid</b> + barrel-to-alligator lead, <b style="color:var(--ink)">fused</b> — feeds the 6SE</span></li>
+        <li><span class="box">☐</span><span><b style="color:var(--ink)">USB power bank</b> + cable — feeds the dew strap</span></li>
+        <li><span class="box">☐</span><span>USB dew strap, <b style="color:var(--ink)">labelled 5 V</b> · hand warmers as backup</span></li>
+        <li><span class="box">☐</span><span>Spare SD cards · IR thermometer gun</span></li>
+        <li><span class="box">☐</span><span>Two headlamps — <b style="color:var(--ink)">red for working, warm-white for light painting</b> · amber gel</span></li>
+        <li><span class="box">☐</span><span>iPhone + mini tripod</span></li>
+        <li><span class="box">☐</span><span>Chairs, layers, bug spray, <b style="color:var(--ink)">ID</b></span></li>
+        <li><span class="box">☐</span><span>Power box, DR-E18 coupler, spare cables — <b style="color:var(--ink)">stay in the truck as backup</b></span></li>
+      </ul>
+
+      <div class="eyebrow" style="margin-top:1.2rem; margin-bottom:.4rem">Power — one supply per system</div>
+      <div class="scroll"><table>
+        <tbody>
+          <tr><td class="hi">Canon</td><td>LP-E17 batteries — <b>swap at the 10:45 landscape→portrait break</b>, not when it dies</td></tr>
+          <tr><td class="hi">Dew strap</td><td>USB power bank — ~5 h off 10,000 mAh</td></tr>
+          <tr><td class="hi">6SE</td><td>Lead-acid direct, 12 V, no regulator — its native supply</td></tr>
+          <tr><td class="hi">SAM Mini</td><td>2×AA lithiums</td></tr>
+        </tbody>
+      </table></div>
+      <p style="margin-top:.8rem; font-size:.9rem">
+        <b style="color:var(--ink)">Four independent supplies means no single point of failure.</b>
+        A blown fuse or a bad cable takes out one thing, not the session.
+      </p>
+      <p style="margin-top:.6rem; font-size:.88rem; color:var(--muted)">
+        Before first use of the alligator lead: <b style="color:var(--ink)">inline 5 A fuse at
+        the battery end</b>, and <b style="color:var(--ink)">verify centre-positive with a
+        meter</b>. Also set the NexStar handset site to <span class="num">45° 14' N /
+        71° 12' W</span> — it's still on your home coordinates.
+      </p>
+    </div>
+
+    <div class="card" style="margin-top:1.1rem">
+      <h3>6SE visual — ideas</h3>
+      <p style="margin-top:.5rem; color:var(--muted); font-size:.9rem">
+        1.25" only, so max true field is about <b style="color:var(--ink)">1.0°</b>. Big nebulae
+        and most of M31 are out. Play to aperture and a dark sky instead.
+      </p>
+      <div class="scroll" style="margin-top:.8rem"><table>
+        <thead><tr><th>When</th><th>Targets</th></tr></thead>
+        <tbody>
+          <tr><td class="hi">9:56–midnight<br><span class="eyebrow">lake only</span></td>
+              <td><b>M8 Lagoon</b> · <b>M17 Swan</b> · M16 Eagle · <b>M22</b> · M11 Wild Duck · M20 · M28<br>
+              <span style="color:var(--muted)">Southern. You have never seen these from home. M22 is brighter than M13 and you've never laid eyes on it.</span></td></tr>
+          <tr><td>After midnight</td>
+              <td><b>NGC 7331 + Stephan's Quintet</b> · M31/M32/M110 · M33 · M15 · M2 · M13 · M92<br>
+              <span style="color:var(--muted)">The Quintet is the trophy — Bortle 2 in a six-inch is what makes it visible at all. M33 shows spiral structure rather than a smudge.</span></td></tr>
+          <tr><td>Planetaries<br><span class="eyebrow">ideal at 1500mm</span></td>
+              <td>M57 Ring · M27 Dumbbell · NGC 6543 Cat's Eye · <b>NGC 6826 Blinking</b> · NGC 7009 Saturn Nebula · NGC 7662 Blue Snowball<br>
+              <span style="color:var(--muted)">The Blinking is the party trick — look straight at it and it vanishes, look slightly away and it reappears.</span></td></tr>
+          <tr><td>Doubles</td>
+              <td><b>Albireo</b> (gold and blue) · <b>Epsilon Lyrae</b> (the double-double, splits into four) · Antares</td></tr>
+          <tr><td>Planets</td>
+              <td><b>Saturn</b> ~39° at 2 AM, rings still nearly edge-on after the 2025 ring-plane crossing — it looks genuinely strange right now. <b>Jupiter unavailable</b>, near solar conjunction.</td></tr>
+        </tbody>
+      </table></div>
+      <p style="margin-top:.8rem; font-size:.9rem; color:var(--muted)">
+        Bring a <b style="color:var(--ink)">32 mm Plössl</b> if you have one — 47×, ~1° field,
+        the widest the 6SE can give. And keep it far enough from the EQ6 that walking to the
+        eyepiece doesn't put vibration into the subs.
+      </p>
+    </div>
+
+    <div class="card" style="margin-top:1.1rem; border-left:3px solid var(--accent)">
+      <h3>The porch, and when the heaters run</h3>
+      <p style="margin-top:.55rem">
+        The scope can't be left outside, so it lives on the <b style="color:var(--ink)">unheated
+        3-season porch</b> between sessions — assembled, powered, camera cooling, from ~5 PM.
+        The 76EDPH is a <b style="color:var(--ink)">triplet</b>: carried from a warm cabin into
+        night air it takes 45–90 minutes to stabilise and focus drifts the whole time. On the
+        porch it's already at ambient. And cooling there is easier on the camera — −10 °C from
+        12 °C ambient is a 22 °C delta instead of 32 °C from a warm room.
+      </p>
+      <p style="margin-top:.7rem">
+        <b style="color:var(--accent)">Dew heaters OFF on the porch. ON the moment anything goes
+        out under open sky.</b> Dew forms by radiative cooling — a surface that can see the sky
+        radiates to space and drops below the dew point. Under a roof it can't, so nothing there
+        will dew, and heat would only fight the acclimation.
+      </p>
+      <p style="margin-top:.7rem">
+        Don't compute dew point. Optimise <b style="color:var(--ink)">heat, not power</b>: too
+        little and you dew, too much and you get tube currents and mushy stars. Target
+        <b style="color:var(--ink)">2–5 °C above ambient, no more.</b>
+      </p>
+      <div class="scroll" style="margin-top:.8rem"><table>
+        <thead><tr><th>Optic</th><th>Setting</th></tr></thead>
+        <tbody>
+          <tr><td class="hi">76EDPH</td><td>Err <b>low</b> — triplet, gradients through three elements degrade stars directly</td></tr>
+          <tr><td>6SE corrector</td><td>More tolerant, thin plate. Lucky — it's the worst dew magnet you own</td></tr>
+          <tr><td>Sigma on the SAM</td><td>Doesn't much care</td></tr>
+        </tbody>
+      </table></div>
+      <p style="margin-top:.8rem; font-size:.9rem; color:var(--muted)">
+        Check the objective with a red light every hour. Dewing → up. Stars soft and bloated
+        with no focus change → down. <b style="color:var(--ink)">At 4 AM the scope goes back to
+        the porch, not into the cabin</b> — cold optics in warm humid air fog instantly.
+      </p>
+    </div>
+  </section>
+
+  <!-- ── THE THREE NIGHTS ──────────────────────────── -->
+  <section id="nights">
+    <div class="sec-head"><h2>What changes each night</h2></div>
+    <div class="nights">
+      <div class="card night">
+        <h3>Build night</h3>
+        <span class="when">Tue 11/12 · no lake</span>
+        <ul>
+          <li><b>Cabin all night.</b> Polar alignment needs Polaris at 8:45 and you'd be gone by 7:15 — those can't both happen while building from scratch</li>
+          <li><b>9:10 — mark the plate.</b> Then never touch the alt/az bolts again. This is what makes nights 2 and 3 possible</li>
+          <li>Scope → <b>M8/M20</b>, the only night it can reach them</li>
+          <li>Then <b>Veil / Cygnus Loop</b> at 12:15, past transit so no flip</li>
+          <li>Canon on the core from the cabin if the survey allows, else meteors</li>
+        </ul>
+        <span class="pal">Teal + crimson</span>
+      </div>
+      <div class="card night">
+        <h3>Peak</h3>
+        <span class="when">Wed 12/13</span>
+        <ul>
+          <li><b>Perseid maximum, new moon.</b> The money night</li>
+          <li>Core at the lake</li>
+          <li>Scope out from the porch at 12:15, running <b>1:00–3:45</b></li>
+          <li>Scope → <b>Cocoon IC 5146 + B168</b>, transits at 87.8°, essentially zenith</li>
+          <li>Supervise the near-zenith flip at 1:19</li>
+        </ul>
+        <span class="pal">Red + blue + dust</span>
+      </div>
+      <div class="card night">
+        <h3>Creative</h3>
+        <span class="when">Thu 13/14</span>
+        <ul>
+          <li>Rebuild pulled into the afternoon — <b>dinner at Buck Rub Pub, 5:00</b></li>
+          <li>Core frames done efficiently — you have two nights already</li>
+          <li><b>11:05 — drop the tripod to knee height.</b> Silhouettes, light painting</li>
+          <li>Scope → <b>Dark Shark + vdB 152</b>, 1:00–3:45</li>
+          <li>~2:55 — Draco's head passes the NW door. Ten minutes, not a session</li>
+        </ul>
+        <span class="pal">Grey shapes + blue knot</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── NUMBERS ───────────────────────────────────── -->
+  <section id="numbers">
+    <div class="sec-head"><h2>The numbers</h2>
+      <span class="eyebrow">Aug 12 · shifts ~2 min earlier per night</span></div>
+    <div class="stack">
+      <div class="card">
+        <h3 style="margin-bottom:.7rem">Milky Way core <span class="eyebrow">Sgr A* · transits 9:12 PM at 15.75°</span></h3>
+        <div class="scroll"><table>
+          <thead><tr><th>Time</th><th>Altitude</th><th>Azimuth</th><th></th></tr></thead>
+          <tbody>
+            <tr><td class="n">9:56 PM</td><td class="n hi">15.1°</td><td class="n">190°</td><td>Dark begins</td></tr>
+            <tr><td class="n">10:30</td><td class="n">13.6°</td><td class="n">200°</td><td></td></tr>
+            <tr><td class="n">11:00</td><td class="n">11.8°</td><td class="n">205°</td><td>Frame centre</td></tr>
+            <tr><td class="n">11:25</td><td class="n dead">10.0°</td><td class="n">212°</td><td class="dead">Deadline</td></tr>
+            <tr><td class="n">Midnight</td><td class="n">6.5°</td><td class="n">217°</td><td>Mush</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+
+      <div class="card">
+        <h3 style="margin-bottom:.7rem">Perseid radiant <span class="eyebrow">Dec +58 · circumpolar, never sets</span></h3>
+        <div class="scroll"><table>
+          <thead><tr><th>Time</th><th>Altitude</th><th>Azimuth</th><th>Relative rate</th></tr></thead>
+          <tbody>
+            <tr><td class="n">10:00 PM</td><td class="n">21°</td><td class="n">26°</td><td>×1</td></tr>
+            <tr><td class="n">Midnight</td><td class="n">32°</td><td class="n">38°</td><td>×1.5</td></tr>
+            <tr><td class="n">2:00 AM</td><td class="n">47°</td><td class="n">47°</td><td>×2.0</td></tr>
+            <tr><td class="n">3:45 AM</td><td class="n hi">61°</td><td class="n">48°</td><td class="hi">×2.4</td></tr>
+          </tbody>
+        </table></div>
+        <p style="margin-top:.7rem; color:var(--muted); font-size:.88rem">
+          Rates scale with sin(altitude). Don't go to bed at 1 — the last two hours are the shower.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3 style="margin-bottom:.7rem">Twilight</h3>
+        <div class="scroll"><table>
+          <thead><tr><th></th><th>Sun</th><th>Time</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><svg class="ic" viewBox="0 0 17 17" aria-hidden="true"><line class="hz" x1="1.5" y1="8" x2="15.5" y2="8"/><circle class="up" cx="8.5" cy="8" r="2.6"/></svg>Sunset</td>
+              <td class="n">0°</td><td class="n">7:58 PM</td></tr>
+            <tr>
+              <td><svg class="ic" viewBox="0 0 17 17" aria-hidden="true"><line class="hz" x1="1.5" y1="8" x2="15.5" y2="8"/><circle class="dn" cx="8.5" cy="9.7" r="2.4"/></svg>Civil ends</td>
+              <td class="n">−6°</td><td class="n">8:30 PM</td></tr>
+            <tr>
+              <td><svg class="ic" viewBox="0 0 17 17" aria-hidden="true"><line class="hz" x1="1.5" y1="8" x2="15.5" y2="8"/><path class="st" d="M8.5 2 L9.6 5.4 L13 6.5 L9.6 7.6 L8.5 11 L7.4 7.6 L4 6.5 L7.4 5.4 Z"/></svg>Polaris visible</td>
+              <td class="n">−8°</td><td class="n">~8:45 PM</td></tr>
+            <tr>
+              <td><svg class="ic" viewBox="0 0 17 17" aria-hidden="true"><line class="hz" x1="1.5" y1="8" x2="15.5" y2="8"/><circle class="dn" cx="8.5" cy="11.4" r="2.4"/></svg>Nautical ends</td>
+              <td class="n">−12°</td><td class="n">9:11 PM</td></tr>
+            <tr>
+              <td><svg class="ic" viewBox="0 0 17 17" aria-hidden="true"><line class="hz" x1="1.5" y1="8" x2="15.5" y2="8"/><circle class="dn" cx="8.5" cy="12.2" r="2.4"/></svg>First usable frames</td>
+              <td class="n">−15°</td><td class="n">9:30 PM</td></tr>
+            <tr>
+              <td class="hi"><svg class="ic" viewBox="0 0 17 17" aria-hidden="true"><line class="hz" x1="1.5" y1="8" x2="15.5" y2="8"/><circle class="dn" cx="8.5" cy="13" r="2.4"/><path class="st" d="M4 3.4 L4.6 5 L6.2 5.6 L4.6 6.2 L4 7.8 L3.4 6.2 L1.8 5.6 L3.4 5 Z"/><path class="st-d" d="M13 2.6 L13.5 3.9 L14.8 4.4 L13.5 4.9 L13 6.2 L12.5 4.9 L11.2 4.4 L12.5 3.9 Z"/></svg>Astronomical dark</td>
+              <td class="n hi">−18°</td><td class="n hi">9:56 PM</td></tr>
+            <tr>
+              <td class="hi"><svg class="ic" viewBox="0 0 17 17" aria-hidden="true"><line class="hz" x1="1.5" y1="8" x2="15.5" y2="8"/><circle class="dn" cx="8.5" cy="13" r="2.4"/></svg>Twilight begins</td>
+              <td class="n hi">−18°</td><td class="n hi">3:45 AM</td></tr>
+            <tr>
+              <td><svg class="ic" viewBox="0 0 17 17" aria-hidden="true"><line class="hz" x1="1.5" y1="8" x2="15.5" y2="8"/><circle class="up" cx="8.5" cy="8" r="2.6"/></svg>Sunrise</td>
+              <td class="n">0°</td><td class="n">5:41 AM</td></tr>
+          </tbody>
+        </table></div>
+        <p style="margin-top:.7rem; color:var(--muted); font-size:.86rem">
+          Filled disc = sun above the horizon. Hollow disc sits at its true depth below it —
+          that's the whole definition of each twilight stage.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── OH SHIT ───────────────────────────────────── -->
+  <section id="ohshit">
+    <div class="sec-head"><h2>Clouded out, and a hole just opened</h2>
+      <span class="eyebrow">Hourly triage</span></div>
+
+    <div class="card flag" style="margin-bottom:1.1rem">
+      <h3>Grab what's dying, not what's rising</h3>
+      <p style="margin-top:.4rem">
+        Anything high and northern will still be there in October from the pier. Anything low
+        and southern is gone for a year. <strong style="color:var(--ink)">When in doubt, point
+        south and low.</strong>
+      </p>
+    </div>
+
+    <div class="card" style="margin-bottom:1.1rem">
+      <h3 style="margin-bottom:.7rem">How long is the break?</h3>
+      <div class="scroll"><table>
+        <thead><tr><th>System</th><th>Time to first useful frame</th></tr></thead>
+        <tbody>
+          <tr><td>iPhone</td><td class="n">15 seconds</td></tr>
+          <tr><td>Canon, fixed tripod</td><td class="n">2 minutes</td></tr>
+          <tr><td>6SE visual</td><td class="n">5 minutes</td></tr>
+          <tr><td>Canon on SAM, tracked</td><td class="n">12–15 minutes</td></tr>
+          <tr><td>EQ6 + 76EDPH</td><td class="n hi">20–30 minutes</td></tr>
+        </tbody>
+      </table></div>
+      <p style="margin-top:.8rem; font-size:.92rem">
+        <b style="color:var(--ink)">Under 15 min</b> — Canon on a tripod, nothing else.
+        <b style="color:var(--ink)">15–45 min</b> — Canon plus visual; scope only if already tracking.
+        <b style="color:var(--ink)">45+ min</b> — bring the refractor in.
+        <b style="color:var(--ink)">Unknown</b> — assume short.
+      </p>
+    </div>
+
+    <details>
+      <summary><span class="hr">9–10 PM</span> South. Everything south.</summary>
+      <div class="det-body">
+        <p>Canon at 18 or 35 mm, azimuth ~195°. One 35 mm frame gets Rho Oph, the core and the
+        Trifid together. The richest hour of the trip and the only one containing Rho Oph.</p>
+        <p>Rho Oph 13.2° and falling · core 15.1°, at its best · M8/M20 21.4°.
+        <b>Do not point anything north this hour.</b></p>
+      </div>
+    </details>
+    <details>
+      <summary><span class="hr">10–11 PM</span> Rho Oph is bleeding out.</summary>
+      <div class="det-body">
+        <p>Rho Oph hits 10.1° at 10:30 and is below the treeline by 10:45. <b>Last call.</b>
+        Canon south, landscape, immediately. Even twenty minutes here beats anything else available.</p>
+        <p>Scope: M8/M20 — it has until 12:30, so it's the safe choice if the break holds.</p>
+      </div>
+    </details>
+    <details>
+      <summary><span class="hr">11 PM–12</span> Core's last hour, then switch.</summary>
+      <div class="det-body">
+        <p><b>Before 11:25</b> — Canon on the core, <b>portrait</b>. The band is standing vertical
+        out of the southwest. This is the postcard and it expires in minutes.</p>
+        <p><b>After 11:25</b> — south is finished for wide-field. Canon to the meteor field,
+        scope to M8/M20 or the Veil.</p>
+      </div>
+    </details>
+    <details>
+      <summary><span class="hr">12–1 AM</span> Handoff hour.</summary>
+      <div class="det-body">
+        <p>M8/M20 dies at 12:30. Take it only if you can be capturing by 12:10 — otherwise go
+        straight to the <b>Veil</b>, which transits 12:17 at 75.6°. Starting just after transit
+        means no meridian flip for the rest of the night.</p>
+      </div>
+    </details>
+    <details>
+      <summary><span class="hr">1–2 AM</span> High and easy.</summary>
+      <div class="det-body">
+        <p>Nothing is dying. Pick for quality: Veil tracking west, or Cocoon + B168 transiting at
+        87.8° — essentially overhead, immune to any horizon problem in any direction.
+        Dark Shark if you want the north.</p>
+      </div>
+    </details>
+    <details>
+      <summary><span class="hr">2–3 AM</span> Perseid prime.</summary>
+      <div class="det-body">
+        <p>Canon on meteors, no question. 20 s, f/1.8, ISO 3200, continuous.
+        6SE on NGC 7331 and Stephan's Quintet while it's high — Bortle 2 in a six-inch is the
+        only way you'll ever see the Quintet.</p>
+        <p><b>And put the eyepiece down for fifteen minutes and just watch.</b></p>
+      </div>
+    </details>
+    <details>
+      <summary><span class="hr">3–3:45 AM</span> Meteors only. Don't build anything.</summary>
+      <div class="det-body">
+        <p>Best rates of the night, radiant 55° → 61°. Forty-five minutes is not worth an EQ6
+        startup. Canon on a tripod, 20 s, go. Lawn chair.</p>
+      </div>
+    </details>
+    <details>
+      <summary><span class="hr">Any hour</span> Aurora — drop everything.</summary>
+      <div class="det-body">
+        <p>Pittsburg sits near 55° geomagnetic. It's the rarest thing on the list and it does not
+        wait. Canon 18 mm, f/1.8, 5–10 s, ISO 1600, pointed north. Reflection on water if you can
+        get to it. Abandon whatever the scope was doing.</p>
+      </div>
+    </details>
+    <details>
+      <summary><span class="hr">Cloudy eve</span> Readiness posture — do this every night.</summary>
+      <div class="det-body">
+        <p>A break you can't react to in five minutes is a break you didn't get.</p>
+        <p>EQ6 polar aligned and parked at home/Polaris regardless of forecast · 2600MC cooled to
+        −10 °C and holding · sequence loaded, Scheduler job built · <b>note the EAF step count</b>
+        from the last good focus · Canon on the tripod, filter on, focused, capped ·
+        <b>dew heaters ON even under cloud</b> — soaked optics when the break comes cost you the
+        break · dashboard running on the phone.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ── SITE ──────────────────────────────────────── -->
+  <section id="site">
+    <div class="sec-head"><h2>Sites</h2></div>
+    <div class="stack">
+      <div class="card">
+        <h3>Lake — the shooting spot</h3>
+        <div class="scroll" style="margin-top:.6rem"><table>
+          <tbody>
+            <tr><td>Position</td><td class="n">45° 14' 21.36" N · 71° 11' 47.16" W</td></tr>
+            <tr><td>Decimal</td><td class="n">45.239267, −71.196433</td></tr>
+            <tr><td>Elevation</td><td class="n">666 m / 2,185 ft</td></tr>
+            <tr><td class="hi">View bearing</td><td class="n hi">204.4° True</td></tr>
+            <tr><td>Treeline</td><td class="n">~10°</td></tr>
+            <tr><td>From cabin</td><td class="n">~20 km NNE · 20–25 min</td></tr>
+          </tbody>
+        </table></div>
+        <p style="margin-top:.8rem; color:var(--muted); font-size:.88rem">
+          Bearing came from EXIF <span class="num">GPSImgDirection</span> on IMG_8460 and
+          cross-checked against the moon's computed position at that timestamp — agreement within
+          5°. Frame covers azimuth 177°–232°, which contains the entire southern program.
+        </p>
+      </div>
+      <div class="card">
+        <h3>Cabin</h3>
+        <div class="scroll" style="margin-top:.6rem"><table>
+          <thead><tr><th>View</th><th>Azimuth</th><th>Horizon</th><th>Solved by</th></tr></thead>
+          <tbody>
+            <tr><td>SSW</td><td class="n">195–227°</td><td class="n hi">below 15.5°</td><td>Orion</td></tr>
+            <tr><td>SW</td><td class="n">188–262°</td><td class="n">open; ~22° corner</td><td>Pleiades + Orion</td></tr>
+            <tr><td>W</td><td class="n">232–290°</td><td class="n">below 5°; ~25° WNW</td><td>Pleiades + Aldebaran</td></tr>
+            <tr><td>NW door</td><td class="n">~309°</td><td class="n">~17°</td><td>M31 framing</td></tr>
+          </tbody>
+        </table></div>
+        <p style="margin-top:.8rem; color:var(--muted); font-size:.88rem">
+          Position 45° 5' 17.80" N · 71° 19' 29.16" W. Trees live in the northwest and top out
+          around 17°, so Dark Shark — never below 52.7° — clears easily.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── CHECKLIST ─────────────────────────────────── -->
+  <section id="checklist">
+    <div class="sec-head"><h2>Before you leave</h2></div>
+    <div class="card">
+      <ul class="check">
+        <li><span class="box done">✓</span><span>72 mm UV/IR cut filter — <b style="color:var(--good)">ICE arrived Aug 3</b>. Passes Ha at 656 nm, which was the spec that mattered</span></li>
+        <li><span class="box done">✓</span><span>Filter <b style="color:var(--good)">tested Aug 3 — passed</b>. Strongly magenta without, normal with</span></li>
+        <li><span class="box">☐</span><span>Star test the filter once the Sigma lands — bright star at f/1.8, with and without, at 100%, looking for halos. A <b style="color:var(--ink)">58→72 step-up ring</b> (~$6) lets you screw it to the kit lens properly</span></li>
+        <li><span class="box done">✓</span><span>Dew heater straps</span></li>
+        <li><span class="box done">✓</span><span>6SE fork mount tested</span></li>
+        <li><span class="box done">✓</span><span><span class="num">weather.sh</span> curl timeout</span></li>
+        <li><span class="box">☐</span><span><b style="color:var(--ink)">Update <span class="num">virtualgps</span> coordinates</b> — still on the home site. Wrong coords means wrong LST and wrong meridian-flip timing.</span></li>
+        <li><span class="box">☐</span><span><b style="color:var(--ink)">Verify 12 V regulation under load</b> — the 4S pack reaches 16.8 V and the EQ6-R is rated 11–16 V. Meter it.</span></li>
+        <li><span class="box">☐</span><span><b style="color:var(--ink)">Cut and drill the plywood pier plate</b> — set the tripod up at home FIRST at the exact leg extension you'll use and measure the triangle before drilling. Forstner recesses ~1/2" wide, 1/4" deep. Mark which corner faces north.</span></li>
+        <li><span class="box">☐</span><span><b style="color:var(--ink)">Three pavers</b> (~12×12) for under the plate if the ground is soft. Seat them roughly coplanar or the plywood rocks.</span></li>
+        <li><span class="box">☐</span><span>Tape-mark the tripod leg extension</span></li>
+        <li><span class="box">☐</span><span>Confirm the dew controller has four channels</span></li>
+        <li><span class="box">☐</span><span>Rental lens by ~Aug 8 — decentering test, then aperture sweep at 35 mm</span></li>
+        <li><span class="box done">✓</span><span>Cabin has AC — still bring the heavy outdoor cord; the run to the tripod is the bit that has to reach</span></li>
+        <li><span class="box">☐</span><span>Master darks on the tower for both 120 s and 300 s</span></li>
+        <li><span class="box">☐</span><span>Spare SD cards — one per night</span></li>
+        <li><span class="box">☐</span><span>Location services ON for the iPhone camera</span></li>
+        <li><span class="box">☐</span><span>Switch Stellarium off the pier landscape</span></li>
+      </ul>
+    </div>
+
+    <div class="card" style="margin-top:1.1rem">
+      <h3>Build first: the plywood pier plate</h3>
+      <p style="margin-top:.5rem">The mount comes down and goes back up every night, and polar
+      alignment needs Polaris at ~8:45 PM — after you've already left for the moose drive. So
+      nights 2 and 3 depend entirely on reproducing night 1's tripod position.</p>
+      <p style="margin-top:.7rem">Cut a triangular <b style="color:var(--ink)">3/4" plywood
+      plate</b> with three shallow Forstner recesses for the leg tips. <b style="color:var(--accent)">Set
+      the tripod up at home first, at the exact leg extension you'll use, and measure the triangle
+      before drilling</b> — drill blind and the holes won't match. Tape-mark the leg extension,
+      and mark which corner faces north.</p>
+      <p style="margin-top:.7rem">Other half of the trick:
+      <b style="color:var(--ink)">never touch the altitude and azimuth bolts when you break
+      down.</b> Pull the OTA and counterweights, lift the head off with its alt/az settings
+      untouched, carry it in assembled. Nights 2–3 then need no polar alignment, only a check.
+      Bring the bubble level and level to the same reading every night — if the tripod tilts
+      differently, the marks are worthless.</p>
+    </div>
+
+    <div class="card" style="margin-top:1.1rem">
+      <h3>Don't leave without</h3>
+      <ul class="check" style="margin-top:.5rem">
+        <li><span class="box">☐</span><span><b style="color:var(--ink)">Desktop computer</b> — tower, monitors, keyboard, mouse, cables</span></li>
+        <li><span class="box">☐</span><span><b style="color:var(--ink)">Heavy outdoor extension cord</b> + weatherproof strip</span></li>
+        <li><span class="box">☐</span><span><b style="color:var(--ink)">50' ethernet cable</b></span></li>
+        <li><span class="box">☐</span><span>Plywood pier plate + pavers + bubble level</span></li>
+        <li><span class="box">☐</span><span><b style="color:var(--ink)">Multimeter</b> — verify the alligator lead is centre-positive before it touches the power box, confirm 12 V regulation under load, diagnose anything electrical at 1 AM</span></li>
+        <li><span class="box">☐</span><span><b style="color:var(--ink)">IR thermometer gun</b> — sets heater level by measurement: objective vs. an unheated surface nearby, target 2–5 °C above. Also a cloud detector — point it at the zenith, clear sky reads below −30 °C, cloud reads near ambient.</span></li>
+        <li><span class="box">☐</span><span>Two headlamps — one red for working, one warm-white for light painting</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ── ARRIVAL ───────────────────────────────────── -->
+  <section id="arrival">
+    <div class="sec-head"><h2>3 PM on day one</h2>
+      <span class="eyebrow">Before you build anything</span></div>
+    <div class="card">
+      <p><b style="color:var(--ink)">360° horizon survey.</b> Phone app, mark the treeline from
+      the exact spot the tripod will stand. Dense points every 5° across
+      <b style="color:var(--accent)">170°–240°</b> — that band is where M8/M20, the core and the
+      Trifid all live. Coarser elsewhere. If you're short on time, do only that band.</p>
+      <p style="margin-top:.8rem">Send the az/alt pairs and every altitude table gets re-checked
+      against real terrain, plus a Stellarium landscape file built from it.</p>
+      <div class="scroll" style="margin-top:1rem"><table>
+        <thead><tr><th>Treeline at 186–222°</th><th>M8/M20 run ends</th></tr></thead>
+        <tbody>
+          <tr><td>Under 10°</td><td class="n">12:30 AM — as planned</td></tr>
+          <tr><td>13°</td><td class="n">12:05 AM</td></tr>
+          <tr><td class="dead">15°</td><td class="n dead">11:40 PM — loses 2.5 h over the trip</td></tr>
+          <tr><td>Over 18°</td><td class="n">Rethink the unattended block</td></tr>
+        </tbody>
+      </table></div>
+      <p style="margin-top:1rem; color:var(--muted); font-size:.9rem">
+        Also: confirm Polaris is clear of the <em>building</em> — trees at 17° are nowhere near
+        45°, but an eave or a north wall will do it. Find the AC outlet. Pick a 6SE spot far
+        enough that walking to the eyepiece doesn't put vibration into the subs.
+      </p>
+    </div>
+  </section>
+
+  <!-- ── GALLERY ───────────────────────────────────── -->
+  <section id="looks">
+    <div class="sec-head"><h2>What they look like</h2>
+      <span class="eyebrow">Other people's photos · reference only</span></div>
+    <div class="gal">
+      <figure>
+        <img src="images/ref_target_m8_m20_pair.jpg" alt="The Lagoon and Trifid nebulae together in one wide field, pink Lagoon below and the smaller red-and-blue Trifid above" loading="lazy">
+        <figcaption><b>M8 + M20 · the pair</b>
+          <span>18h 03m / −23° 42' · every night, 9:56 PM–12:15 AM</span>
+          <span><b style="color:var(--accent)">This is your actual frame.</b> They sit 1.38° apart and your field is 3.94° × 2.63°, so both fit with M21 thrown in. Long axis N–S.</span>
+        </figcaption>
+      </figure>
+      <figure>
+        <img src="images/ref_target_ldn1235_dark_shark.jpg" alt="LDN 1235, the Dark Shark Nebula — brown and grey dust against a dense starfield" loading="lazy">
+        <figcaption><b>LDN 1235 · Dark Shark</b>
+          <span>Cepheus · 22h 14m / +73° 20' · Night 3</span>
+          <span>Grey-brown dust, no emission colour — the shapes carry it. Never below 52.7°, so the cabin's NW treeline is irrelevant.</span>
+        </figcaption>
+      </figure>
+      <figure>
+        <img src="images/ref_target_m20_trifid.jpg" alt="M20, the Trifid Nebula — red emission lobe split by dark lanes with a blue reflection lobe above" loading="lazy">
+        <figcaption><b>M20 · Trifid, close up</b>
+          <span>Detail — much tighter than your 3.94° field</span>
+          <span>The blue one. Red Ha below, blue reflection above, dark lanes splitting the red into three. Shoot the first hour — extinction eats the blue as it sinks.</span>
+        </figcaption>
+      </figure>
+      <figure>
+        <img src="images/ref_target_rho_ophiuchi.jpg" alt="The Rho Ophiuchi complex — blue reflection nebulosity, gold around Antares, red emission and dark dust" loading="lazy">
+        <figcaption><b>Rho Ophiuchi complex</b>
+          <span>16h 27m / −25° · Canon only, 9:56–10:30 PM</span>
+          <span>Blue at Rho Oph, gold at Antares, red Ha, black dust threading through. Dies at 10:30 — the tightest window of the trip.</span>
+        </figcaption>
+      </figure>
+      <figure>
+        <img src="images/ref_target_barnards_e.jpg" alt="Barnard's E — two dark nebulae forming a letter E silhouetted against the dense Milky Way starfield in Aquila" loading="lazy">
+        <figcaption><b>Barnard's E · B142/143</b>
+          <span>Aquila · 19h 41m / +10° 54' · reserve, transits 11:07 PM at 55.8°</span>
+          <span>Pure black dust on a dense starfield — no colour at all, the shape is the whole picture. Cheap: an hour gets it.</span>
+        </figcaption>
+      </figure>
+      <figure>
+        <img class="fit" src="images/ref_target_perseid_composite.jpg" alt="A Perseid meteor shower composite showing many meteors radiating outward from a point in Perseus" loading="lazy">
+        <figcaption><b>Perseid composite</b>
+          <span>Cabin · 2:00–3:45 AM · radiant 47°→61°</span>
+          <span>Note how the meteors near the radiant are stubs and the far ones are long. That's why the radiant sits in your lower-left corner, not the middle.</span>
+        </figcaption>
+      </figure>
+    </div>
+    <p style="margin-top:1rem; color:var(--muted); font-size:.86rem">
+      None of these are yours. They're here so you know what you're aiming at — and as a
+      reminder that most published versions are composites with the sky scaled up. Yours will
+      look smaller and lower relative to the landscape.
+    </p>
+  </section>
+
+  <!-- ── YOUR PHOTOS ───────────────────────────────── -->
+  <section id="mine">
+    <div class="sec-head"><h2>Your photos — the horizon evidence</h2>
+      <span class="eyebrow">Every number on this page traces back to these</span></div>
+    <div class="gal gal-4">
+      <figure>
+        <img src="images/web/lake_ssw_204deg_IMG_8460.jpg" alt="Night shot through a car window, moon behind cloud, taken at the lake" loading="lazy">
+        <figcaption><b>Lake · 204.4° SSW</b>
+          <span>IMG_8460 · 18 Nov 2023</span>
+          <span><b style="color:var(--accent)">The one that settled everything.</b> Only file with GPS intact — EXIF gave the bearing directly, and the moon's computed position agreed within 5°. Frame covers azimuth 177–232°.</span>
+        </figcaption>
+      </figure>
+      <figure>
+        <img src="images/web/cabin_ssw_orion_IMG_6113.jpg" alt="Orion photographed from the cabin, Betelgeuse, the Belt and the Orion Nebula visible" loading="lazy">
+        <figcaption><b>Cabin · 211° SSW</b>
+          <span>IMG_6113 · 21 Feb 2026</span>
+          <span>Solved off Orion — Betelgeuse, Belt, M42. Bottom of frame is pure sky, so the horizon here is <b style="color:var(--ink)">below 15.5°</b>. That's the core's whole track.</span>
+        </figcaption>
+      </figure>
+      <figure>
+        <img src="images/web/cabin_sw_pleiades_orion_IMG_6117.jpg" alt="Wide star field from the cabin containing both the Pleiades and Orion" loading="lazy">
+        <figcaption><b>Cabin · 225° SW</b>
+          <span>IMG_6117 · 21 Feb 2026</span>
+          <span>Pleiades and Orion both in frame — measured separation 37.9°, true value 36.7°. Open sky, trees only in one corner at ~22°.</span>
+        </figcaption>
+      </figure>
+      <figure>
+        <img src="images/web/cabin_w_taurus_IMG_6116.jpg" alt="Star field from the cabin with the Pleiades cluster and orange Aldebaran, snowy conifers along one edge" loading="lazy">
+        <figcaption><b>Cabin · 261° W</b>
+          <span>IMG_6116 · 21 Feb 2026</span>
+          <span>Pleiades plus Aldebaran 12° away. Open to below 5° through the middle; conifers climb to ~25° at the WNW edge. The Veil finishes at 269°/47°, well clear.</span>
+        </figcaption>
+      </figure>
+      <figure>
+        <img src="images/web/cabin_nw_doorway_IMG_6119.jpg" alt="Night sky seen through a cabin doorway past a deck rail, snow-laden conifers to one side" loading="lazy">
+        <figcaption><b>Cabin · ~309° NW · the doorway</b>
+          <span>IMG_6119 · 21 Feb 2026</span>
+          <span>Solved from your own pre-planning — you framed M31, which was at 20.5° altitude / 308.6°. That fixes the pitch, which puts these trees at <b style="color:var(--ink)">~17°</b>. Dark Shark never drops below 52.7°, so it clears.</span>
+        </figcaption>
+      </figure>
+      <figure>
+        <img src="images/web/lake_wnw_twilight_IMG_6099.jpg" alt="Frozen lake at twilight with a low ridgeline and residual glow on the horizon" loading="lazy">
+        <figcaption><b>Lake · ~260° W, twilight</b>
+          <span>IMG_6099 · 21 Feb 2026, 6:21 PM</span>
+          <span>That glow is <b style="color:var(--ink)">twilight, not light pollution</b> — the sun was 11° down. Ridge runs 2–4° in the SW rising to ~10° in the W.</span>
+        </figcaption>
+      </figure>
+      <figure>
+        <img src="images/web/lake_daylight_IMG_6182.jpg" alt="Daylight view across the lake toward forested hills, tall grass in the foreground" loading="lazy">
+        <figcaption><b>Lake · daylight, bearing unknown</b>
+          <span>IMG_6182 · 29 Jun 2024</span>
+          <span>Google stripped the GPS and compass. Ridge measures 2.5–8° off the far shoreline. <b style="color:var(--ink)">Note the foreground grass</b> — from a low tripod it blocks more than the hills do.</span>
+        </figcaption>
+      </figure>
+      <figure>
+        <img src="images/web/nov2023_moon_silhouette_STRIPPED.jpg" alt="Two figures silhouetted against moonlit cloud at night" loading="lazy">
+        <figcaption><b>You've already made this picture</b>
+          <span>18 Nov 2023 · EXIF stripped</span>
+          <span>Same composition as the creative session — just with a moon instead of the Milky Way. Camera at knee height, subject 5–7 m out, and the core sits where that glow is.</span>
+        </figcaption>
+      </figure>
+    </div>
+    <p style="margin-top:1rem; color:var(--muted); font-size:.86rem">
+      Displayed copies are resized. <b>Originals in <span class="num">images/</span> keep their
+      EXIF</b> — that's where the 204.4° came from. Google Photos and messaging apps strip GPS
+      and compass bearing, so always work from camera originals.
+    </p>
+  </section>
+
+  </div>
+
+  <div class="foot">
+    Full detail in <span class="num">~/pittsburg-trip/</span> — start at
+    <span class="num">PRIORITIES.md</span>. Field card is <span class="num">OH_SHIT.md</span>.
+    <br>Self-contained — works offline if the signal drops.
+    <br><span class="num" id="updated"></span>
+  </div>
+</div>
+
+<script>
+(function(){
+  // document.lastModified is the file's own timestamp — the GH Pages deploy time when
+  // served, the local mtime when opened from disk. Accurate either way, no build step.
+  var u=document.getElementById('updated');
+  if(u){
+    var d=new Date(document.lastModified);
+    u.textContent='Last updated '+d.toLocaleString(undefined,
+      {weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+  }
+  var root=document.documentElement;
+  var t=document.getElementById('theme');
+  var n=document.getElementById('night');
+
+  t.addEventListener('click',function(){
+    var cur=root.getAttribute('data-theme');
+    if(!cur){
+      cur=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';
+    }
+    root.setAttribute('data-theme',cur==='dark'?'light':'dark');
+  });
+
+  n.addEventListener('click',function(){
+    var on=root.getAttribute('data-night')==='on';
+    if(on){root.removeAttribute('data-night');n.setAttribute('aria-pressed','false');}
+    else{root.setAttribute('data-night','on');n.setAttribute('aria-pressed','true');}
+  });
+})();
+</script>
+</body>
+</html>
