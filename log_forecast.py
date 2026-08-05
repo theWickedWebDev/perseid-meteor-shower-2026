@@ -1566,6 +1566,30 @@ def write_page(hist):
                     f'{"do" if len(missing) > 1 else "does"} not forecast this far out yet '
                     f'and will join nearer the date.')
 
+    # Smoke already present on the nights we CAN see is the only warning available for the
+    # nights we cannot. Cloud cover reads 0% straight through it, so a clear forecast plus a
+    # high AOD is a milky sky nobody flagged.
+    condall = latest.get("cond") or {}
+    hazy = sorted(((l, (condall.get(l) or {}).get("aod")) for l, _ in ALL
+                   if (condall.get(l) or {}).get("aod") is not None
+                   and (condall.get(l) or {}).get("aod") >= AOD_HAZY),
+                  key=lambda kv: -kv[1])
+    trip_blind = all((condall.get(l) or {}).get("aod") is None for l, _ in NIGHTS)
+    hazenote = ""
+    if hazy:
+        worst_l, worst_v = hazy[0]
+        hazenote = (f'<p class="hazewarn"><b class="bad">Smoke is in the region.</b> '
+                    f'{worst_l.replace("Lead-up ", "Aug ")} forecasts an aerosol depth of '
+                    f'<b>{worst_v}</b>, against {AOD_HAZY} for a visibly milky sky'
+                    + (f', and {len(hazy) - 1} other lead-up night'
+                       f'{"s are" if len(hazy) > 2 else " is"} also over' if len(hazy) > 1 else '')
+                    + '. '
+                    + ('<b>The trip nights cannot be checked yet</b> — the aerosol forecast '
+                       'runs about five days, so 11–13 Aug come into range around the 7th. '
+                       if trip_blind else '')
+                    + 'Cloud cover reads 0% straight through smoke, so a clear-looking night '
+                      'can still be a low-contrast one.</p>')
+
     cards = []
     for si, (label, _) in enumerate(NIGHTS):
         nd = latest["nights"][label]
@@ -1616,11 +1640,19 @@ def write_page(hist):
         elif cd.get("spread") is not None:
             warn.append(f'<span class="good">no fog signal</span> '
                         f'<span class="dim">({cd["spread"]}°C, {cd["wind"]} km/h)</span>')
+        else:
+            # same trap as haze: a missing badge reads as a clean bill of health
+            warn.append('<span class="dim">fog — no data</span>')
+        # Absent is not the same as clear. The aerosol feed only runs about five days, so
+        # the trip nights carry no aod at all — and because the fog badge filled the line,
+        # the card read as "haze checked, nothing to report". Say the source cannot see
+        # that far, the way out-of-range models are handled elsewhere.
         if cd.get("aod") is not None:
             ac = "bad" if cd["aod"] >= AOD_HAZY else "good"
             warn.append(f'<span class="{ac}">haze {cd["aod"]}</span>')
-        fogline = (f'<span class="mrange">{" · ".join(warn)}</span>' if warn else
-                   '<span class="mrange dim">fog and haze: no data this far out</span>')
+        else:
+            warn.append('<span class="dim">haze — not forecast this far out</span>')
+        fogline = f'<span class="mrange">{" · ".join(warn)}</span>'
         cards.append(
             f'<div class="ncard"><span class="swatch s{si}"></span>'
             f'<b>{label}</b><span class="dim">{d:%a %d %b} · lead {nd["lead"]}d</span>'
@@ -1729,6 +1761,8 @@ h3.sub{{font-family:var(--serif);color:var(--ink);font-size:1rem;margin:1.8rem 0
 .mtable td.r{{text-align:right}}
 .mtable td.r .pill{{white-space:nowrap}}
 .wf{{color:var(--muted);margin-top:.2rem}}
+.hazewarn{{margin:.1rem 0 1rem;padding:.6rem .8rem;border-left:2px solid var(--bad);
+  background:var(--surface);border-radius:0 3px 3px 0;color:var(--body)}}
 .baserate{{margin:.1rem 0 1rem;padding:.6rem .8rem;border-left:2px solid var(--rule);
   color:var(--body)}}
 .lks{{display:flex;flex-direction:column;gap:.25rem;margin:.9rem 0}}
@@ -1890,6 +1924,7 @@ td.trail{{font-family:var(--mono);font-size:1rem;letter-spacing:.12em}}
 
   {trip_banner(latest)}
   {base_rate_line(_skill(), latest)}
+  {hazenote}
   <div class="cards">{"".join(cards)}</div>
   <p class="note">{srcnote}</p>
 

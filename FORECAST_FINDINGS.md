@@ -314,13 +314,38 @@ survey on arrival settles it — that task is first on the Night 1 schedule for 
   and bimodal — 41 readings at or above 50% cloud, 10 at or below 9%, nothing between. The
   satellite log also has one genuine gap (the night of 29 Jul, 4 hours). Differences smaller
   than about 6 points are not measurable at this size.
-- **Aerosol data stops at 5 days**, so smoke cannot be seen for the trip nights until about
-  7 Aug. August in northern NH sits downwind of Quebec; a clear-looking night at AOD 0.5 is
-  a milky one.
+- **Aerosol data stops at about 5 days**, so smoke cannot be seen for the trip nights until
+  around 7 Aug. This mattered more than expected: the cards showed a fog badge and no haze
+  badge, which read as "checked, clear" when it actually meant "not checked". Absence now
+  says so explicitly, for fog and haze alike.
 
 ---
 
-## 9. How it runs
+## 9. Smoke — measured, and currently a live concern
+
+August in northern New Hampshire sits downwind of Quebec, and **cloud cover reads 0%
+straight through smoke**. A perfect-looking forecast can deliver a milky, low-contrast sky
+that ruins exactly the faint red and blue the core is shot for.
+
+Aerosol optical depth above **0.30** is a visibly degraded sky. As of 4 Aug the lead-up
+nights already read:
+
+```
+Aug 05   0.16      Aug 07   0.44   <- well over
+Aug 06   0.30      Aug 08   0.17
+```
+
+**The trip nights cannot be checked yet.** The aerosol forecast runs about five days, so
+11–13 Aug come into range around the 7th. Until then the cards say "haze — not forecast
+this far out" rather than showing nothing, because a blank badge beside a fog badge read as
+a clean bill of health.
+
+This is worth watching independently of cloud. A night that the page calls a GO can still be
+a poor night for colour if the smoke arrives, and nothing else on the page would tell you.
+
+---
+
+## 10. How it runs
 
 ```
 publish.sh          hourly from cron at :05
