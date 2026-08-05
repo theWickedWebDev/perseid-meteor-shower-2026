@@ -1141,11 +1141,88 @@ def nightwatch_section(log):
             f'<b>{rho.get("flux", 0):,.0f}</b> — that region contains Antares, so it is the '
             f'steadiest anchor: it should hold all night under clear sky and collapse the '
             f'moment cloud crosses it.</p>'
+            f'{crosscheck_block(log, _satlog())}'
             f'<p class="note">Why this beats a cloud percentage: it is the only reading '
             f'here that measures the actual target sky rather than the whole dome, and the '
             f'only one that works on the low cloud infrared struggles with. Calibrated on '
             f'the night of 4 Aug, the one fully dark night before the trip.</p>'
             f'</div>')
+
+
+def crosscheck(nightlog, satlog):
+    """Do the star counts and the satellite agree? Both are ground truth; neither is proof.
+
+    This is the fact-check layer. The satellite says how much cloud is over the camera; the
+    star counts say whether light is actually getting through. They measure the same thing
+    by different physics, so where they agree the reading is solid, and where they disagree
+    the disagreement is itself informative:
+
+      satellite clear, no stars   -> low cloud or fog. Infrared is blind to it because the
+                                     tops sit near ground temperature, and that is exactly
+                                     what blocks a target at 16 degrees altitude.
+      satellite cloudy, stars up  -> thin high cirrus. The satellite sees it, the stars
+                                     punch through it, and the night may still be workable.
+
+    Both are sampled at the CAMERA, not the shooting site, so a mismatch cannot be blamed
+    on the 16.6 km between them.
+    """
+    if not nightlog or not satlog:
+        return None
+    sat = {e["time"][:13]: e for e in satlog}
+    pairs = []
+    for e in nightlog:
+        c = (e.get("targets", {}).get("core") or {})
+        if c.get("flux") is None:
+            continue
+        se = sat.get(e["time"][:13])
+        if not se:
+            continue
+        cloud = se.get("cloud_webcam")
+        if cloud is None:
+            cloud = se.get("cloud")
+        if cloud is None:
+            continue
+        pairs.append({"time": e["time"], "stars": c.get("stars") or 0,
+                      "flux": c.get("flux") or 0, "cloud": cloud})
+    if len(pairs) < 2:
+        return {"pairs": pairs, "n": len(pairs)}
+    fmax = max(p["flux"] for p in pairs) or 1
+    agree = disagree_lowcloud = disagree_cirrus = 0
+    for p in pairs:
+        seen = p["flux"] > 0.25 * fmax          # stars getting through
+        clear = p["cloud"] <= 30                 # satellite calls it clear
+        p["seen"], p["clear"] = seen, clear
+        if seen == clear:
+            agree += 1
+        elif clear and not seen:
+            disagree_lowcloud += 1
+        else:
+            disagree_cirrus += 1
+    return {"pairs": pairs, "n": len(pairs), "agree": agree,
+            "lowcloud": disagree_lowcloud, "cirrus": disagree_cirrus,
+            "pct": round(100 * agree / len(pairs))}
+
+
+def crosscheck_block(nightlog, satlog):
+    x = crosscheck(nightlog, satlog)
+    if not x:
+        return ""
+    if x["n"] < 3:
+        return (f'<p class="note"><b>Cross-check:</b> {x["n"]} hour'
+                f'{"s" if x["n"] != 1 else ""} where both a star count and a satellite '
+                f'reading exist. Needs a few more before the two can be compared.</p>')
+    cls = "good" if x["pct"] >= 80 else "warn" if x["pct"] >= 60 else "bad"
+    bits = []
+    if x["lowcloud"]:
+        bits.append(f'<b>{x["lowcloud"]}</b> where the satellite called it clear but no '
+                    f'stars came through — low cloud or fog, which infrared cannot see')
+    if x["cirrus"]:
+        bits.append(f'<b>{x["cirrus"]}</b> where the satellite saw cloud but stars showed '
+                    f'anyway — thin cirrus, and the night may still be workable')
+    tail = (" Of the rest: " + "; ".join(bits) + ".") if bits else ""
+    return (f'<p class="note"><b>Cross-check against the satellite:</b> the two agree on '
+            f'<b class="{cls}">{x["agree"]} of {x["n"]}</b> hours ({x["pct"]}%). Both are '
+            f'sampled over the camera, so a mismatch is not the 16.6 km between them.{tail}</p>')
 
 
 def webcam_section(log=None):

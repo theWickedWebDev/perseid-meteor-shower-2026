@@ -253,8 +253,24 @@ def read(dt_utc=None):
                for d in (UPWIND_KM[0], sum(UPWIND_KM) / 2, UPWIND_KM[1])]
         upwind = _sample(bcm, xs, ys, proj, pts)
 
+    # Also read the pixel over the WEBCAM, 16.6 km away. Without it, any disagreement
+    # between the satellite and the star counts could just be the distance between them —
+    # and that ambiguity would make the cross-check worthless.
+    cam = None
+    try:
+        CX, CY = latlon_to_scan(45.10367, -71.28616, lon0, a, b, H)
+        cix = int(np.argmin(np.abs(xs - CX)))
+        ciy = int(np.argmin(np.abs(ys - CY)))
+        cbox = bcm[ciy - half:ciy + half + 1, cix - half:cix + half + 1].astype("float64")
+        cbox[cbox > 1] = np.nan
+        if not np.isnan(np.nanmean(cbox)):
+            cam = round(100 * float(np.nanmean(cbox)))
+    except Exception:
+        pass
+
     pixel = bcm[iy, ix]
     return {
+        "cloud_webcam": cam,
         "slot": slot,
         "octants": octants,
         "upwind": upwind,
