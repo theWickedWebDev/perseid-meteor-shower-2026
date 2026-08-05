@@ -1093,11 +1093,17 @@ def _calls_chart(v):
     if not calls:
         return ""
     tol = base.get("tol", 5)
-    dumb = base.get("climatology")
+    # Draw the line at the STRONGEST know-nothing predictor, not the weakest. Marking
+    # climatology's 7% made the forecast look like it cleared the bar at every lead; the bar
+    # it actually has to clear is "always say overcast", which scores 28% here because most
+    # nights at this site really are overcast.
+    cands = [base.get(k) for k in ("climatology", "always_overcast", "random")]
+    dumb = max([c for c in cands if c is not None], default=None)
     rows = []
     for k in sorted(calls, key=int):
         r = calls[k]["right"]
-        cls = "good" if r >= 38 else "warn" if r >= 26 else "bad"
+        cls = ("good" if dumb and r > dumb + 4 else
+               "warn" if dumb and r >= dumb else "bad")
         rows.append(
             f'<div class="cl"><span class="cll">{k} day{"s" if k != "1" else ""}</span>'
             f'<span class="clbar"><i class="{cls}" style="width:{r}%"></i>'
@@ -1106,14 +1112,23 @@ def _calls_chart(v):
 
     others = ""
     if dumb is not None:
+        beats = [k for k in sorted(calls, key=int) if calls[k]["right"] > dumb]
+        loses = [k for k in sorted(calls, key=int) if calls[k]["right"] < dumb]
+        where = ""
+        if beats and loses:
+            where = (f' The forecast clears it out to <b>{beats[-1]} days</b> and stops '
+                     f'clearing it at <b>{loses[0]}</b> — past that you would do better '
+                     f'saying "overcast" and going back to bed.')
+        elif beats:
+            where = " The forecast clears it at every lead shown."
         others = (
             f'<p class="note" style="margin-top:.8rem">The line across the bars is '
-            f'<b>{dumb}%</b> — what you score by ignoring the forecast and always saying '
-            f'the 30-year average for the date ({base.get("climatology_median")}%). Always '
-            f'saying overcast scores {base.get("always_overcast")}%, a random guess between '
-            f'0 and 100 about {base.get("random")}%. Those are what a forecast has to beat '
-            f'to have been worth reading. It beats all of them at every lead — but the '
-            f'margin goes from comfortable to slim across the week.</p>')
+            f'<b>{dumb}%</b> — the best you can do while knowing nothing at all, which here '
+            f'is simply always saying overcast. Most nights at this site are, so that guess '
+            f'lands within {tol} points surprisingly often. Saying the 30-year average '
+            f'({base.get("climatology_median")}%) every time scores only '
+            f'{base.get("climatology")}%, and a random guess about {base.get("random")}%.'
+            + where + '</p>')
 
     return (f'<p class="lede">How often the forecast came within <b>{tol} percentage '
             f'points</b> of what actually happened. This measures the forecast and nothing '
@@ -1219,16 +1234,16 @@ def verification_section(sk):
 
     return (f'<h2>How often the forecast is right</h2>\n<div class="card">'
             + _calls_chart(v)
-            + f'<h3 class="sub">And when it is wrong, by how much</h3>'
+            + f'<h3 class="sub">And how far off it is</h3>'
             f'<p class="lede">How far a forecast ends up shifting before the night arrives. '
             f'Every number below is <b>how many points the forecast was wrong by</b> — in '
             f'either direction, too clear or too cloudy. Read a row as: <em>half the time a '
             f'forecast made this far ahead was off by no more than the first number; eight '
             f'times in ten by no more than the second; nine times in ten by no more than the '
             f'third.</em> The tenth night is worse than all of them.</p>'
-            f'<p>The distance between the columns is the point. One day out the typical miss '
-            f'is small and the tail is not — most nights are called correctly and the '
-            f'occasional one is wrong by a mile. An average of those two cases describes '
+            f'<p>The distance between the columns is the point. One day out the typical '
+            f'miss is small and the tail is not: a fifth of nights land dead on, and a fifth '
+            f'are out by more than fifty points. An average of those two cases describes '
             f'neither, which is why none is quoted here.</p>'
             + _worked_example(bl)
             + f'<div class="vfs">'
