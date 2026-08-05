@@ -153,6 +153,11 @@ Sep 12   dark 20:43, core 12.4° → below 10° at 21:15    32 min</pre></div>
 <blockquote><b>This corrects earlier advice.</b> I previously said the forecast would sharpen closer in and suggested pushing the decision to Aug 9 to catch HRRR. The measurement says otherwise for the global models. HRRR is a different resolution class and may still add something, but do not expect the <em>forecast</em> to improve by waiting.</blockquote>
 <h3 id="mean-versus-median-where-the-risk-actually-lives">Mean versus median — where the risk actually lives</h3>
 <p>At three days the mean error is 21 but the <b>median is 8</b>. Most nights are forecast well; the mean is dragged up by occasional total misses. So the typical night is reliable and the risk is entirely in the tail — which is why spread matters more than the number. When the models agree they are usually right. When they split 0-vs-100, the tail is announcing itself.</p>
+<h3 id="scored-against-the-slot-not-just-the-dome">Scored against the slot, not just the dome</h3>
+<p>The models are scored against the satellite&#x27;s 34 km box overhead. But the trip does not care about the dome — it cares about the southern fan the targets sit in, which <code>satellite.py</code> already banks at no extra cost. Scoring on the dome answers <em>&quot;was the sky cloudy&quot;</em>; scoring on the slot answers <em>&quot;was the shot possible&quot;</em>, and on any night with structure those differ.</p>
+<p>Both are now computed. Today they agree:</p>
+<div class="scroll"><table><thead><tr><th>Model</th><th>dome, 0–2 d</th><th>slot, 0–2 d</th></tr></thead><tbody><tr><td>AIFS</td><td>10</td><td>9</td></tr><tr><td>ECMWF</td><td>10</td><td>9</td></tr><tr><td>UKMO</td><td>13</td><td>9</td></tr><tr><td>ICON</td><td>14</td><td>11</td></tr></tbody></table></div>
+<p>The top three tie at 9 on the slot, so the reordering between the two lists is noise. That is the expected result while the sky stays uniform — with no directional structure the slot <em>is</em> the dome. The number worth watching is whether they diverge on a night that has structure, because if they do, every skill figure computed on the dome has been answering the wrong question.</p>
 <h3 id="which-model-at-which-range">Which model, at which range</h3>
 <p>Mean absolute error against satellite, measured here:</p>
 <div class="scroll"><table><thead><tr><th>Model</th><th>0–2 d</th><th>5–7 d</th></tr></thead><tbody><tr><td>AIFS</td><td>10</td><td><b>19</b></td></tr><tr><td>ECMWF</td><td><b>11</b></td><td>31</td></tr><tr><td>UKMO</td><td>14</td><td>26</td></tr><tr><td>ICON</td><td>15</td><td>12</td></tr><tr><td>JMA</td><td>21</td><td>36</td></tr><tr><td>GFS</td><td>24</td><td>21</td></tr><tr><td>GEM</td><td>27</td><td>32</td></tr></tbody></table></div>
@@ -175,7 +180,14 @@ Sep 12   dark 20:43, core 12.4° → below 10° at 21:15    32 min</pre></div>
 <hr>
 <h2 id="6-where-the-cloud-is-not-just-how-much">6. Where the cloud is, not just how much</h2>
 <p>A whole-dome percentage cannot say whether <em>your</em> sky is open. The southern programme lives in azimuth <b>177°–232°</b> at roughly 7–22° altitude — a narrow slot.</p>
-<p>Observed on 4 Aug at 00:56: <b>dome 54% cloud, north 0%, south 78%.</b> Fine for Andromeda and the Perseid radiant; useless for the core. One number cannot express that.</p>
+<p><b>This is currently unvalidated, and the honest version is less impressive than it first appeared here.</b> An earlier draft cited a reading of &quot;dome 54%, north 0%, south 78%&quot; from 4 Aug 00:56. That was computed live while testing and is <b>not in <code>satellite_log.json</code></b> — octants were not being stored at that hour, so the example cannot be reproduced from the record and should not have been quoted as though it could.</p>
+<p>What the 63 logged readings that <em>do</em> carry octants actually show:</p>
+<div class="scroll"><pre>dome vs mean of S/SW/SE      0.8 points average, 12.3 max
+readings differing by &gt;=15   0 of 63
+spread across the 8 octants  median 0, max 33
+readings with a genuinely    3 of 63
+  directional sky</pre></div>
+<p>So the compass has not yet demonstrated anything — because <b>55 of those 63 readings were of an essentially uniform sky</b>, where by construction every direction agrees. The method is untested rather than disproved: it has had three opportunities and the largest showed 33 points of directional variation, which is the kind of difference it exists to catch. It earns or loses its place on a genuinely broken night, and there has not been one yet.</p>
 <p>The satellite is sampled in a fan across that slot, in three rings, and the ring distances are geometry rather than taste — blocking cloud sits at <code>height ÷ tan(altitude)</code>:</p>
 <div class="scroll"><table><thead><tr><th>Cloud</th><th>Height</th><th>Fills the slot from</th></tr></thead><tbody><tr><td>Low stratus / fog</td><td>1 km</td><td>2–8 km out</td></tr><tr><td>Mid deck</td><td>3 km</td><td>7–23 km</td></tr><tr><td>Cirrus</td><td>10 km</td><td>25–78 km</td></tr></tbody></table></div>
 <p>A far ring cloudier than the near ring means something is on its way. There is also an <b>upwind</b> sample 30–90 km out along the 700 mb flow: on the night of 3/4 Aug it fell to 0% an hour before the sky overhead cleared.</p>
@@ -220,7 +232,7 @@ Aug 06   0.30      Aug 08   0.17</pre></div>
 <div class="foot">
   <a href="forecast.html">← Back to the forecast</a> ·
   generated from <span style="font-family:var(--mono)">FORECAST_FINDINGS.md</span>,
-  last edited Tue 04 Aug 2026, 23:02 EDT
+  last edited Tue 04 Aug 2026, 23:13 EDT
 </div>
 </div>
 <script>

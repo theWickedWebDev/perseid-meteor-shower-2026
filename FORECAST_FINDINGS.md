@@ -218,6 +218,28 @@ the mean is dragged up by occasional total misses. So the typical night is relia
 risk is entirely in the tail — which is why spread matters more than the number. When the
 models agree they are usually right. When they split 0-vs-100, the tail is announcing itself.
 
+### Scored against the slot, not just the dome
+
+The models are scored against the satellite's 34 km box overhead. But the trip does not care
+about the dome — it cares about the southern fan the targets sit in, which `satellite.py`
+already banks at no extra cost. Scoring on the dome answers *"was the sky cloudy"*; scoring
+on the slot answers *"was the shot possible"*, and on any night with structure those differ.
+
+Both are now computed. Today they agree:
+
+| Model | dome, 0–2 d | slot, 0–2 d |
+|---|---|---|
+| AIFS | 10 | 9 |
+| ECMWF | 10 | 9 |
+| UKMO | 13 | 9 |
+| ICON | 14 | 11 |
+
+The top three tie at 9 on the slot, so the reordering between the two lists is noise. That
+is the expected result while the sky stays uniform — with no directional structure the slot
+*is* the dome. The number worth watching is whether they diverge on a night that has
+structure, because if they do, every skill figure computed on the dome has been answering
+the wrong question.
+
 ### Which model, at which range
 
 Mean absolute error against satellite, measured here:
@@ -298,8 +320,27 @@ likely to cost you the back half of a night.
 A whole-dome percentage cannot say whether *your* sky is open. The southern programme lives
 in azimuth **177°–232°** at roughly 7–22° altitude — a narrow slot.
 
-Observed on 4 Aug at 00:56: **dome 54% cloud, north 0%, south 78%.** Fine for Andromeda and
-the Perseid radiant; useless for the core. One number cannot express that.
+**This is currently unvalidated, and the honest version is less impressive than it first
+appeared here.** An earlier draft cited a reading of "dome 54%, north 0%, south 78%" from
+4 Aug 00:56. That was computed live while testing and is **not in `satellite_log.json`** —
+octants were not being stored at that hour, so the example cannot be reproduced from the
+record and should not have been quoted as though it could.
+
+What the 63 logged readings that *do* carry octants actually show:
+
+```
+dome vs mean of S/SW/SE      0.8 points average, 12.3 max
+readings differing by >=15   0 of 63
+spread across the 8 octants  median 0, max 33
+readings with a genuinely    3 of 63
+  directional sky
+```
+
+So the compass has not yet demonstrated anything — because **55 of those 63 readings were
+of an essentially uniform sky**, where by construction every direction agrees. The method is
+untested rather than disproved: it has had three opportunities and the largest showed 33
+points of directional variation, which is the kind of difference it exists to catch. It
+earns or loses its place on a genuinely broken night, and there has not been one yet.
 
 The satellite is sampled in a fan across that slot, in three rings, and the ring distances
 are geometry rather than taste — blocking cloud sits at `height ÷ tan(altitude)`:

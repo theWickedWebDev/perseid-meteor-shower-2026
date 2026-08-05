@@ -631,9 +631,20 @@ def consensus(nd, late=False):
     v = sorted(m.values())
     k = len(v)
     mid = v[k // 2] if k % 2 else (v[k // 2 - 1] + v[k // 2]) / 2
+    # Weight the core window by the minutes the target is actually up, exactly as
+    # ensemble_trip() and climatology() do. This took a plain mean until 4 Aug, so the
+    # headline on each card was computed differently from the trip probability beneath it
+    # and from the base rate it is compared against — three numbers on one page, two
+    # conventions. The late window has no equivalent deadline, so it stays unweighted.
     eh = ens_hourly(nd)
-    hv = [eh[f"{h:02d}"] for h in (LATE_HR if late else CORE_HR) if f"{h:02d}" in eh]
-    val = int(round(sum(hv) / len(hv))) if hv else int(round(mid))
+    if late:
+        hv = [eh[f"{h:02d}"] for h in LATE_HR if f"{h:02d}" in eh]
+        val = int(round(sum(hv) / len(hv))) if hv else int(round(mid))
+    else:
+        w = core_weights(nd.get("date", ""))
+        pairs = [(eh[f"{h:02d}"], w[h]) for h in CORE_HR if f"{h:02d}" in eh and h in w]
+        val = (int(round(sum(v * q for v, q in pairs) / sum(q for _, q in pairs)))
+               if pairs else int(round(mid)))
     # Two spreads, because they answer different questions and one of them was doing both
     # jobs badly. max-min is the tail: how wrong could this be if the outlier is right, and
     # that is what the risk discussion is about. But as an AGREEMENT test across eight

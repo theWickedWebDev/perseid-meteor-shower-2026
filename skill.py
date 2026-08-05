@@ -115,15 +115,31 @@ def climatology():
 
 
 # ── 2. does waiting help ─────────────────────────────────────────────────
-def truth_hours(satlog):
-    """{hour_iso: observed cloud} from the satellite log, night hours only."""
+def truth_hours(satlog, region="dome"):
+    """{hour_iso: observed cloud} from the satellite log, night hours only.
+
+    `region="dome"` is the 34 km box overhead — what the models have always been scored
+    against. `region="slot"` is the southern fan the trip's targets actually occupy, which
+    satellite.py already banks at no extra cost.
+
+    Scoring on the dome answers "was the sky cloudy". Scoring on the slot answers "was the
+    shot possible", and those are different questions on any night with structure. If the
+    two rankings agree the compass is decoration; if they disagree, every skill number on
+    the page has been measuring the wrong quantity.
+    """
     out = {}
     for e in satlog:
-        if e.get("cloud") is None:
+        if region == "slot":
+            sl = e.get("slot") or {}
+            v = [sl[k] for k in ("near", "mid") if sl.get(k) is not None]
+            v = sum(v) / len(v) if v else None
+        else:
+            v = e.get("cloud")
+        if v is None:
             continue
         t = datetime.fromisoformat(e["time"])
         if t.hour >= 21 or t.hour <= 4:
-            out[e["time"][:13] + ":00"] = e["cloud"]
+            out[e["time"][:13] + ":00"] = v
     return out
 
 
@@ -178,14 +194,14 @@ def _baselines(truth, climo_median=None):
     return out
 
 
-def lead_skill(satlog, climo_median=None):
+def lead_skill(satlog, climo_median=None, region="dome"):
     """Mean absolute error against the satellite, by how far ahead the forecast was made.
 
     Uses Open-Meteo's previous-runs archive: for each hour it exposes what the model said
     1..7 days earlier. Comparing those against what the satellite actually saw gives the
     honest shape of "does another day of waiting buy me anything".
     """
-    truth = truth_hours(satlog)
+    truth = truth_hours(satlog, region)
     if len(truth) < 6:
         return None
     varlist = ",".join(["cloud_cover"] + [f"cloud_cover_previous_day{i}" for i in range(1, 8)])
@@ -309,7 +325,11 @@ def main():
     print("climatology...")
     out["climatology"] = climatology()
     print("lead-time skill...")
-    out["lead_skill"] = lead_skill(satlog, (out.get("climatology") or {}).get("median"))
+    med = (out.get("climatology") or {}).get("median")
+    out["lead_skill"] = lead_skill(satlog, med)
+    # The same measurement against the southern slot rather than the whole dome. If the
+    # model ranking differs between them, the dome numbers are answering the wrong question.
+    out["lead_skill_slot"] = lead_skill(satlog, med, region="slot")
     json.dump(out, open(OUT, "w"), indent=1)
 
     c, s = out["climatology"], out["lead_skill"]
