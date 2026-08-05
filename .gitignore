@@ -13,3 +13,6 @@ __pycache__/
 
 # python venv for satellite.py (h5py) - rebuildable, not source
 venv/
+
+# one-time pre-compaction copy of the history; git holds every version anyway
+forecast_history.precompact.json

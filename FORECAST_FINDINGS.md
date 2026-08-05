@@ -367,6 +367,11 @@ each point on the trend chart is a genuinely separate forecast rather than a rep
 reading. Ensemble and fog readings belong to *now* rather than to a package, so they refresh
 in place without banking a duplicate snapshot.
 
+`forecast_history.precompact.json` is written once, immediately before the first entry
+ever loses its hourly detail — an uncompacted copy sitting next to the live file. It is
+gitignored because git already holds every version, but recovering from git is archaeology
+and this is not.
+
 History older than 12 entries is compacted — the hourly detail is dropped after its consensus
 is cached, cutting projected trip-end size from 2.7 MB to about 0.8 MB. No displayed value
 changes.

@@ -24,6 +24,7 @@ UA      = "perseid-meteor-shower-2026 (https://github.com/theWickedWebDev/persei
 EDT     = timezone(timedelta(hours=-4))
 WEBCAM_SITE = (45.0958, -71.2600)   # First Connecticut Lake cam, not the shooting site
 HIST    = "forecast_history.json"
+PRECOMPACT = "forecast_history.precompact.json"   # one-time pre-compaction copy
 LOG     = "FORECAST_LOG.md"
 PAGE    = "forecast.html"
 
@@ -171,6 +172,18 @@ def compact(hist):
     committed hourly. The consensus is computed and stored before the source is removed,
     so no displayed value changes.
     """
+    doomed = [nd for e in hist[:-KEEP_FULL] for nd in e.get("nights", {}).values()
+              if "cons" not in nd and nd.get("models_hourly")]
+    if doomed and not os.path.exists(PRECOMPACT):
+        # One-time uncompacted snapshot, written immediately before the first entry loses
+        # its hourly detail. git holds every version too, but that is archaeology; this is
+        # a plain file sitting next to the live one.
+        try:
+            json.dump(hist, open(PRECOMPACT, "w"), indent=1)
+            print(f"  wrote {PRECOMPACT} before first compaction")
+        except OSError as ex:
+            print(f"  could not write {PRECOMPACT}: {ex}")
+
     for e in hist[:-KEEP_FULL]:
         for nd in e.get("nights", {}).values():
             if "cons" in nd or not nd.get("models_hourly"):
@@ -614,7 +627,13 @@ def ens_hourly(nd):
 
 
 def best_hour(nd, hours):
-    """(cloud%, hour) of the clearest hour in the window by ensemble median, or (None, None)."""
+    """(cloud%, hour) of the clearest hour in the window by ensemble median, or (None, None).
+
+    Only meaningful on an uncompacted entry: compact() drops the hourly series this reads,
+    so a compacted night returns (None, None) rather than a wrong answer. Safe because it
+    is only ever called on `latest`, which is never compacted — KEEP_FULL guarantees the
+    newest entries keep their detail. Kept explicit so that stays true.
+    """
     eh = ens_hourly(nd)
     p = [(eh[f"{h:02d}"], h) for h in hours if f"{h:02d}" in eh]
     return min(p) if p else (None, None)
