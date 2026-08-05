@@ -1078,6 +1078,51 @@ def base_rate_line(sk, latest):
             f'the question is only whether this year is a better or worse draw.</p>')
 
 
+def _calls_chart(v):
+    """How often the forecast called the night right. The headline of the section.
+
+    Everything else here measures how far off the number was, which is not the question
+    anyone has. A cloud percentage drives exactly one decision — go or do not go — so this
+    scores that decision and nothing else.
+
+    Both baselines are drawn, and the second is the honest one. Most nights at this site are
+    not GO, so a predictor that simply always says "cloudy" is right 62% of the time while
+    knowing nothing whatever. Against a coin flip the forecast looks heroic at every lead;
+    against the thing that actually has to be beaten, it stops being useful around day 5.
+    """
+    calls, base = v.get("calls") or {}, v.get("baselines") or {}
+    if not calls:
+        return ""
+    dumb = base.get("always_no_go")
+    rows = []
+    for k in sorted(calls, key=int):
+        d = calls[k]
+        r = d["right"]
+        cls = ("bad" if dumb and r <= dumb else "good" if r >= 72 else "warn")
+        rows.append(
+            f'<div class="cl"><span class="cll">{k} day{"s" if k != "1" else ""}</span>'
+            f'<span class="clbar"><i class="{cls}" style="width:{r}%"></i>'
+            + (f'<b class="clmark" style="left:{dumb}%"></b>' if dumb else '')
+            + f'</span><span class="clv">{r}%</span></div>')
+    note = ""
+    if dumb:
+        worst = [k for k in sorted(calls, key=int) if calls[k]["right"] <= dumb]
+        note = (f'<p class="note" style="margin-top:.8rem">The line across the bars is '
+                f'<b>{dumb}%</b> — what you score by ignoring the forecast entirely and '
+                f'always saying "too cloudy". Most nights here are, so that guess is right '
+                f'more often than a coin flip and knows nothing. It is the number the '
+                f'forecast actually has to beat'
+                + (f', and at {worst[0]} days out it no longer does.' if worst else '.')
+                + '</p>')
+    return (f'<p class="lede">How often the forecast <b>called the night correctly</b> — '
+            f'that is, landed on the same side of the {GO}% line as reality did. Not how '
+            f'close the number was: a forecast of 5% against an actual 25% counts as right, '
+            f'because both say go. A forecast of 29% against an actual 31% counts as wrong, '
+            f'though it missed by two. Being on the correct side is what costs you the drive '
+            f'or saves it; being numerically close is not.</p>'
+            f'<div class="cls">' + "".join(rows) + '</div>' + note)
+
+
 def _worked_example(bl, said=50):
     """Turn the percentile table into the sentence a person actually wants.
 
@@ -1174,7 +1219,9 @@ def verification_section(sk):
             f'are pleased about is roughly as unreliable as the one you have written off. '
             f'This is the whole argument for planning three nights rather than picking one.</p>')
 
-    return (f'<h2>How much a forecast still moves</h2>\n<div class="card">'
+    return (f'<h2>How often the forecast is right</h2>\n<div class="card">'
+            + _calls_chart(v)
+            + f'<h3 class="sub">And when it is wrong, by how much</h3>'
             f'<p class="lede">How far a forecast ends up shifting before the night arrives. '
             f'Every number below is <b>how many points the forecast was wrong by</b> — in '
             f'either direction, too clear or too cloudy. Read a row as: <em>half the time a '
@@ -2606,6 +2653,18 @@ svg{{width:100%;height:auto;display:block}}
   color:var(--body);font-variant-numeric:tabular-nums}}
 .shot .fcrow span.dim{{color:var(--muted);font-weight:400}}
 
+.cls{{display:flex;flex-direction:column;gap:.35rem;margin:1rem 0 .3rem}}
+.cl{{display:grid;grid-template-columns:4.4rem 1fr 3rem;align-items:center;gap:.6rem;
+  font-family:var(--mono);font-size:.72rem}}
+.cll{{color:var(--muted)}}
+.clbar{{position:relative;height:14px;background:var(--sunken);border-radius:2px}}
+.clbar i{{position:absolute;left:0;top:0;height:100%;border-radius:2px}}
+.clbar i.good{{background:var(--good,#2E6B4F)}}
+.clbar i.warn{{background:var(--warn,#B5721A)}}
+.clbar i.bad{{background:var(--bad,#B03A2C)}}
+.clbar b.clmark{{position:absolute;top:-2px;width:2px;height:18px;background:var(--ink);
+  opacity:.55}}
+.clv{{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}}
 .vfs{{display:flex;flex-direction:column;gap:.3rem;margin:.9rem 0 .5rem}}
 .vf{{display:grid;grid-template-columns:4.4rem 1fr 2.8rem 2.8rem 2.8rem;align-items:center;
   gap:.45rem;font-family:var(--mono);font-size:.72rem}}

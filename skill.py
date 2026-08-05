@@ -384,7 +384,25 @@ def verification(days=92):
             given["said_good"] = {
                 "n": len(good), "median_actual": round(st.median(good)),
                 "collapsed_55": round(sum(1 for a in good if a > 55) / len(good) * 100)}
-    return {"by_lead": by_lead, "given": given, "days": days,
+    # The percentile table says how far off the forecast was. It never says how often it was
+    # RIGHT, which is the question anyone actually has. A cloud percentage only ever drives
+    # one decision — go or do not go — so score that decision directly.
+    calls, base = {}, {}
+    for lead, ps in sorted(pairs.items()):
+        ok = sum(1 for f, a in ps if (f <= GO) == (a <= GO))
+        calls[str(lead)] = {"right": round(ok / len(ps) * 100), "n": len(ps)}
+    allp = [p for ps in pairs.values() for p in ps]
+    if allp:
+        acts = [a for _, a in allp]
+        # Two baselines, and the second matters more. Most nights here are not GO, so a
+        # predictor that always says "cloudy" scores well above a coin flip while knowing
+        # nothing. Quoting only the coin flip would flatter the forecast.
+        base["coin"] = 50
+        base["always_no_go"] = round(sum(1 for a in acts if a > GO) / len(acts) * 100)
+        base["climatology_median"] = round(st.median(acts))
+
+    return {"by_lead": by_lead, "given": given, "days": days, "calls": calls,
+            "baselines": base, "go": GO,
             "reference": "each model's own day-0 value for the same hour"}
 
 

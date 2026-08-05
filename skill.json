@@ -1,5 +1,5 @@
 {
- "computed": "2026-08-05T14:53:16.911464-04:00",
+ "computed": "2026-08-05T15:12:50.824231-04:00",
  "climatology": {
   "years": 30,
   "median": 65,
@@ -415,6 +415,42 @@
    }
   },
   "days": 92,
+  "calls": {
+   "1": {
+    "right": 80,
+    "n": 1270
+   },
+   "2": {
+    "right": 75,
+    "n": 1286
+   },
+   "3": {
+    "right": 73,
+    "n": 1293
+   },
+   "4": {
+    "right": 67,
+    "n": 1261
+   },
+   "5": {
+    "right": 66,
+    "n": 1277
+   },
+   "6": {
+    "right": 66,
+    "n": 1270
+   },
+   "7": {
+    "right": 61,
+    "n": 921
+   }
+  },
+  "baselines": {
+   "coin": 50,
+   "always_no_go": 62,
+   "climatology_median": 53
+  },
+  "go": 30,
   "reference": "each model's own day-0 value for the same hour"
  }
 }
