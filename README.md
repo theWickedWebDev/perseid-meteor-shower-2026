@@ -38,6 +38,7 @@ sits above 10° over a lake. Everything here exists to make that 90 minutes work
 | [.claude/commands/](.claude/commands/) | `/audit` and `/predict` — run either against this repo |
 | [FORECAST_FINDINGS.md](FORECAST_FINDINGS.md) | **How the forecast numbers are made, and what they're worth** · [rendered](findings.html) |
 | [FORECAST_LOG.md](FORECAST_LOG.md) | Auto-generated forecast history |
+| [FUTURE.md](FUTURE.md) | After the trip — generalising this to any site and any target |
 
 ## The interesting bits
 
