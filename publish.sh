@@ -52,6 +52,7 @@ if [ ! -f skymask_hd.npy ] && [ -x venv/bin/python ]; then
     fi
 fi
 
+$PY inject_cards.py >/dev/null 2>&1 || true   # live cards at the top of the trip plan
 $PY make_nightwatch.py >/dev/null 2>&1 || true   # star-count evidence page
 $PY make_findings.py >/dev/null || echo "$(date '+%F %T')  findings render failed"
 

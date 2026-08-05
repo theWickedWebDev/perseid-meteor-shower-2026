@@ -365,11 +365,11 @@
   "cloud": 1,
   "night": false,
   "stats": {
-   "lum": 193.6,
-   "lum_sd": 15.7,
-   "lum_p90": 215.0,
-   "sat": 48.3,
-   "rb": 0.78
+   "lum": 194.5,
+   "lum_sd": 16.2,
+   "lum_p90": 217.3,
+   "sat": 50.0,
+   "rb": 0.774
   },
   "shot": "webcam/2026-08-05T09.jpg",
   "models": {
