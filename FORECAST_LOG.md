@@ -12,6 +12,35 @@ Sky cover is the number that matters — **PoP is not a cloud forecast.** An ove
 
 ---
 
+## Wed 05 Aug 2026, 06:05 EDT
+
+`api.weather.gov` gridpoint **GYX 28,125** · Lake spot
+
+### Night 1 · Tue 11 Aug — lead 6 days
+
+**Core window mean sky cover: 51%** · full-dark 54% · max PoP 41%
+
+| Hour (EDT) | Sky | PoP | Dewpoint |
+|---|---|---|---|
+| 18:00 | 62% | 41% | 54°F |
+| 19:00 | 62% | 39% | 53°F |
+| 20:00 | 51% | 27% | 52°F |
+| 21:00 | 51% | 26% | — |
+| 22:00 | 51% | 24% | — |
+| 23:00 | 51% | 22% | — |
+| 00:00 | 51% | —% | — |
+| 01:00 | 51% | —% | — |
+
+### Night 2 · Wed 12 Aug — lead 7 days
+
+_Outside the forecast window — no data yet._
+
+### Night 3 · Thu 13 Aug — lead 8 days
+
+_Outside the forecast window — no data yet._
+
+---
+
 ## Wed 05 Aug 2026, 04:05 EDT
 
 `api.weather.gov` gridpoint **GYX 28,125** · Lake spot
@@ -339,16 +368,7 @@ _Outside the forecast window — no data yet._
 
 **Core window mean sky cover: 51%** · full-dark 54% · max PoP 41%
 
-| Hour (EDT) | Sky | PoP | Dewpoint |
-|---|---|---|---|
-| 18:00 | 62% | 41% | 54°F |
-| 19:00 | 62% | 39% | 53°F |
-| 20:00 | 51% | 27% | 52°F |
-| 21:00 | 51% | 26% | — |
-| 22:00 | 51% | 24% | — |
-| 23:00 | 51% | 22% | — |
-| 00:00 | 51% | —% | — |
-| 01:00 | 51% | —% | — |
+_Hourly detail compacted — headline figures above._
 
 ### Night 2 · Wed 12 Aug — lead 8 days
 
