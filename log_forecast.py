@@ -191,9 +191,14 @@ def compact(hist):
 # consecutive nights are would be the same overconfidence this page keeps fixing. Each
 # GEFS member is one physically consistent scenario across all three nights, so counting
 # members measures the correlation instead of assuming it.
-GEFS_URL = ("https://ensemble-api.open-meteo.com/v1/ensemble?latitude={la}&longitude={lo}"
-            "&hourly=cloud_cover&models=gfs025&forecast_days=14"
-            "&timezone=America%2FNew_York")
+# Three ensembles, pooled. GEFS alone was the single most optimistic source on the page —
+# 90% joint against ECMWF's 82% and GEM's 71% — and it is GFS's ensemble, the one family
+# these notes elsewhere describe as run-to-run volatile. Pooling is 103 members instead of
+# 31 and stops the headline resting on one centre.
+ENS_MODELS = (("gfs025", "GEFS"), ("ecmwf_ifs025", "ECMWF ENS"), ("gem_global", "GEM ENS"))
+ENS_URL = ("https://ensemble-api.open-meteo.com/v1/ensemble?latitude={la}&longitude={lo}"
+           "&hourly=cloud_cover&models={m}&forecast_days=14"
+           "&timezone=America%2FNew_York")
 
 # Fog. Radiative cooling needs a clear sky, so the nights that fog are the nights that
 # forecast best — anti-correlated with the very number the page optimises. Saturated and
@@ -207,38 +212,92 @@ FOG_CLOUD  = 40      # % — above this there is no radiative cooling to drive i
 AOD_HAZY = 0.30
 
 
-def gefs_trip():
-    """Per-night and joint probability of a usable core window, from the GEFS members.
+def core_weights(day):
+    """Hour weights for the core window on `day` — how much of each hour the core is up.
 
-    Returns {"per": {night: pct}, "joint": pct, "n": members} or None.
+    CORE_HR treated 22 and 23 equally, but the Milky Way core drops below the treeline at
+    about 23:17 (and four minutes earlier each night), so most of hour 23 is already gone.
+    Weighting by the minutes actually available stops a cloudy 23:40 counting as heavily as
+    a cloudy 22:15.
     """
-    try:
-        h = get(GEFS_URL.format(la=SITE[1], lo=SITE[2]))["hourly"]
-    except Exception as ex:
-        print(f"  GEFS unavailable: {ex}")
+    end = {"2026-08-11": 23 + 21 / 60, "2026-08-12": 23 + 17 / 60,
+           "2026-08-13": 23 + 13 / 60}.get(day, 23 + 17 / 60)
+    out = {}
+    for h in CORE_HR:
+        frac = max(0.0, min(1.0, end - h))
+        if frac > 0:
+            out[h] = frac
+    return out or {CORE_HR[0]: 1.0}
+
+
+def wmean(vals, weights):
+    tot = sum(weights)
+    return sum(v * w for v, w in zip(vals, weights)) / tot if tot else None
+
+
+def ensemble_trip():
+    """Per-night and joint probability of a usable core window, pooled across ensembles.
+
+    Also reports the independence bound and the measured member correlation, because the
+    joint is only meaningful alongside them. At 7-9 days the members carry almost no
+    night-to-night correlation — but neither do the real years: thirty Augusts of ERA5 give
+    a mean r of +0.035 and a joint that sits one point off its own independence bound. So
+    near-independence here is the behaviour of these dates, not an artefact. Both numbers
+    are published so the assumption stays visible rather than buried.
+    """
+    rows, per_model = [], {}
+    for key, label in ENS_MODELS:
+        try:
+            h = get(ENS_URL.format(la=SITE[1], lo=SITE[2], m=key))["hourly"]
+        except Exception as ex:
+            print(f"  {label} unavailable: {str(ex)[:60]}")
+            continue
+        idx = {t: i for i, t in enumerate(h["time"])}
+        got = 0
+        for m in [k for k in h if k.startswith("cloud_cover")]:
+            night = {}
+            for lab, day in NIGHTS:
+                w = core_weights(day)
+                vals, wts = [], []
+                for hh, wt in w.items():
+                    i = idx.get(f"{day}T{hh:02d}:00")
+                    if i is not None and h[m][i] is not None:
+                        vals.append(h[m][i]); wts.append(wt)
+                mv = wmean(vals, wts)
+                if mv is not None:
+                    night[lab] = mv
+            if len(night) == len(NIGHTS):
+                rows.append(night); got += 1
+        if got:
+            per_model[label] = got
+    if not rows:
         return None
-    idx = {t: i for i, t in enumerate(h["time"])}
-    mem = [k for k in h if k.startswith("cloud_cover")]
-    per = {l: 0 for l, _ in NIGHTS}
-    joint = usable = 0
-    for m in mem:
-        good = {}
-        for label, day in NIGHTS:
-            v = [h[m][idx[f"{day}T{x:02d}:00"]] for x in CORE_HR
-                 if f"{day}T{x:02d}:00" in idx]
-            v = [x for x in v if x is not None]
-            if v:
-                good[label] = sum(v) / len(v) < GO
-        if len(good) < len(NIGHTS):
-            continue                      # member does not reach every night — cannot vote
-        usable += 1
-        for l, ok in good.items():
-            per[l] += ok
-        joint += any(good.values())
-    if not usable:
-        return None
-    return {"per": {l: round(100 * c / usable) for l, c in per.items()},
-            "joint": round(100 * joint / usable), "n": usable}
+
+    per = {lab: sum(1 for r in rows if r[lab] < GO) / len(rows) for lab, _ in NIGHTS}
+    joint = sum(1 for r in rows if any(r[lab] < GO for lab, _ in NIGHTS)) / len(rows)
+    ind = 1.0
+    for v in per.values():
+        ind *= (1 - v)
+    ind = 1 - ind
+
+    # mean pairwise correlation between nights, so the reader can judge the joint
+    import statistics as _st
+    labs = [l for l, _ in NIGHTS]
+    rs = []
+    for i in range(len(labs)):
+        for j in range(i + 1, len(labs)):
+            xs = [r[labs[i]] for r in rows]; ys = [r[labs[j]] for r in rows]
+            mx, my = _st.mean(xs), _st.mean(ys)
+            num = sum((x - mx) * (y - my) for x, y in zip(xs, ys))
+            den = (sum((x - mx) ** 2 for x in xs) * sum((y - my) ** 2 for y in ys)) ** .5
+            if den:
+                rs.append(num / den)
+    return {"per": {l: round(100 * v) for l, v in per.items()},
+            "joint": round(100 * joint), "n": len(rows),
+            "indep": round(100 * ind),
+            "floor": round(100 * max(per.values())),
+            "corr": round(_st.mean(rs), 3) if rs else None,
+            "sources": per_model}
 
 
 def conditions():
@@ -303,7 +362,7 @@ def snapshot():
                      ("skyCover", "probabilityOfPrecipitation", "dewpoint"))
     om = open_meteo()
     runs = model_runs()
-    trip = gefs_trip()
+    trip = ensemble_trip()
     cond = conditions()
 
     stamp = datetime.now(EDT)
@@ -388,8 +447,14 @@ def write_log(hist):
                 out.append("> ⚠️ Every hour reads the same value — the model isn't resolving "
                            "hours at this lead time. One coarse long-range number stretched "
                            "across the night, not an hourly forecast. Pattern context only.\n\n")
+            rows = n.get("rows")
+            if not rows:
+                # compact() drops the hourly detail from old entries once only their
+                # headline numbers are still rendered; the log has to tolerate that
+                out.append("_Hourly detail compacted — headline figures above._\n\n")
+                continue
             out.append("| Hour (EDT) | Sky | PoP | Dewpoint |\n|---|---|---|---|\n")
-            for r in n["rows"]:
+            for r in rows:
                 if r["sky"] is None and r["pop"] is None:
                     continue
                 dp = f"{r['dew']*9/5+32:.0f}°F" if r["dew"] is not None else "—"
@@ -1365,6 +1430,24 @@ def trip_banner(latest):
     cls = "good" if j >= 70 else "warn" if j >= 45 else "bad"
     verdict = ("worth the drive" if j >= 70 else
                "a real gamble" if j >= 45 else "probably not worth it")
+    src = t.get("sources") or {}
+    srctxt = ", ".join(f"{k} {v}" for k, v in sorted(src.items())) or f'{t["n"]} members'
+    corr, ind, floor = t.get("corr"), t.get("indep"), t.get("floor")
+    diag = (f'<p class="note">Counted across <b>{t["n"]}</b> ensemble members '
+            f'({srctxt}). Each member is one physically consistent scenario spanning all '
+            f'three nights. You do not need a particular night — you need one of them.</p>')
+    if corr is not None and ind is not None:
+        near = abs(j - ind) <= 4
+        diag += (f'<p class="note"><b>How much do the nights move together?</b> Measured '
+                 f'correlation between members is <b>{corr:+.2f}</b>, so the nights are '
+                 f'behaving almost independently and this figure sits '
+                 f'{"right on" if near else "away from"} the independence bound of '
+                 f'{ind}%. That is worth stating because it could be an artefact of the '
+                 f'ensemble spreading out at long range — except thirty years of real '
+                 f'Augusts here give a correlation of +0.04 and a joint one point off '
+                 f'their own independence bound. These dates genuinely are near-independent; '
+                 f'three days is long enough for a system to pass. If the nights were '
+                 f'locked together the answer would be <b>{floor}%</b> instead.</p>')
     bars = []
     for label, _ in NIGHTS:
         v = t["per"].get(label, 0)
@@ -1375,13 +1458,10 @@ def trip_banner(latest):
     return (f'<div class="card trip">'
             f'<span class="eyebrow">The actual question</span>'
             f'<div class="tripbig {cls}">{j}%</div>'
-            f'<p class="tripsub"><b>chance at least one of the three nights gives you '
-            f'90 minutes of core</b> — {verdict}.</p>'
+            f'<p class="tripsub"><b>chance at least one of the three nights has a usable '
+            f'core window</b> — {verdict}.</p>'
             f'<div class="pks">{"".join(bars)}</div>'
-            f'<p class="note">Counted across {t["n"]} GEFS ensemble members. Each member is '
-            f'one physically consistent weather scenario spanning all three nights, so this '
-            f'measures how much the nights move together rather than assuming they are '
-            f'independent. You do not need a particular night — you need one of them.</p>'
+            f'{diag}'
             f'</div>')
 
 

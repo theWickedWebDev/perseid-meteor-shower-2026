@@ -24552,12 +24552,20 @@
   "grid": "GYX 28,125",
   "trip": {
    "per": {
-    "Night 1": 45,
-    "Night 2": 55,
-    "Night 3": 68
+    "Night 1": 47,
+    "Night 2": 43,
+    "Night 3": 44
    },
-   "joint": 90,
-   "n": 31
+   "joint": 83,
+   "n": 103,
+   "indep": 83,
+   "floor": 47,
+   "corr": -0.038,
+   "sources": {
+    "GEFS": 31,
+    "ECMWF ENS": 51,
+    "GEM ENS": 21
+   }
   },
   "cond": {
    "Night 1": {
