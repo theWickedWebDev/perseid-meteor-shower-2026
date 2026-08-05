@@ -22,3 +22,6 @@ forecast_history.precompact.json
 
 # notification state — local, not source
 .notify_trip.json
+
+# ntfy topic — effectively a shared secret, never committed
+.ntfy_topic

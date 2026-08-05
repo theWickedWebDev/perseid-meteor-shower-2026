@@ -33,6 +33,10 @@ SKILL = "skill.json"
 MIN_DELTA = 5          # points; smaller moves are ensemble churn
 BETTER_BY = 10         # the margin that makes the verdict say "a better draw"
 URL = "https://thewickedwebdev.github.io/perseid-meteor-shower-2026/forecast.html"
+# The ntfy topic is a shared secret — anyone holding it can read these alerts and publish
+# to them — so it lives in a gitignored file, never in the repo. Absent means ntfy is
+# simply skipped; the desktop popup still works.
+TOPIC_FILE = ".ntfy_topic"
 
 
 def notify(title, body, urgency="normal"):
@@ -47,6 +51,27 @@ def notify(title, body, urgency="normal"):
         return True
     except Exception as ex:
         print(f"  notify-send failed: {str(ex)[:70]}")
+        return False
+
+
+def ntfy(title, body, priority="default", tags="milky_way"):
+    """Phone push. Silently skipped if no topic file is present."""
+    try:
+        topic = open(TOPIC_FILE).read().strip()
+    except Exception:
+        return False
+    if not topic:
+        return False
+    import urllib.request
+    req = urllib.request.Request(
+        f"https://ntfy.sh/{topic}", data=body.encode("utf-8"),
+        headers={"Title": title, "Priority": priority, "Tags": tags,
+                 "Click": URL, "User-Agent": "perseid-meteor-shower-2026"})
+    try:
+        with urllib.request.urlopen(req, timeout=20):
+            return True
+    except Exception as ex:
+        print(f"  ntfy failed: {str(ex)[:70]}")
         return False
 
 
@@ -97,8 +122,11 @@ def main():
         return 0
 
     if "--test" in sys.argv:
-        notify(f"Trip odds {j}%", f"Test notification. Base rate {base}%.\n{URL}")
-        print("  test sent")
+        msg = f"Test notification. Base rate {base}%."
+        d = notify(f"Trip odds {j}%", f"{msg}\n{URL}")
+        n = ntfy(f"Trip odds {j}%", msg)
+        print(f"  test sent — desktop {'ok' if d else 'failed'}, "
+              f"ntfy {'ok' if n else 'skipped/failed'}")
         return 0
 
     if pj is None:
@@ -138,7 +166,12 @@ def main():
             + ("  " + "\n  ".join(detail) + "\n" if detail else "")
             + URL)
     urgency = "critical" if crossed_verdict else "normal"
-    notify(f"{arrow} Trip odds {j}%  (base {base}%)", body, urgency)
+    title = f"{arrow} Trip odds {j}%  (base {base}%)"
+    notify(title, body, urgency)
+    # phone gets the same thing; a verdict change is worth a high-priority push
+    ntfy(title, body.replace(URL, "").strip(),
+         priority="high" if crossed_verdict else "default",
+         tags="milky_way,warning" if delta < 0 else "milky_way")
     print(f"  notified: {pj}% -> {j}% ({delta:+d})"
           + (f", {'; '.join(why)}" if why else ""))
     json.dump({**cur, "at": datetime.now(EDT).isoformat()}, open(STATE, "w"), indent=1)
