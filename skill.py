@@ -419,6 +419,69 @@ def verification(days=92):
             "reference": "each model's own day-0 value for the same hour"}
 
 
+AGREE_BANDS = [(0, 10), (11, 30), (31, 60), (61, 101)]
+
+
+def agreement(days=92):
+    """Does model agreement predict accuracy? Measured, because it is worth a lot if so.
+
+    For every night-hour where all the models are present, take the spread between the
+    highest and lowest, and the error of their median against what happened. Group by spread.
+
+    The answer turns out to be strongly yes, which matters because it is the only handle
+    available for trusting a number BEFORE the lead time gets short. A night where the models
+    sit within ten points of each other is worth reading a week out; a night where they span
+    eighty is not worth reading at all, at any lead.
+
+    Spread here is max minus min, not the IQR used for the agreement gate elsewhere. With
+    four to seven members the IQR discards exactly the outliers that make a night unreadable,
+    and it is the full disagreement that predicts the error.
+    """
+    var = ",".join(["cloud_cover"] + [f"cloud_cover_previous_day{i}" for i in range(1, 8)])
+    per, truth = {}, {}
+    for key, name in MODELS:
+        url = (f"https://previous-runs-api.open-meteo.com/v1/forecast?latitude={SITE[0]}"
+               f"&longitude={SITE[1]}&hourly={var}&models={key}&past_days={days}"
+               f"&forecast_days=1&timezone=America%2FNew_York")
+        try:
+            h = get(url)["hourly"]
+        except Exception:
+            continue
+        for i, t in enumerate(h["time"]):
+            if int(t[11:13]) not in CORE_HR or h["cloud_cover"][i] is None:
+                continue
+            truth[t] = h["cloud_cover"][i]
+            for lead in range(1, 8):
+                se = h.get(f"cloud_cover_previous_day{lead}") or []
+                if i < len(se) and se[i] is not None:
+                    per.setdefault((t, lead), {})[name] = se[i]
+
+    n_models = len(MODELS)
+    rows = []
+    for (t, lead), ms in per.items():
+        if len(ms) < n_models or t not in truth:
+            continue
+        v = sorted(ms.values())
+        rows.append((v[-1] - v[0], abs(st.median(v) - truth[t])))
+    if len(rows) < 100:
+        return None
+
+    out = []
+    for lo, hi in AGREE_BANDS:
+        g = [e for sp, e in rows if lo <= sp <= hi]
+        if len(g) < 20:
+            continue
+        out.append({"lo": lo, "hi": hi, "n": len(g),
+                    "median_err": round(st.median(g)),
+                    "within": round(sum(1 for e in g if e <= TOL) / len(g) * 100)})
+    xs = [sp for sp, _ in rows]
+    ys = [e for _, e in rows]
+    mx, my = st.mean(xs), st.mean(ys)
+    den = (sum((x - mx) ** 2 for x in xs) * sum((y - my) ** 2 for y in ys)) ** .5
+    return {"bands": out, "n": len(rows), "tol": TOL, "models": n_models,
+            "r": round(sum((x - mx) * (y - my) for x, y in zip(xs, ys)) / den, 2) if den else None}
+
+
 def main():
     if "--show" in sys.argv:
         print(json.dumps(json.load(open(OUT)), indent=1) if os.path.exists(OUT)
@@ -439,6 +502,8 @@ def main():
     out["lead_skill_slot"] = lead_skill(satlog, med, region="slot")
     print("verification (92 days of previous runs)...")
     out["verification"] = verification()
+    print("agreement vs accuracy...")
+    out["agreement"] = agreement()
     json.dump(out, open(OUT, "w"), indent=1)
 
     c, s = out["climatology"], out["lead_skill"]

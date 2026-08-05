@@ -1078,6 +1078,59 @@ def base_rate_line(sk, latest):
             f'the question is only whether this year is a better or worse draw.</p>')
 
 
+def agreement_scale(sk=None):
+    """The measured relationship between disagreement and accuracy, as a scale to read against.
+
+    Sits directly under the dot chart so the spread a reader has just looked at can be turned
+    into what it is worth without leaving the page.
+    """
+    ag = (sk if sk is not None else _skill()).get("agreement")
+    if not ag or not ag.get("bands"):
+        return ""
+    rows = []
+    for b in ag["bands"]:
+        cls = "good" if b["within"] >= 70 else "warn" if b["within"] >= 25 else "bad"
+        lab = ("models agree" if b["hi"] <= 10 else "close" if b["hi"] <= 30 else
+               "split" if b["hi"] <= 60 else "wide open")
+        hi = "+" if b["hi"] > 100 else f"–{b['hi']}"
+        rows.append(f'<div class="cl"><span class="cll">{b["lo"]}{hi} pts</span>'
+                    f'<span class="clbar"><i class="{cls}" style="width:{b["within"]}%"></i>'
+                    f'</span><span class="clv">{b["within"]}%</span>'
+                    f'<span class="cle">{lab}</span></div>')
+    return (f'<h3 class="sub">What the spread is worth</h3>'
+            f'<p class="lede">How often the median landed within {ag["tol"]} points, by how '
+            f'far apart the sources were — {ag["n"]} night-hours.</p>'
+            f'<div class="cls">' + "".join(rows) + '</div>'
+            f'<p class="note">Agreement beats lead time. A night the sources agree on is '
+            f'worth reading a week out; a night they span 80 points is not worth reading at '
+            f'all.</p>')
+
+
+def agree_band(spread, sk=None):
+    """What the measured record says a forecast with this much disagreement is worth.
+
+    Lead time is the usual handle on trust and it is a blunt one — it says nothing about
+    whether tonight in particular is readable. Model agreement does, and by a wide margin:
+    when every source lands within ten points of the others the median is right 92% of the
+    time, and when they span more than sixty it is right 11%. That holds at long lead, which
+    makes it the only way to trust a number before the week is out.
+
+    Returns (within_pct, label, css class) or None when the measurement is unavailable.
+    """
+    ag = (sk if sk is not None else _skill()).get("agreement")
+    if not ag or spread is None:
+        return None
+    for b in ag["bands"]:
+        if b["lo"] <= spread <= b["hi"]:
+            cls = ("good" if b["within"] >= 70 else
+                   "warn" if b["within"] >= 25 else "bad")
+            lab = ("models agree" if b["hi"] <= 10 else
+                   "close" if b["hi"] <= 30 else
+                   "split" if b["hi"] <= 60 else "wide open")
+            return b["within"], lab, cls, ag["tol"]
+    return None
+
+
 def _more(anchor, label="the full working"):
     """Link out to findings.html rather than spending another paragraph here.
 
@@ -2352,12 +2405,26 @@ def write_page(hist):
         else:
             warn.append('<span class="dim">haze — not forecast this far out</span>')
         fogline = f'<span class="mrange">{" · ".join(warn)}</span>'
+        # How much the sources actually disagree — max minus min, not the IQR the verdict
+        # gates on. The IQR deliberately discards outliers; here the outliers are the point,
+        # because it is the full disagreement that predicts the error.
+        ms_ = (nd.get("models") or {}).values()
+        full = (max(ms_) - min(ms_)) if len(list(ms_)) >= 2 else None
+        ab = agree_band(full)
+        agline = ""
+        if ab:
+            within, lab, acls, atol = ab
+            agline = (f'<span class="agree {acls}" title="Measured over 92 days: when the '
+                      f'sources span {full} points, the median lands within {atol} of the '
+                      f'outcome {within}% of the time">sources span {full} pts · {lab} · '
+                      f'<b>{within}%</b> of such forecasts land within {atol}</span>')
         cards.append(
             f'<div class="ncard"><span class="swatch s{si}"></span>'
             f'<b>{label}</b><span class="dim">{d:%a %d %b} · lead {nd["lead"]}d</span>'
             f'<span class="big {vc}">{"—" if v is None else str(v)+"%"}</span>'
             f'<span class="verdict {vc}">{cons[4] if cons else 0}-source median · '
             f'{verdict}{step}</span>'
+            f'{agline}'
             f'<span class="mrange">best hour '
             f'<b>{"—" if cb is None else hr12(cbh) + " · " + str(cb) + "%"}</b>'
             f'{"" if cb is None else " · " + ("shootable" if cb <= GO else "no clear hour")}</span>'
@@ -2612,6 +2679,14 @@ svg{{width:100%;height:auto;display:block}}
 .clbar b.clmark{{position:absolute;top:-2px;width:2px;height:18px;background:var(--ink);
   opacity:.55}}
 .clv{{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}}
+.cle{{font-size:.62rem;letter-spacing:.04em;white-space:nowrap;color:var(--muted)}}
+.cls .cl:has(.cle){{grid-template-columns:5.4rem 1fr 3rem 5.6rem}}
+.agree{{display:block;font-family:var(--mono);font-size:.66rem;margin-top:.3rem;
+  padding-top:.3rem;border-top:1px dotted var(--rule);color:var(--muted);line-height:1.45}}
+.agree b{{font-weight:700}}
+.agree.good b{{color:var(--good,#2E6B4F)}}
+.agree.warn b{{color:var(--warn,#B5721A)}}
+.agree.bad b{{color:var(--bad,#B03A2C)}}
 .more{{margin:.5rem 0 0;font-size:.82rem}}
 .more a{{color:var(--accent);text-decoration:none;font-family:var(--mono);font-size:.72rem;
   letter-spacing:.04em}}
@@ -2737,6 +2812,7 @@ td.trail{{font-family:var(--mono);font-size:1rem;letter-spacing:.12em}}
   <div class="card">
     <div>{agreement_svg(latest)}</div>
     <p class="note">Dots = each source · bar = range · ◇ = consensus median · shaded = under {GO}%</p>
+    {agreement_scale()}
   </div>
 
   <h2>Calibration — the nights before the trip</h2>
