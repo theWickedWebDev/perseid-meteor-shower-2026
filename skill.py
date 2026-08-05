@@ -36,11 +36,16 @@ UA = {"User-Agent": "perseid-meteor-shower-2026"}
 CORE_HR = (22, 23)
 GO = 30
 
-# The ensemble weights hour 23 by the minutes the core is actually above the treeline
-# (it sets about 23:17, four minutes earlier each night). Climatology has to use the same
-# weights or the base rate is not comparable with the forecast it is the yardstick for —
-# unweighted it reads 67%, weighted 70%, and the page compares the two directly.
-CORE_WEIGHTS = {11: {22: 1.0, 23: 0.35}, 12: {22: 1.0, 23: 0.28}, 13: {22: 1.0, 23: 0.22}}
+# Climatology must weight the core window exactly as the ensemble does, or the base rate
+# is not comparable with the forecast it is the yardstick for — unweighted it reads 67%,
+# weighted 70%, and the page compares the two directly.
+#
+# Imported rather than restated. The weights derive from the core-set times in
+# schedule_data.ASTRO, which is verified against the ephemeris at import; a second copy
+# here would silently desynchronise the moment the treeline is re-measured on arrival.
+def _core_weights(month_day):
+    from log_forecast import core_weights
+    return core_weights(f"2026-08-{month_day:02d}")
 TRIP_NIGHTS = (11, 12, 13)          # August
 CLIMO_YEARS = range(1996, 2026)     # thirty full Augusts
 
@@ -76,7 +81,7 @@ def climatology():
             continue
         idx = {t: i for i, t in enumerate(h["time"])}
         for d in TRIP_NIGHTS:
-            w = CORE_WEIGHTS.get(d, {h_: 1.0 for h_ in CORE_HR})
+            w = _core_weights(d)
             vals, wts = [], []
             for x in CORE_HR:
                 k = f"{y}-08-{d:02d}T{x:02d}:00"
@@ -143,7 +148,7 @@ def _episodes(hours):
     return [[t.strftime("%Y-%m-%dT%H:00") for t in e] for e in eps]
 
 
-def _baselines(truth):
+def _baselines(truth, climo_median=None):
     """What a forecaster with no skill would score. Context for the model numbers.
 
     A week that was overcast most nights makes 'always 100%' look good, so a model beating
@@ -152,8 +157,14 @@ def _baselines(truth):
     v = list(truth.values())
     if not v:
         return {}
+    # Baseline against the CURRENT climatological median, not a literal. It was hardcoded
+    # at 72, the unweighted median, which stopped being right the moment the window was
+    # weighted — and the correct value makes the baseline worse, which strengthens rather
+    # than weakens the point this table exists to make.
+    med = climo_median if climo_median is not None else round(st.mean(v))
     out = {"always_overcast": round(st.mean([abs(100 - x) for x in v]), 1),
-           "always_climatology": round(st.mean([abs(72 - x) for x in v]), 1),
+           "always_climatology": round(st.mean([abs(med - x) for x in v]), 1),
+           "climatology_value": med,
            "truth_mean": round(st.mean(v))}
     nights = {}
     for k, x in truth.items():
@@ -167,7 +178,7 @@ def _baselines(truth):
     return out
 
 
-def lead_skill(satlog):
+def lead_skill(satlog, climo_median=None):
     """Mean absolute error against the satellite, by how far ahead the forecast was made.
 
     Uses Open-Meteo's previous-runs archive: for each hour it exposes what the model said
@@ -280,7 +291,7 @@ def lead_skill(satlog):
                      for m, d in per_model.items()},
         "mean_forecast": mean_pred,
         "pessimism_r": bias_r,
-        "baselines": _baselines(truth),
+        "baselines": _baselines(truth, climo_median),
         "diffs": {"7_3": diff_ci(7, 3), "3_0": diff_ci(3, 0), "1_0": diff_ci(1, 0)},
     }
 
@@ -298,7 +309,7 @@ def main():
     print("climatology...")
     out["climatology"] = climatology()
     print("lead-time skill...")
-    out["lead_skill"] = lead_skill(satlog)
+    out["lead_skill"] = lead_skill(satlog, (out.get("climatology") or {}).get("median"))
     json.dump(out, open(OUT, "w"), indent=1)
 
     c, s = out["climatology"], out["lead_skill"]

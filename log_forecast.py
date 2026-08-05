@@ -233,8 +233,17 @@ def core_weights(day):
     Weighting by the minutes actually available stops a cloudy 23:40 counting as heavily as
     a cloudy 22:15.
     """
-    end = {"2026-08-11": 23 + 21 / 60, "2026-08-12": 23 + 17 / 60,
-           "2026-08-13": 23 + 13 / 60}.get(day, 23 + 17 / 60)
+    # Read from schedule_data.ASTRO, which is the one place the core-set times live and
+    # the only one verified against the ephemeris at import. This used to be a third
+    # hardcoded copy of the same fact, and the treeline behind it is provisional — if the
+    # arrival survey confirms 7.3 deg rather than 10, every core-set time moves about 29
+    # minutes and every weight here changes with it. That must happen in one edit.
+    try:
+        from schedule_data import ASTRO
+        hh, mm = ASTRO[day]["core_set"].split(":")
+        end = int(hh) + int(mm) / 60
+    except Exception:
+        end = 23 + 17 / 60          # mid-trip value, if the table is unavailable
     out = {}
     for h in CORE_HR:
         frac = max(0.0, min(1.0, end - h))

@@ -1,5 +1,5 @@
 {
- "computed": "2026-08-04T20:48:46.096390-04:00",
+ "computed": "2026-08-04T20:56:38.531816-04:00",
  "climatology": {
   "years": 30,
   "median": 65,
@@ -152,7 +152,8 @@
   "pessimism_r": -0.42,
   "baselines": {
    "always_overcast": 22.7,
-   "always_climatology": 33.7,
+   "always_climatology": 37.1,
+   "climatology_value": 65,
    "truth_mean": 77,
    "persistence": 38.7
   },

@@ -16,6 +16,7 @@ for a converter with one input file.
 """
 
 import html
+import os
 import re
 import sys
 from datetime import datetime, timedelta, timezone
@@ -226,8 +227,8 @@ hr{{border:0;border-top:1px solid var(--rule);margin:2rem 0}}
 {body}
 <div class="foot">
   <a href="forecast.html">← Back to the forecast</a> ·
-  generated from <span style="font-family:var(--mono)">FORECAST_FINDINGS.md</span>
-  on {stamp} EDT
+  generated from <span style="font-family:var(--mono)">FORECAST_FINDINGS.md</span>,
+  last edited {stamp} EDT
 </div>
 </div>
 <script>
@@ -251,8 +252,12 @@ def main():
     md = open(SRC).read()
     title = re.match(r'^# (.*)', md).group(1) if md.startswith("# ") else "Findings"
     body = convert(md)
+    # Stamp the SOURCE, not the build. Using the clock meant regenerating with no content
+    # change produced a one-line diff, and on a fresh clone — where checkout resets both
+    # mtimes — publish.sh's -nt guard could fire arbitrarily and commit that no-op.
+    src_mtime = datetime.fromtimestamp(os.path.getmtime(SRC), EDT)
     page = PAGE.format(toc=toc(md), body=body,
-                       stamp=f"{datetime.now(EDT):%a %d %b %Y, %H:%M}")
+                       stamp=f"{src_mtime:%a %d %b %Y, %H:%M}")
     open(OUT, "w").write(page)
     print(f"wrote {OUT} — {len(page)//1024} KB from {SRC}")
     return 0

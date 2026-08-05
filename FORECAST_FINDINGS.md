@@ -186,11 +186,11 @@ Barely, and worse than that at range. The verification week averaged **77% cloud
 | Always say "overcast" | **22.7** |
 | Models, 0–3 days | 15–20 |
 | Models, 7 days | 38.1 |
-| Always say climatology (72%) | 33.7 |
+| Always say climatology (65%) | 37.1 |
 | Persistence (tonight = last night) | 38.7 |
 
 Inside three days the models beat a constant "overcast" guess by only a few points. **At
-seven days they are worse than it.** That is a property of a week that was cloudy on five
+seven days they are worse than it** — and worse than every baseline here except persistence. That is a property of a week that was cloudy on five
 nights out of seven — the measure will mean more once some genuinely clear nights are in
 the sample.
 
@@ -379,6 +379,10 @@ survey on arrival settles it — that task is first on the Night 1 schedule for 
   calendar dates have no mechanism to differ by 25 points, the standard deviation is ~37 on
   n=30, and resampling one pooled distribution reproduces a gap that large 34% of the time.
   It was computed and never rendered; now it is not computed.
+- **One ephemeris fact, one place.** The core-window weights derive from the core-set
+  times in `schedule_data.ASTRO`, which is checked against astropy at import. They were
+  briefly restated in three files; if the arrival survey confirms a 7.3° treeline, every
+  core-set time moves ~29 minutes and all three weights change — that has to be one edit.
 - **No test suite.** Everything is verified ad hoc. That is how the low-sun bug survived
   shipping twice, in two different places.
 - **`EDT` is fixed at UTC−4** while Open-Meteo is queried with `America/New_York`. Identical
