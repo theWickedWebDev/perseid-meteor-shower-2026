@@ -42,6 +42,16 @@ fi
 # Regenerate unconditionally: the output is now a pure function of the source, so a
 # rebuild that changes nothing writes identical bytes and git sees no diff. An mtime guard
 # was wrong on a fresh clone, where checkout gives every file the same timestamp.
+# Build the full-resolution sky mask once, in daylight, from the rendition nightwatch
+# actually analyses. The fallback mask is upscaled from 760 px and approximate at the
+# treeline, which is exactly where false stars would creep in.
+if [ ! -f skymask_hd.npy ] && [ -x venv/bin/python ]; then
+    H=$(date +%H)
+    if [ "$H" -ge 10 ] && [ "$H" -lt 17 ]; then
+        ./venv/bin/python nightwatch.py --build-mask 2>&1 | sed 's/^/  /' || true
+    fi
+fi
+
 $PY make_nightwatch.py >/dev/null 2>&1 || true   # star-count evidence page
 $PY make_findings.py >/dev/null || echo "$(date '+%F %T')  findings render failed"
 

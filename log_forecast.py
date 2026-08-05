@@ -1105,9 +1105,9 @@ def nightwatch_section(log):
     t = datetime.fromisoformat(latest["time"])
     core = (latest.get("targets") or {}).get("core") or {}
     rho = (latest.get("targets") or {}).get("rho") or {}
-
     fl = [max(0.0, (e.get("targets", {}).get("core") or {}).get("flux", 0) or 0) for e in rows]
     mx = max(fl + [1])
+
     cells = []
     for e, f in zip(rows, fl):
         et = datetime.fromisoformat(e["time"])
@@ -1119,21 +1119,34 @@ def nightwatch_section(log):
                      f'title="{et:%a %H:%M} — {n} stars, flux {f:.0f}">'
                      f'<i></i><span>{et:%H}</span></div>')
 
+    # The verdict is driven by FLUX, not the star count — the same statistic this
+    # docstring argues for, which the sentence used to contradict. Between 22:01 and 22:15
+    # the count went 3 -> 2 while flux held at ~1650: the sky did not change, the threshold
+    # did, and the sentence flipped while the bar beside it stayed put.
+    #
+    # Judged against the best reading of the run rather than an absolute number, because
+    # the region's brightest stars change through the night: Antares sets around midnight
+    # and Fomalhaut takes over, so the clear-sky baseline steps down on its own.
     n = core.get("stars")
-    verdict = ("the core region is showing stars" if (n or 0) >= 3 else
-               "a couple of stars in the core region" if (n or 0) >= 1 else
-               "nothing visible in the core region")
-    vc = "good" if (n or 0) >= 3 else "warn" if (n or 0) >= 1 else "bad"
+    f = core.get("flux") or 0
+    ref = max(fl) if fl else 0
+    frac = (f / ref) if ref else 0
+    if frac >= 0.5:
+        verdict, vc = "the core region is showing stars", "good"
+    elif frac >= 0.15:
+        verdict, vc = "the core region is partly obscured", "warn"
+    else:
+        verdict, vc = "nothing coming through in the core region", "bad"
     return (f'<h2>Can the core actually be seen? '
             f'<a class="ev" href="nightwatch.html">see the frames →</a></h2>\n<div class="card">'
             f'<p class="lede">The webcam is pointed at <b>your targets</b> — solved from '
             f'its own star field to bearing 178.5°, 94° wide. The Milky Way core sits at '
             f'{core.get("alt", "—")}° altitude in that frame, Rho Ophiuchi at '
             f'{rho.get("alt", "—")}°. Same sky, 16.6 km away.</p>'
-            f'<div class="nwbig {vc}">{n if n is not None else "—"}<span> stars in the core '
-            f'region</span></div>'
+            f'<div class="nwbig {vc}">{f:,.0f}<span> flux in the core region '
+            f'({frac:.0%} of tonight\'s best)</span></div>'
             f'<p class="tripsub">{t:%a %d %b %H:%M} — {verdict}. '
-            f'Flux <b>{core.get("flux", 0):,.0f}</b>, brightest source '
+            f'{n if n is not None else "—"} sources above threshold, brightest '
             f'{core.get("peak", 0):.0f}× the noise.</p>'
             f'<div class="nwstrip">{"".join(cells)}</div>'
             f'<p class="note">One bar per capture through the night, height is light '

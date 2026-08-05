@@ -25,3 +25,11 @@ forecast_history.precompact.json
 
 # ntfy topic — effectively a shared secret, never committed
 .ntfy_topic
+
+# nightwatch: a cron log that appends every 15 min, a derived mask rebuildable from
+# daylight frames, and the output of a retired script. forecast_cron.log is already
+# ignored for the same reason — these were the inconsistency.
+nightwatch.log
+skymask.npy
+stars_log.json
+platesolve_residuals.json

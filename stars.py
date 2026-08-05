@@ -1,5 +1,15 @@
 #!/usr/bin/env python3
 """
+RETIRED — superseded by nightwatch.py. Kept only for the record of how the question was
+first answered; nothing calls it and publish.sh does not run it.
+
+It worked on the 760 px daytime thumbnails and asked whether the dots moved. They do, and
+nightwatch.py now answers the same question at 1080p with a plate solve, a sky mask and
+flux measurement. Its closing line, "the second needs consecutive night frames", has been
+satisfied several times over.
+
+Original docstring follows.
+
 Find point sources in the webcam's night frames, and check whether they move.
 
     venv/bin/python stars.py            # report on every night frame held

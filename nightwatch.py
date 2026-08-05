@@ -80,8 +80,60 @@ def grab(outdir):
     return sorted(glob.glob(f"{outdir}/*.jpg"))
 
 
+MASK_HD = "skymask_hd.npy"     # built at 1920x1080 from format 96, the rendition we use
+
+
+def build_mask_hd():
+    """Build the sky mask at full resolution from the SAME stream rendition we analyse.
+
+    The first mask was derived from webcam/*.jpg — already downscaled to 760 px by
+    webcam.py, and grabbed from the 720p rendition — then NEAREST-upscaled to 1920x1080.
+    That is about 2.5 px of slop along the treeline, and it assumes the two renditions are
+    framed identically, which is likely but was never checked. Since the treeline is
+    exactly where road reflections and treetop edges would leak back in as false stars,
+    the mask should come from the frames it is applied to.
+
+    Daylight only — the sky/land distinction needs the sky to be the bright part.
+    """
+    import numpy as np
+    from PIL import Image
+    from scipy import ndimage as nd
+    import tempfile
+    with tempfile.TemporaryDirectory() as td:
+        files = grab(td)
+        if len(files) < 3:
+            print("  not enough frames to build a mask")
+            return None
+        arr = np.stack([np.asarray(Image.open(f).convert("L")).astype(np.float32)
+                        for f in files[:10]])
+        med = np.median(arr, axis=0)
+    if med.mean() < 70:
+        print(f"  too dark to build a sky mask (mean {med.mean():.0f}) — daylight only")
+        return None
+    sd = nd.generic_filter(med, np.std, size=9)
+    m = (med > np.percentile(med, 55)) & (sd < np.percentile(sd, 60))
+    lab, _ = nd.label(m)
+    top = set(lab[0, :][lab[0, :] > 0])
+    if top:
+        m = np.isin(lab, list(top))
+    m = nd.binary_erosion(nd.binary_opening(nd.binary_closing(m, np.ones((15, 15))),
+                                            np.ones((9, 9))), np.ones((11, 11)))
+    np.save(MASK_HD, m)
+    print(f"  built {MASK_HD} at {m.shape[1]}x{m.shape[0]}, sky = {100*m.mean():.1f}%")
+    return m
+
+
 def sky_mask(shape):
-    """Sky-only mask, scaled to the frame. Built once from daylight frames."""
+    """Sky-only mask at the analysis resolution.
+
+    Prefers the full-resolution mask built from this rendition; falls back to the
+    upscaled 760 px one, which is approximate along the treeline.
+    """
+    import numpy as np
+    if os.path.exists(MASK_HD):
+        m = np.load(MASK_HD)
+        if m.shape == shape:
+            return m
     import numpy as np
     from PIL import Image
     from scipy import ndimage as nd
@@ -266,6 +318,9 @@ def run_once():
 
 
 def main():
+    if "--build-mask" in sys.argv:
+        build_mask_hd()
+        return 0
     if "--loop" in sys.argv:
         # tighter than hourly: there is exactly one fully dark night before the trip, so
         # the sampling has to be dense enough to see cloud move through

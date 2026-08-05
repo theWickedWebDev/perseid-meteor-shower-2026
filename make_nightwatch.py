@@ -186,6 +186,23 @@ compare across captures and across nights.</p>
 <span style="color:#9fb3c8">● teapot</span>
 <span style="color:#3ddc84">● detected source</span></p>
 
+<h2>How well is the camera pointed?</h2>
+<p>The star counts depend on a plate solve — bearing 178.5°, 94° wide, pitched 3° below
+level — and every number here rests on it, so it is worth showing rather than asserting.
+Measured against catalogue positions across every capture:</p>
+<div class="scroll"><table>
+<thead><tr><th>star</th><th>mag</th><th>alt</th><th>matches</th><th>mean error</th>
+<th>range</th></tr></thead><tbody><tr><td>Dschubba</td><td class='n'>+2.29</td><td class='n'>16°</td><td class='n'>2</td><td class='n'>10 px</td><td class='n'>3–18</td></tr><tr><td>Alnasl</td><td class='n'>+2.98</td><td class='n'>14°</td><td class='n'>1</td><td class='n'>10 px</td><td class='n'>10–10</td></tr><tr><td>Sigma Sco</td><td class='n'>+2.88</td><td class='n'>15°</td><td class='n'>3</td><td class='n'>12 px</td><td class='n'>3–24</td></tr><tr><td>Antares</td><td class='n'>+1.06</td><td class='n'>12°</td><td class='n'>1</td><td class='n'>21 px</td><td class='n'>21–21</td></tr><tr><td>Mu Sco</td><td class='n'>+3.00</td><td class='n'>4°</td><td class='n'>1</td><td class='n'>24 px</td><td class='n'>24–24</td></tr><tr><td>Sabik</td><td class='n'>+2.43</td><td class='n'>27°</td><td class='n'>2</td><td class='n'>29 px</td><td class='n'>27–30</td></tr><tr><td>Kaus Bor</td><td class='n'>+2.81</td><td class='n'>19°</td><td class='n'>1</td><td class='n'>47 px</td><td class='n'>47–47</td></tr><tr><td>Nunki</td><td class='n'>+2.05</td><td class='n'>19°</td><td class='n'>1</td><td class='n'>49 px</td><td class='n'>49–49</td></tr><tr><td>Theta Oph</td><td class='n'>+3.27</td><td class='n'>19°</td><td class='n'>3</td><td class='n'>49 px</td><td class='n'>33–76</td></tr><tr><td>Lesath</td><td class='n'>+2.69</td><td class='n'>7°</td><td class='n'>1</td><td class='n'>56 px</td><td class='n'>56–56</td></tr><tr><td>Eta Sgr</td><td class='n'>+3.11</td><td class='n'>8°</td><td class='n'>4</td><td class='n'>70 px</td><td class='n'>60–79</td></tr></tbody></table></div>
+<p class="note"><b>Confident matches</b> — stars brighter than magnitude 2.95, where the
+pairing is unambiguous — sit at <b>26 px</b> mean error, about
+1.7° at this plate scale. Fainter stars show larger residuals, but those are almost
+certainly mispairings rather than a bad solve: at an 80 px search radius a faint catalogue
+star will find <em>something</em>. Error does not grow toward the frame edge
+(correlation −0.71), so this is not lens distortion.</p>
+<p class="note">A 26 px pointing error is about a fifth of the 220 px aperture
+radius. Flux is unaffected; naming an individual star is not, which is why the headline
+number is flux and the star count is shown as supporting detail.</p>
+
 <h2>The frames</h2>
 <p>Each is a median stack of the 30 least-compressed frames from a 30-second grab at 1080p,
 stretched so faint stars are visible, masked to sky only. Newest first.</p>
