@@ -1001,9 +1001,18 @@ def waiting_section(sk):
     for name in sorted(bm, key=lambda n: bm[n].get("0", 99)):
         d = bm[name]
         near = [d[k] for k in ("0", "1", "2") if k in d]
-        far = [d[k] for k in ("5", "6", "7") if k in d]
-        n_, f_ = (sum(near) / len(near) if near else None), (sum(far) / len(far) if far else None)
-        rows.append(f'<tr class="mrow"><td><b>{name}</b></td>'
+        # Average only over models carrying ALL of days 5-7. ICON stops at 180 h and UKMO
+        # at about 7 days, so averaging "whatever is present" scored ICON on lead 5 alone
+        # and printed it as the best long-range model — contradicting the prose directly
+        # above, which named AIFS. Short-range models must not win a long-range column by
+        # being absent from its hardest part.
+        have = [k for k in ("5", "6", "7") if k in d]
+        n_ = sum(near) / len(near) if near else None
+        f_ = sum(d[k] for k in have) / len(have) if len(have) == 3 else None
+        note = "" if len(have) == 3 else (
+            f'<br><span class="dim">no data past {max(have)} d</span>' if have
+            else '<br><span class="dim">out of range</span>')
+        rows.append(f'<tr class="mrow"><td><b>{name}</b>{note}</td>'
                     f'<td class="n">{"—" if n_ is None else f"{n_:.0f}"}</td>'
                     f'<td class="n">{"—" if f_ is None else f"{f_:.0f}"}</td></tr>')
     table = ('<table class="mtable"><thead><tr><th>Model</th>'
@@ -1023,7 +1032,10 @@ def waiting_section(sk):
             f'<h3 class="sub">Which model, at which range</h3>'
             f'<div class="scroll">{table}</div>'
             f'<p class="note">Lower is better, measured at this site against satellite '
-            f'observation. <b>Read this ranking with suspicion.</b> The verification week '
+            f'observation. The long-range column is blank for models that cannot see all '
+            f'of days 5–7 — averaging only the leads a model happens to reach let a '
+            f'short-range model win a long-range column by being absent from its hardest '
+            f'part. <b>Read this ranking with suspicion.</b> The verification week '
             f'was overcast on five nights of seven, and the correlation between "forecasts '
             f'more cloud" and "scores well" is {ls.get("pessimism_r", "—")} — so the table '
             f'is partly ranking pessimism rather than skill. It will mean more once the '

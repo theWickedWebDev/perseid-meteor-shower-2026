@@ -14,8 +14,8 @@ Measured at the lake site, 45.2393 / −71.1964, unless stated. All times EDT.
 
 | Question | Answer | Confidence |
 |---|---|---|
-| Is 45% cloud good? | No. Median for these dates here is **72%** | 30 years, solid |
-| Odds at least one night works? | **83%**, against a **67%** base rate | Good, with caveats below |
+| Is 45% cloud good? | No. Median for these dates here is **65%** | 30 years, solid |
+| Odds at least one night works? | **83%**, against a **70%** base rate | Good, with caveats below |
 | Does waiting help? | Yes to ~day 5. Past that, **nothing measurable** | 7 nights — differences under 6 pts invisible |
 | Which model to believe? | **AIFS** past 5 days, **ECMWF** inside 3 | Weak — partly ranking pessimism (r −0.42) |
 | Can we see cloud at night? | Yes — satellite, not the webcam | Verified |
@@ -91,13 +91,23 @@ Aug 11 vs Aug 13   r = −0.194
 Aug 12 vs Aug 13   r = +0.007
 mean r             = +0.035
 
-climatological joint     67%
-its independence bound   68%      <- one point apart
+climatological joint     70%
+its independence bound   72%      <- two points apart
 ```
 
+Both figures come from `skill.json` — `p_trip_good` and `p_trip_indep` — so they can be
+regenerated rather than taken on trust. An earlier version of this document quoted 67 / 68
+from prose alone, computed by hand and never stored.
+
 Real years sit at their own independence bound too. Three days at 45°N in August is long
-enough for a system to pass through. So the comparison of 83% against the 67% base rate is
-like-for-like — both computed the same way, both near-independent.
+enough for a system to pass through.
+
+**The comparison is like-for-like, but only since it was made so.** The ensemble weights
+hour 23 by the minutes the core is actually up (0.35 / 0.28 / 0.22 — see section 8); the
+climatology originally took a plain mean of hours 22 and 23. Unweighted the base rate reads
+67%, weighted it reads **70%**, and the page compares the forecast against it
+directly. `climatology()` now applies the same weights, so the two numbers are computed the
+same way.
 
 The correlation figure is printed on the page beside the joint so the assumption stays
 visible. **If the nights were perfectly locked together the answer would be 47%, not 83%** —
@@ -111,17 +121,24 @@ Thirty years of ERA5 (1996–2025) for exactly Aug 11, 12, 13, core window:
 
 | | |
 |---|---|
-| Median cloud in the core window | **72%** |
-| Individual nights beating 30% | **31%** |
-| Years with ≥1 usable night | **67%** ← the base rate |
+| Median cloud in the core window | **65%** |
+| Individual nights beating 30% | **34%** |
+| Years with ≥1 usable night | **70%** ← the base rate |
 
 **Two nights in three are historically unusable at this site on these dates.** Three
 UNRESOLVED cards read as alarming until you know that. The current forecast is drawn better
 than a normal year, and every night individually beats its own historical odds.
 
-This also settles the September question: the astronomy is worse (no Perseids, core window
-roughly halved) and the weather gamble is about the same. Trading a known better-than-average
-draw for an unknown one with worse astronomy is a poor swap.
+This also settles the September question, and more decisively than previously written:
+
+```
+Aug 12   dark 21:54, core 14.9° → below 10° at 23:17    83 min
+Sep 12   dark 20:43, core 12.4° → below 10° at 21:15    32 min
+```
+
+Not "roughly halved" — **cut to 39%**. September also has no Perseids, and the weather gamble
+is the same draw from the same distribution. Trading a better-than-average August for an
+unknown September with a third of the core window is a poor swap.
 
 ### The verdict is anchored to this, not to round numbers
 
@@ -248,7 +265,8 @@ Verified against a real night:
 ```
 
 Where satellite and webcam overlap in daylight they agree. Geolocation uses the GOES-R
-fixed-grid inverse projection and lands within 0.13 km; a reading is refused outright if the
+fixed-grid inverse projection and lands **0.46 km** from the site — under a quarter of a
+2 km pixel, and nowhere near the 5 km refusal guard; a reading is refused outright if the
 nearest pixel is more than 5 km off.
 
 ### The webcam's numbers are only trusted in good light

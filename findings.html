@@ -87,7 +87,7 @@ hr{border:0;border-top:1px solid var(--rule);margin:2rem 0}
 <p>Measured at the lake site, 45.2393 / −71.1964, unless stated. All times EDT.</p>
 <hr>
 <h2 id="the-short-version">The short version</h2>
-<div class="scroll"><table><thead><tr><th>Question</th><th>Answer</th><th>Confidence</th></tr></thead><tbody><tr><td>Is 45% cloud good?</td><td>No. Median for these dates here is <b>72%</b></td><td>30 years, solid</td></tr><tr><td>Odds at least one night works?</td><td><b>83%</b>, against a <b>67%</b> base rate</td><td>Good, with caveats below</td></tr><tr><td>Does waiting help?</td><td>Yes to ~day 5. Past that, <b>nothing measurable</b></td><td>7 nights — differences under 6 pts invisible</td></tr><tr><td>Which model to believe?</td><td><b>AIFS</b> past 5 days, <b>ECMWF</b> inside 3</td><td>Weak — partly ranking pessimism (r −0.42)</td></tr><tr><td>Can we see cloud at night?</td><td>Yes — satellite, not the webcam</td><td>Verified</td></tr><tr><td>Anything else likely to spoil it?</td><td><b>Night 3 fog</b> (7 h) and regional <b>smoke</b></td><td>Both live as of 4 Aug</td></tr></tbody></table></div>
+<div class="scroll"><table><thead><tr><th>Question</th><th>Answer</th><th>Confidence</th></tr></thead><tbody><tr><td>Is 45% cloud good?</td><td>No. Median for these dates here is <b>65%</b></td><td>30 years, solid</td></tr><tr><td>Odds at least one night works?</td><td><b>83%</b>, against a <b>70%</b> base rate</td><td>Good, with caveats below</td></tr><tr><td>Does waiting help?</td><td>Yes to ~day 5. Past that, <b>nothing measurable</b></td><td>7 nights — differences under 6 pts invisible</td></tr><tr><td>Which model to believe?</td><td><b>AIFS</b> past 5 days, <b>ECMWF</b> inside 3</td><td>Weak — partly ranking pessimism (r −0.42)</td></tr><tr><td>Can we see cloud at night?</td><td>Yes — satellite, not the webcam</td><td>Verified</td></tr><tr><td>Anything else likely to spoil it?</td><td><b>Night 3 fog</b> (7 h) and regional <b>smoke</b></td><td>Both live as of 4 Aug</td></tr></tbody></table></div>
 <hr>
 <h2 id="1-everything-is-an-ensemble-nothing-is-one-model">1. Everything is an ensemble. Nothing is one model.</h2>
 <p>Every figure — headline percentage, verdict, best hour, trend chart, movement table — is the <b>median across every source that reaches that night</b>, taken hour by hour and then averaged over the window.</p>
@@ -112,16 +112,21 @@ Aug 11 vs Aug 13   r = −0.194
 Aug 12 vs Aug 13   r = +0.007
 mean r             = +0.035
 
-climatological joint     67%
-its independence bound   68%      &lt;- one point apart</pre></div>
-<p>Real years sit at their own independence bound too. Three days at 45°N in August is long enough for a system to pass through. So the comparison of 83% against the 67% base rate is like-for-like — both computed the same way, both near-independent.</p>
+climatological joint     70%
+its independence bound   72%      &lt;- two points apart</pre></div>
+<p>Both figures come from <code>skill.json</code> — <code>p_trip_good</code> and <code>p_trip_indep</code> — so they can be regenerated rather than taken on trust. An earlier version of this document quoted 67 / 68 from prose alone, computed by hand and never stored.</p>
+<p>Real years sit at their own independence bound too. Three days at 45°N in August is long enough for a system to pass through.</p>
+<p><b>The comparison is like-for-like, but only since it was made so.</b> The ensemble weights hour 23 by the minutes the core is actually up (0.35 / 0.28 / 0.22 — see section 8); the climatology originally took a plain mean of hours 22 and 23. Unweighted the base rate reads 67%, weighted it reads <b>70%</b>, and the page compares the forecast against it directly. <code>climatology()</code> now applies the same weights, so the two numbers are computed the same way.</p>
 <p>The correlation figure is printed on the page beside the joint so the assumption stays visible. <b>If the nights were perfectly locked together the answer would be 47%, not 83%</b> — that floor is also shown.</p>
 <hr>
 <h2 id="3-climatology-what-good-means-here">3. Climatology: what &quot;good&quot; means here</h2>
 <p>Thirty years of ERA5 (1996–2025) for exactly Aug 11, 12, 13, core window:</p>
-<div class="scroll"><table><thead><tr><th></th><th></th></tr></thead><tbody><tr><td>Median cloud in the core window</td><td><b>72%</b></td></tr><tr><td>Individual nights beating 30%</td><td><b>31%</b></td></tr><tr><td>Years with ≥1 usable night</td><td><b>67%</b> ← the base rate</td></tr></tbody></table></div>
+<div class="scroll"><table><thead><tr><th></th><th></th></tr></thead><tbody><tr><td>Median cloud in the core window</td><td><b>65%</b></td></tr><tr><td>Individual nights beating 30%</td><td><b>34%</b></td></tr><tr><td>Years with ≥1 usable night</td><td><b>70%</b> ← the base rate</td></tr></tbody></table></div>
 <p><b>Two nights in three are historically unusable at this site on these dates.</b> Three UNRESOLVED cards read as alarming until you know that. The current forecast is drawn better than a normal year, and every night individually beats its own historical odds.</p>
-<p>This also settles the September question: the astronomy is worse (no Perseids, core window roughly halved) and the weather gamble is about the same. Trading a known better-than-average draw for an unknown one with worse astronomy is a poor swap.</p>
+<p>This also settles the September question, and more decisively than previously written:</p>
+<div class="scroll"><pre>Aug 12   dark 21:54, core 14.9° → below 10° at 23:17    83 min
+Sep 12   dark 20:43, core 12.4° → below 10° at 21:15    32 min</pre></div>
+<p>Not &quot;roughly halved&quot; — <b>cut to 39%</b>. September also has no Perseids, and the weather gamble is the same draw from the same distribution. Trading a better-than-average August for an unknown September with a third of the core window is a poor swap.</p>
 <h3 id="the-verdict-is-anchored-to-this-not-to-round-numbers">The verdict is anchored to this, not to round numbers</h3>
 <p>The banner&#x27;s wording is derived from the base rate rather than fixed thresholds. It used to say &quot;worth the drive&quot; above 70% and &quot;a real gamble&quot; above 45% — which meant a climatologically <em>average</em> trip read as a gamble, while the line directly beneath it argued that absolute numbers are unreadable without the base rate. The page was contradicting itself one card apart.</p>
 <p>These dates are a gamble every year. The only question the data can answer is whether this year is a better or worse draw than usual, so that is what the verdict now says.</p>
@@ -161,7 +166,7 @@ its independence bound   68%      &lt;- one point apart</pre></div>
 <p>Verified against a real night:</p>
 <div class="scroll"><pre>19:00  95%       03:00  10%   &lt;- full dark, caught an overnight clearing
 23:00  65%       11:00   0%</pre></div>
-<p>Where satellite and webcam overlap in daylight they agree. Geolocation uses the GOES-R fixed-grid inverse projection and lands within 0.13 km; a reading is refused outright if the nearest pixel is more than 5 km off.</p>
+<p>Where satellite and webcam overlap in daylight they agree. Geolocation uses the GOES-R fixed-grid inverse projection and lands <b>0.46 km</b> from the site — under a quarter of a 2 km pixel, and nowhere near the 5 km refusal guard; a reading is refused outright if the nearest pixel is more than 5 km off.</p>
 <h3 id="the-webcam-s-numbers-are-only-trusted-in-good-light">The webcam&#x27;s numbers are only trusted in good light</h3>
 <p>Low sun reddens the whole sky and the red/blue cloud test reads that as overcast. Caught live at 19:41 on 4 Aug: <b>camera 40%, satellite 0%, all eight models 0%</b>. Frames with the sun below 15° are now excluded from scoring, from the calibration column, and from the caption under each photo. The number under each webcam frame is the <b>satellite</b>, not the camera.</p>
 <p><b>A note on the sun angle.</b> <code>sun_alt()</code> returns the <em>geometric</em> altitude of the sun&#x27;s centre — no refraction, no semi-diameter. Conventional sunrise and sunset are the upper limb at −0.833°, about five minutes later and earlier respectively. That distinction does not matter for a quality gate on webcam frames, but it did make an earlier docstring compare a zero crossing against almanac values using the other definition and call the near-miss agreement. It was coincidence.</p>
@@ -215,7 +220,7 @@ Aug 06   0.30      Aug 08   0.17</pre></div>
 <div class="foot">
   <a href="forecast.html">← Back to the forecast</a> ·
   generated from <span style="font-family:var(--mono)">FORECAST_FINDINGS.md</span>
-  on Tue 04 Aug 2026, 20:44 EDT
+  on Tue 04 Aug 2026, 20:50 EDT
 </div>
 </div>
 <script>

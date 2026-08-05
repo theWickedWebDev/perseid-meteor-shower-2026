@@ -1,10 +1,12 @@
 {
- "computed": "2026-08-04T20:33:30.537945-04:00",
+ "computed": "2026-08-04T20:48:46.096390-04:00",
  "climatology": {
   "years": 30,
-  "median": 72,
-  "p_night_good": 31,
-  "p_trip_good": 67,
+  "median": 65,
+  "p_night_good": 34,
+  "p_trip_good": 70,
+  "p_trip_indep": 72,
+  "weighted": true,
   "window": "Aug 11-13"
  },
  "lead_skill": {

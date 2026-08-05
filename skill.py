@@ -35,6 +35,12 @@ UA = {"User-Agent": "perseid-meteor-shower-2026"}
 
 CORE_HR = (22, 23)
 GO = 30
+
+# The ensemble weights hour 23 by the minutes the core is actually above the treeline
+# (it sets about 23:17, four minutes earlier each night). Climatology has to use the same
+# weights or the base rate is not comparable with the forecast it is the yardstick for —
+# unweighted it reads 67%, weighted 70%, and the page compares the two directly.
+CORE_WEIGHTS = {11: {22: 1.0, 23: 0.35}, 12: {22: 1.0, 23: 0.28}, 13: {22: 1.0, 23: 0.22}}
 TRIP_NIGHTS = (11, 12, 13)          # August
 CLIMO_YEARS = range(1996, 2026)     # thirty full Augusts
 
@@ -70,11 +76,14 @@ def climatology():
             continue
         idx = {t: i for i, t in enumerate(h["time"])}
         for d in TRIP_NIGHTS:
-            v = [h["cloud_cover"][idx[k]] for x in CORE_HR
-                 if (k := f"{y}-08-{d:02d}T{x:02d}:00") in idx
-                 and h["cloud_cover"][idx[k]] is not None]
-            if v:
-                by_year.setdefault(y, {})[d] = sum(v) / len(v)
+            w = CORE_WEIGHTS.get(d, {h_: 1.0 for h_ in CORE_HR})
+            vals, wts = [], []
+            for x in CORE_HR:
+                k = f"{y}-08-{d:02d}T{x:02d}:00"
+                if k in idx and h["cloud_cover"][idx[k]] is not None and w.get(x):
+                    vals.append(h["cloud_cover"][idx[k]]); wts.append(w[x])
+            if vals:
+                by_year.setdefault(y, {})[d] = sum(v * q for v, q in zip(vals, wts)) / sum(wts)
     if not by_year:
         return None
     allv = [v for nights in by_year.values() for v in nights.values()]
@@ -84,9 +93,19 @@ def climatology():
     # a gap that large 34% of the time. With n=30 and a standard deviation near 37 points
     # it is sampling noise wearing a table, and it would eventually be read as signal.
     trip_ok = sum(1 for n in by_year.values() if any(v < GO for v in n.values()))
+
+    # The independence bound for the REAL years, so the near-independence claim in the
+    # findings doc can be regenerated from the repo instead of living only in prose.
+    ind = 1.0
+    for d in TRIP_NIGHTS:
+        vals = [n[d] for n in by_year.values() if d in n]
+        if vals:
+            ind *= (1 - sum(1 for v in vals if v < GO) / len(vals))
     return {"years": len(by_year), "median": round(st.median(allv)),
             "p_night_good": round(100 * sum(1 for v in allv if v < GO) / len(allv)),
             "p_trip_good": round(100 * trip_ok / len(by_year)),
+            "p_trip_indep": round(100 * (1 - ind)),
+            "weighted": True,
             "window": f"Aug {TRIP_NIGHTS[0]}-{TRIP_NIGHTS[-1]}"}
 
 
@@ -233,14 +252,21 @@ def lead_skill(satlog):
 
     # pessimism confound: on an overcast week the gloomiest model wins on error alone
     mean_pred = {m: round(st.mean(v)) for m, v in pred_by_model.items() if v}
-    bias_r = None
-    if len(mean_pred) >= 4:
-        xs = [mean_pred[m] for m in mean_pred]
-        ys = [st.mean(per_model[m].get(0, [0]) + per_model[m].get(1, [])) for m in mean_pred]
+    def _bias():
+        # No [0] default. Injecting a zero error for a model missing lead-0 data would
+        # flatter exactly the model that lost its feed, and it would do so inside the one
+        # statistic whose job is detecting bias.
+        pairs = [(mean_pred[m], st.mean(e)) for m in mean_pred
+                 if (e := per_model[m].get(0, []) + per_model[m].get(1, []))]
+        if len(pairs) < 4:
+            return None
+        xs = [a_ for a_, _ in pairs]
+        ys = [b_ for _, b_ in pairs]
         mx, my = st.mean(xs), st.mean(ys)
         den = (sum((x - mx) ** 2 for x in xs) * sum((y - my) ** 2 for y in ys)) ** .5
-        if den:
-            bias_r = round(sum((x - mx) * (y - my) for x, y in zip(xs, ys)) / den, 2)
+        return round(sum((x - mx) * (y - my) for x, y in zip(xs, ys)) / den, 2) if den else None
+
+    bias_r = _bias()
 
     return {
         "n_hours": len(truth),
