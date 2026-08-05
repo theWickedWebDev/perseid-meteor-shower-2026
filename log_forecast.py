@@ -902,16 +902,14 @@ def base_rate_line(sk, latest):
         return (f'<p class="note">For reference, {c["window"]} at this site over '
                 f'{c["years"]} years: median <b>{c["median"]}%</b> cloud in the core window, '
                 f'and <b>{base}%</b> of years gave at least one usable night.</p>')
-    j = t["joint"]
-    d = j - base
-    cls = "good" if d >= 8 else "bad" if d <= -8 else "warn"
-    word = ("better than a normal year" if d >= 8 else
-            "worse than a normal year" if d <= -8 else "about a normal year")
-    return (f'<p class="baserate"><b class="{cls}">{word}</b> — {j}% against a '
-            f'<b>{base}%</b> base rate for {c["window"]} here, measured over {c["years"]} '
-            f'years. A typical year at this site is <b>{c["median"]}%</b> cloud in the core '
-            f'window, and only <b>{c["p_night_good"]}%</b> of individual nights beat '
-            f'{GO}%.</p>')
+    # the verdict itself now lives in the banner, anchored to this same base rate; this
+    # line carries the supporting detail rather than repeating the judgement
+    return (f'<p class="baserate">That <b>{base}%</b> base rate is measured over '
+            f'{c["years"]} years of {c["window"]} at this site. A typical year here is '
+            f'<b>{c["median"]}%</b> cloud in the core window, and only '
+            f'<b>{c["p_night_good"]}%</b> of individual nights beat {GO}% — <b>two nights '
+            f'in three are historically unusable</b>. These dates are a gamble every year; '
+            f'the question is only whether this year is a better or worse draw.</p>')
 
 
 def waiting_section(sk):
@@ -1472,16 +1470,34 @@ def model_notes(latest):
             f'<div class="wf">Watch for: {bad}</div></td></tr>')
     return ('<table class="mtable"><tbody>' + "".join(rows) + '</tbody></table>')
 
-def trip_banner(latest):
-    """The decision, not the forecast: odds that at least one night gives you the core."""
+def trip_banner(latest, sk=None):
+    """The decision, not the forecast: odds that at least one night gives you the core.
+
+    The verdict is anchored to the climatological base rate, not to round numbers. Fixed
+    thresholds made a climatologically average trip read "a real gamble" — while the line
+    directly beneath argued that absolute numbers are unreadable without the base rate.
+    These dates are a gamble every year; the only useful question is whether this year is a
+    better or worse draw than usual.
+    """
     t = latest.get("trip")
     if not t:
-        return ('<div class="card"><p class="note">Trip odds unavailable — the GEFS '
-                'ensemble did not answer on the last run.</p></div>')
+        return ('<div class="card"><p class="note">Trip odds unavailable — no ensemble '
+                'answered on the last run.</p></div>')
     j = t["joint"]
-    cls = "good" if j >= 70 else "warn" if j >= 45 else "bad"
-    verdict = ("worth the drive" if j >= 70 else
-               "a real gamble" if j >= 45 else "probably not worth it")
+    base = ((sk or {}).get("climatology") or {}).get("p_trip_good")
+    if base is None:
+        # no climatology cached — fall back to absolutes, and say that is what these are
+        cls = "good" if j >= 70 else "warn" if j >= 45 else "bad"
+        verdict = ("good odds" if j >= 70 else
+                   "a real gamble" if j >= 45 else "poor odds")
+    else:
+        d = j - base
+        if d >= 10:
+            cls, verdict = "good", f"a better draw than these dates usually give ({base}%)"
+        elif d >= -5:
+            cls, verdict = "warn", f"about what these dates normally offer ({base}%)"
+        else:
+            cls, verdict = "bad", f"a worse draw than these dates usually give ({base}%)"
     src = t.get("sources") or {}
     srctxt = ", ".join(f"{k} {v}" for k, v in sorted(src.items())) or f'{t["n"]} members'
     corr, ind, floor = t.get("corr"), t.get("indep"), t.get("floor")
@@ -1935,7 +1951,7 @@ td.trail{{font-family:var(--mono);font-size:1rem;letter-spacing:.12em}}
   <p class="lede">Cloud cover. <b>Core window 10–11:30 PM</b> decides go/no-go; <b>1–4 AM</b> is
   Perseids and the scope. Each point is one forecast run.</p>
 
-  {trip_banner(latest)}
+  {trip_banner(latest, _skill())}
   {base_rate_line(_skill(), latest)}
   {hazenote}
   <div class="cards">{"".join(cards)}</div>
