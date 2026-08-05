@@ -28641,9 +28641,9 @@
    "Lead-up 05": {
     "fog_hours": 0,
     "hours": 14,
-    "worst_hr": "22:00",
-    "spread": 7.8,
-    "wind": 4.5,
+    "worst_hr": "23:00",
+    "spread": 8.4,
+    "wind": 1.1,
     "worst_is_fog": false,
     "aod": 0.16,
     "pm25": 5.5
