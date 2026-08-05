@@ -1641,7 +1641,18 @@ def webcam_section(log=None):
         if not os.path.exists("webcam_log.json"):
             return ""
         log = json.load(open("webcam_log.json"))
-    satby = {e["time"][:13]: e.get("cloud") for e in _satlog()}
+    # The satellite pixel over the WEBCAM, falling back to the site only when it is absent
+    # (entries before 4 Aug 22:00 predate that field). The strip shows a photograph taken at
+    # Lopstick; quoting the satellite reading from 16.6 km away beside it invites a
+    # comparison the two numbers were never describing — the site sample sat at 0% through
+    # three hours of cirrus that both the camera and the co-located pixel picked up.
+    satby, satfar = {}, {}
+    for e in _satlog():
+        k = e["time"][:13]
+        if e.get("cloud_webcam") is not None:
+            satby[k] = e["cloud_webcam"]
+        elif e.get("cloud") is not None:
+            satfar[k] = e["cloud"]
 
     # Bright enough to score is not the same as trustworthy. Near sunrise and sunset the
     # whole sky reddens and the R/B test reads clear air as overcast — caught live at
@@ -1710,10 +1721,16 @@ def webcam_section(log=None):
         # from the model mean, which looked like a quality light and was an agreement light
         # — 90% satellite against 85% models rendered green. Three plain numbers, stacked,
         # let the reader do the comparing.
-        sv = satby.get(e["time"][:13])
-        obs = ('<span class="obs dim">Sat: —</span>' if sv is None else
-               f'<span class="obs" title="GOES satellite over the shooting site">'
-               f'Sat: {sv}%</span>')
+        k = e["time"][:13]
+        sv, far = satby.get(k), satfar.get(k)
+        if sv is not None:
+            obs = (f'<span class="obs" title="GOES satellite, same pixel as the webcam">'
+                   f'Sat: {sv}%</span>')
+        elif far is not None:
+            obs = (f'<span class="obs dim" title="GOES over the shooting site, 16.6 km away '
+                   f'— no reading over the webcam for this hour">Sat: {far}%*</span>')
+        else:
+            obs = '<span class="obs dim">Sat: —</span>'
 
         img = (f'<img src="{e["shot"]}" alt="webcam {t:%d %b %H:%M}" loading="lazy">'
                if os.path.exists(e["shot"]) else '<div class="noimg"></div>')
@@ -1749,7 +1766,9 @@ def webcam_section(log=None):
     sat too low for it to mean anything — a reddened sky reads as cloud, so those hours
     show nothing rather than a number we would disbelieve. Where Models sit near zero and
     Cam does not, that is thin cirrus: the models threshold it away, and it is the one
-    thing that ruins a night the forecast called clear.</p>
+    thing that ruins a night the forecast called clear. A <b>*</b> on Sat means no satellite
+    reading existed over the webcam that hour and the value is from the shooting site
+    instead, 16.6 km away.</p>
   </div>
 '''
 
@@ -2520,8 +2539,12 @@ h3.sub{{font-family:var(--serif);color:var(--ink);font-size:1rem;margin:1.8rem 0
 .rkv{{font-family:var(--mono);font-size:1.15rem;font-variant-numeric:tabular-nums}}
 .compass{{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;max-width:15rem;
   margin:.6rem 0}}
-.oc{{background:var(--ground);border-radius:3px;padding:.35rem .2rem;text-align:center;
-  position:relative;isolation:isolate}}
+/* Empty means empty. On --ground a cloudless octant rendered as a grey tile, which reads
+   as "some cloud" next to a genuinely tinted neighbour — the one state that should be
+   unmistakable was the one carrying visual weight for nothing. Surface plus a hairline, so
+   0 is white and the grid still has its cells. */
+.oc{{background:var(--surface);border:1px solid var(--rule);border-radius:3px;
+  padding:.35rem .2rem;text-align:center;position:relative;isolation:isolate}}
 /* Density readout in two parts, because a wash behind text can only go so far. The tint
    tops out at .08: the amber "warn" colour is barely 3.5:1 on plain background, and at .30
    it fell to 1.8:1 — unreadable. The edge bar carries the rest of the signal, where there
@@ -2533,6 +2556,8 @@ h3.sub{{font-family:var(--serif);color:var(--ink);font-size:1rem;margin:1.8rem 0
 .oc > *{{position:relative}}
 .oc.slot{{outline:1px solid var(--accent);outline-offset:-1px}}
 .oc.mid{{background:transparent;border:1px dashed var(--rule)}}
+/* the tint sits inside the border rather than under it */
+.oc::before,.oc::after{{border-radius:2px}}
 .ocv{{display:block;font-family:var(--mono);font-size:.95rem;
   font-variant-numeric:tabular-nums}}
 .ocl{{display:block;font-family:var(--mono);font-size:.58rem;letter-spacing:.08em;
