@@ -1,12 +1,18 @@
 # Prediction — written 4 Aug 2026, 22:20 EDT
 
+**How the forecast for 11–13 August will have changed by Sunday 9 August.**
+
 A forecast of the forecast. Written before the fact so it can be scored afterwards rather
 than reinterpreted, and because a claim nobody wrote down is a claim nobody can be wrong
 about.
 
-**Target date: Sunday 9 August.** That is 2 days before Night 1, 3 before Night 2, 4 before
-Night 3 — inside the range where the measured skill curve says the models have stopped
-improving, so Sunday's numbers should be close to final.
+**What is being predicted:** what the site will *say about the trip nights* when read on
+**Sunday 9 August**. Nothing here concerns the weather on Sunday itself — every figure is
+the forecast for 11, 12 and 13 August as it will stand two days out.
+
+Sunday is chosen because it sits 2 days before Night 1, 3 before Night 2 and 4 before Night
+3 — inside the range where the measured skill curve says the models have stopped improving.
+Sunday's numbers should therefore be close to what you actually get.
 
 ---
 
@@ -51,11 +57,13 @@ models stop guessing.
 
 ## Predictions
 
-| | Today | **Sunday 9 Aug** | Range I would accept |
+All rows read: *the forecast for that trip night, as displayed on Sunday.*
+
+| Forecast for | Reads today | **Will read Sunday** | Range I would accept |
 |---|---|---|---|
-| Night 1 cloud | 24% | **38%** | 20–58 |
-| Night 2 cloud | 32% | **42%** | 22–62 |
-| Night 3 cloud | 58% | **55%** | 38–72 |
+| Night 1 — 11 Aug | 24% | **38%** | 20–58 |
+| Night 2 — 12 Aug | 32% | **42%** | 22–62 |
+| Night 3 — 13 Aug | 58% | **55%** | 38–72 |
 | Spread, Night 1 | ±78 | **±45** | ±25–65 |
 | Trip joint | 83% | **74%** | 62–84 |
 | Verdict wording | better draw | **still "better draw"**, narrowly | |
@@ -110,11 +118,13 @@ for.
 Compare against `forecast_history.json` for the snapshot nearest 9 Aug 21:00 EDT.
 Cloud figures are the pooled consensus per night; joint is the 30% rung of the ladder.
 
+Every claim is about the forecast **for the trip nights**, read on 9 Aug.
+
 | Claim | Predicted | Actual | Hit? |
 |---|---|---|---|
-| Night 1 cloud | 38% (20–58) | | |
-| Night 2 cloud | 42% (22–62) | | |
-| Night 3 cloud | 55% (38–72) | | |
+| Forecast for 11 Aug | 38% (20–58) | | |
+| Forecast for 12 Aug | 42% (22–62) | | |
+| Forecast for 13 Aug | 55% (38–72) | | |
 | Trip joint | 74% (62–84) | | |
 | Spread N1 | ±45 (±25–65) | | |
 | GEM below 70 on Night 1 | yes, 70% conf | | |
