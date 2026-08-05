@@ -325,7 +325,11 @@ def conditions():
         rec = {}
         if h:
             idx = {t: i for i, t in enumerate(h["time"])}
-            risk, spreads, winds = 0, [], []
+            # One representative hour, not two independent minima. Reporting min(spread)
+            # alongside min(wind) quoted a pair that never co-occurred — Night 1 showed
+            # "0.1 C, 8.2 km/h" from 01:00 and 23:00 respectively, a condition that did not
+            # exist at any hour. Carry the worst single hour and name it.
+            risk, rows = 0, []
             for k in keys:
                 i = idx.get(k)
                 if i is None:
@@ -335,13 +339,18 @@ def conditions():
                 if None in (t, td, w, c):
                     continue
                 sp = t - td
-                spreads.append(sp)
-                winds.append(w)
-                if sp < FOG_SPREAD and w < FOG_WIND and c < FOG_CLOUD:
-                    risk += 1
-            if spreads:
-                rec.update(fog_hours=risk, spread=round(min(spreads), 1),
-                           wind=round(min(winds), 1), hours=len(spreads))
+                fog = sp < FOG_SPREAD and w < FOG_WIND and c < FOG_CLOUD
+                risk += fog
+                # how close this hour came to all three conditions at once; lower is closer
+                rows.append({"hr": k[11:16], "spread": round(sp, 1), "wind": round(w, 1),
+                             "cloud": c, "fog": fog,
+                             "score": sp / FOG_SPREAD + w / FOG_WIND})
+            if rows:
+                risky = [r for r in rows if r["fog"]]
+                worst = min(risky or rows, key=lambda r: r["score"])
+                rec.update(fog_hours=risk, hours=len(rows), worst_hr=worst["hr"],
+                           spread=worst["spread"], wind=worst["wind"],
+                           worst_is_fog=bool(risky))
         if aq:
             idx = {t: i for i, t in enumerate(aq["time"])}
             a = [aq["aerosol_optical_depth"][idx[k]] for k in keys
@@ -1634,12 +1643,16 @@ def write_page(hist):
             mline = '<span class="mrange dim">no data</span>'
         cd = (latest.get("cond") or {}).get(label) or {}
         warn = []
+        hr = cd.get("worst_hr")
+        at = f' at {hr12(hr[:2])}' if hr else ''
         if cd.get("fog_hours"):
             warn.append(f'<span class="bad">fog risk {cd["fog_hours"]}h</span> '
-                        f'<span class="dim">({cd["spread"]}°C spread, {cd["wind"]} km/h)</span>')
+                        f'<span class="dim">(worst{at}: {cd["spread"]}°C spread, '
+                        f'{cd["wind"]} km/h)</span>')
         elif cd.get("spread") is not None:
             warn.append(f'<span class="good">no fog signal</span> '
-                        f'<span class="dim">({cd["spread"]}°C, {cd["wind"]} km/h)</span>')
+                        f'<span class="dim">(closest{at}: {cd["spread"]}°C, '
+                        f'{cd["wind"]} km/h)</span>')
         else:
             # same trap as haze: a missing badge reads as a clean bill of health
             warn.append('<span class="dim">fog — no data</span>')

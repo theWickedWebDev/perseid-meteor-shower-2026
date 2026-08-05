@@ -306,6 +306,11 @@ survey on arrival settles it — that task is first on the Night 1 schedule for 
   agree" overstates it. The median limits the damage but does not remove it.
 - **Even member counts.** The median averages the middle two, which can produce a value no
   model forecast — mildly contradicting the reason for choosing median over mean.
+- **Fog is reported from one hour, and only one.** The badge quotes the worst single hour
+  by dewpoint spread and wind together, named on the card. It used to quote `min(spread)`
+  beside `min(wind)` across the whole night — a pair that often came from different hours
+  and therefore described a condition that never occurred. `fog_hours` was always the
+  honest number; the parenthetical was not.
 - **No test suite.** Everything is verified ad hoc. That is how the low-sun bug survived
   shipping twice, in two different places.
 - **`EDT` is fixed at UTC−4** while Open-Meteo is queried with `America/New_York`. Identical

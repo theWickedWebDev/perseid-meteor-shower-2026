@@ -121,11 +121,14 @@ def build():
             r = {"hours": 14}
             if lab == "Night 2":
                 r.update(fog_hours=[0, 0, 1, 3, 4][i], spread=[4.1, 3.2, 1.8, 0.9, 0.4][i],
-                         wind=[14.0, 11.0, 6.2, 3.1, 1.8][i])
+                         wind=[14.0, 11.0, 6.2, 3.1, 1.8][i], worst_hr="02:00",
+                         worst_is_fog=bool([0, 0, 1, 3, 4][i]))
             elif lab == "Night 3":
-                r.update(fog_hours=0, spread=5.4, wind=18.0)
+                r.update(fog_hours=0, spread=5.4, wind=18.0, worst_hr="23:00",
+                         worst_is_fog=False)
             else:
-                r.update(fog_hours=[1, 1, 0, 0, 0][i], spread=2.6, wind=7.4)
+                r.update(fog_hours=[1, 1, 0, 0, 0][i], spread=2.6, wind=7.4,
+                         worst_hr="03:00", worst_is_fog=bool([1, 1, 0, 0, 0][i]))
             if lab.startswith("Lead-up") or i >= 3:
                 r["aod"] = [0.12, 0.18, 0.24, 0.36, 0.41][i]
                 r["pm25"] = [4.0, 6.5, 9.0, 14.0, 17.5][i]
