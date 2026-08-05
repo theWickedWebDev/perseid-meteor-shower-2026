@@ -446,7 +446,23 @@ survey on arrival settles it — that task is first on the Night 1 schedule for 
 
 ---
 
-## 10. Smoke — measured, and currently a live concern
+## 10. Daytime, which the rest of this ignores
+
+Every other number here concerns roughly eighty minutes of sky per night. The trip is four
+days long, and a wet afternoon does not spoil it — it changes what you do with the day.
+
+The daytime block restricts to **8 AM to 7 PM** rather than using the daily maximum most
+forecasts publish. A 40% chance of rain driven by a shower at 3 AM says nothing useful about
+a walk at noon, and the night is already covered in detail above.
+
+It is coloured by **hours of rain, not probability**, because those diverge: a 30% chance
+that resolves into one damp hour is a good day out, and the same 30% spread across eight
+hours is not. Rain totals are shown but are the least useful figure — 6 mm in one afternoon
+burst is a different day from 6 mm of drizzle.
+
+---
+
+## 11. Smoke — measured, and currently a live concern
 
 August in northern New Hampshire sits downwind of Quebec, and **cloud cover reads 0%
 straight through smoke**. A perfect-looking forecast can deliver a milky, low-contrast sky
@@ -474,7 +490,7 @@ a poor night for colour if the smoke arrives, and nothing else on the page would
 
 ---
 
-## 11. How it runs
+## 12. How it runs
 
 ```
 publish.sh          hourly from cron at :05

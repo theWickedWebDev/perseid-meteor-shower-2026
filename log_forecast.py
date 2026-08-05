@@ -404,6 +404,69 @@ def conditions():
     return out
 
 
+DAY_HR = (8, 19)     # the hours you would actually be outdoors, 8 AM to 7 PM
+TRIP_DAYS = [("Tue 11", "2026-08-11"), ("Wed 12", "2026-08-12"),
+             ("Thu 13", "2026-08-13"), ("Fri 14", "2026-08-14")]
+
+
+def daytime():
+    """Daylight-hours weather for the trip days — the moose drives, the hiking, the setup.
+
+    Deliberately not the daily maximum, which is what most forecasts show. A 40% chance of
+    rain driven by a shower at 3 AM is irrelevant to a walk at noon, and the whole rest of
+    this page already covers the night. This restricts to 8 AM to 7 PM.
+
+    Rain hours matter more than rain totals here: 6 mm falling in one afternoon burst is a
+    different day from 6 mm of drizzle spread over ten hours.
+    """
+    out = {}
+    try:
+        h = get(f"https://api.open-meteo.com/v1/forecast?latitude={SITE[1]}&longitude={SITE[2]}"
+                f"&hourly=precipitation_probability,precipitation,temperature_2m,"
+                f"wind_speed_10m,cloud_cover,weather_code"
+                f"&forecast_days=14&timezone=America%2FNew_York")["hourly"]
+    except Exception as ex:
+        print(f"  daytime forecast unavailable: {str(ex)[:60]}")
+        return out
+    idx = {t: i for i, t in enumerate(h["time"])}
+    for label, day in TRIP_DAYS:
+        keys = [f"{day}T{x:02d}:00" for x in range(DAY_HR[0], DAY_HR[1] + 1)]
+        pop, rain, temp, wind, cloud = [], [], [], [], []
+        wet = []
+        for k in keys:
+            i = idx.get(k)
+            if i is None:
+                continue
+            pp = h["precipitation_probability"][i]
+            pr = h["precipitation"][i]
+            if pp is not None:
+                pop.append(pp)
+            if pr is not None:
+                rain.append(pr)
+                if pr >= 0.2:
+                    wet.append(k[11:16])
+            for src, dst in ((h["temperature_2m"][i], temp), (h["wind_speed_10m"][i], wind),
+                             (h["cloud_cover"][i], cloud)):
+                if src is not None:
+                    dst.append(src)
+        if not pop and not temp:
+            continue
+        out[label] = {
+            "date": day,
+            "pop_max": max(pop) if pop else None,
+            "pop_mean": round(sum(pop) / len(pop)) if pop else None,
+            "rain_mm": round(sum(rain), 1) if rain else None,
+            "wet_hours": len(wet),
+            "wet_from": wet[0] if wet else None,
+            "wet_to": wet[-1] if wet else None,
+            "t_hi": round(max(temp)) if temp else None,
+            "t_lo": round(min(temp)) if temp else None,
+            "wind_max": round(max(wind)) if wind else None,
+            "cloud_mean": round(sum(cloud) / len(cloud)) if cloud else None,
+        }
+    return out
+
+
 def snapshot():
     p = get(f"https://api.weather.gov/points/{SITE[1]},{SITE[2]}")["properties"]
     grid = get(p["forecastGridData"])["properties"]
@@ -413,6 +476,7 @@ def snapshot():
     runs = model_runs()
     trip = ensemble_trip()
     cond = conditions()
+    day = daytime()
 
     stamp = datetime.now(EDT)
     entry = {"taken": stamp.isoformat(),
@@ -421,6 +485,8 @@ def snapshot():
              "grid": f"{p['gridId']} {p['gridX']},{p['gridY']}",
              "trip": trip,                              # joint probability from GEFS members
              "cond": cond,                              # fog risk and aerosol per night
+             "daytime": day,                            # daylight hours, for everything
+                                                        # that is not astrophotography
              "nights": {}}
 
     for label, day in ALL:
@@ -1293,6 +1359,50 @@ def crosscheck_block(nightlog, satlog):
     return (f'<p class="note"><b>Cross-check against the satellite:</b> the two agree on '
             f'<b class="{cls}">{x["agree"]} of {x["n"]}</b> hours ({x["pct"]}%). Both are '
             f'sampled over the camera, so a mismatch is not the 16.6 km between them.{tail}</p>')
+
+
+def daytime_section(latest):
+    """Daylight hours — moose drives, hiking, hauling the rig onto the porch.
+
+    Everything else on this page is about eighty minutes of sky. This is the other
+    twenty-two hours, and it is a different question: a wet afternoon does not spoil the
+    trip, it changes what you do with the day.
+    """
+    d = latest.get("daytime") or {}
+    if not d:
+        return ""
+    rows = []
+    for label, v in d.items():
+        pop = v.get("pop_max")
+        wet = v.get("wet_hours") or 0
+        # colour on hours of rain, not on probability. A 30% chance that resolves into one
+        # damp hour is a good day out; the same 30% spread across eight is not.
+        cls = "good" if wet <= 1 else "warn" if wet <= 4 else "bad"
+        when = (f'{v["wet_from"]}–{v["wet_to"]}' if wet else "—")
+        verdict = ("dry" if wet == 0 else
+                   "a shower" if wet <= 2 else
+                   f"wet for {wet} h")
+        rows.append(
+            f'<tr class="mrow"><td><b>{label} Aug</b></td>'
+            f'<td class="n">{v.get("t_lo")}–{v.get("t_hi")}°C</td>'
+            f'<td class="n">{pop}%</td>'
+            f'<td class="n {cls}">{verdict}</td>'
+            f'<td class="n">{when}</td>'
+            f'<td class="n">{v.get("rain_mm")} mm</td>'
+            f'<td class="n">{v.get("cloud_mean")}%</td></tr>')
+    return (f'<h2>Daytime — the other twenty-two hours</h2>\n<div class="card">'
+            f'<p class="lede">{DAY_HR[0]} AM to {DAY_HR[1] - 12} PM, for the moose drives, '
+            f'the hiking and getting the rig onto the porch dry. Not the daily maximum '
+            f'most forecasts show — a 40% chance driven by a shower at 3 AM says nothing '
+            f'about a walk at noon.</p>'
+            f'<div class="scroll"><table class="mtable">'
+            f'<thead><tr><th>day</th><th>temp</th><th>peak PoP</th><th>rain</th>'
+            f'<th>when</th><th>total</th><th>cloud</th></tr></thead>'
+            f'<tbody>{"".join(rows)}</tbody></table></div>'
+            f'<p class="note">Colour follows <b>hours of rain</b>, not probability. A 30% '
+            f'chance that resolves into one damp hour is a good day out; the same 30% '
+            f'spread across eight is not. Arrival is Tuesday afternoon and departure '
+            f'Friday morning, so Wednesday and Thursday are the full days.</p></div>')
 
 
 def webcam_section(log=None):
@@ -2343,6 +2453,8 @@ td.trail{{font-family:var(--mono);font-size:1rem;letter-spacing:.12em}}
     <p class="note" style="margin-top:.9rem">Threshold {GO}% sits inside "mostly clear" (13–37%), deliberately short of its top.
     Caveat: it's a whole-dome average and can't say <em>where</em> the cloud is.</p>
   </div>
+
+  {daytime_section(latest)}
 
   {waiting_section(_skill())}
 
