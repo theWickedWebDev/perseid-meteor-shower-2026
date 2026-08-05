@@ -2074,7 +2074,7 @@ td.trail{{font-family:var(--mono);font-size:1rem;letter-spacing:.12em}}
               color:var(--muted);font-size:.84rem">
     <a href="index.html" style="color:var(--accent)">← Trip plan</a>
     <span style="opacity:.5"> · </span>
-    <a href="FORECAST_FINDINGS.md" style="color:var(--accent)">How these numbers are made</a>
+    <a href="findings.html" style="color:var(--accent)">How these numbers are made</a>
     <div class="vint">{runline}</div>
     <p style="margin-top:.7rem;opacity:.8">Rebuilt hourly from
     <span style="font-family:var(--mono)">api.weather.gov</span>, Open-Meteo and the lake webcam.</p>

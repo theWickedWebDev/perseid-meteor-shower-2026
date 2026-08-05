@@ -38,6 +38,11 @@ else:
 EOF
 fi
 
+# findings.html is generated from the markdown; regenerate when the source is newer
+if [ FORECAST_FINDINGS.md -nt findings.html ]; then
+    $PY make_findings.py || echo "$(date '+%F %T')  findings render failed"
+fi
+
 $PY preview_forecast.py >/dev/null 2>&1 || true   # mock preview, gitignored
 
 if [ -z "$(git status --porcelain)" ]; then

@@ -34,7 +34,7 @@ sits above 10° over a lake. Everything here exists to make that 90 minutes work
 | [ARRIVAL_SURVEY.md](ARRIVAL_SURVEY.md) | 3 PM day one — the 360° horizon survey |
 | [SCHEDULE_3_NIGHTS.md](SCHEDULE_3_NIGHTS.md) | Full plan · [2 nights](SCHEDULE_2_NIGHTS.md) · [1 night](SCHEDULE_1_NIGHT.md) |
 | [OPEN_ITEMS.md](OPEN_ITEMS.md) | Pre-trip checklist and unresolved questions |
-| [FORECAST_FINDINGS.md](FORECAST_FINDINGS.md) | **How the forecast numbers are made, and what they're worth** |
+| [FORECAST_FINDINGS.md](FORECAST_FINDINGS.md) | **How the forecast numbers are made, and what they're worth** · [rendered](findings.html) |
 | [FORECAST_LOG.md](FORECAST_LOG.md) | Auto-generated forecast history |
 
 ## The interesting bits
