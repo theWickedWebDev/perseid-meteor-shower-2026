@@ -1078,6 +1078,38 @@ def base_rate_line(sk, latest):
             f'the question is only whether this year is a better or worse draw.</p>')
 
 
+def _worked_example(bl, said=50):
+    """Turn the percentile table into the sentence a person actually wants.
+
+    Nobody reads "half within +/-29" and arrives at "so a 50% could be anything from 21 to
+    79". Doing that arithmetic on the page is the difference between a table that is correct
+    and a table that is understood.
+    """
+    rows = []
+    for k in ("1", "4", "7"):
+        d = bl.get(k)
+        if not d:
+            continue
+        def span(pts):
+            lo, hi = max(0, said - pts), min(100, said + pts)
+            return ("anything at all" if lo == 0 and hi == 100
+                    else f"<b>{lo}% – {hi}%</b>")
+        rows.append(f'<tr><td>{k} day{"s" if k != "1" else ""} out</td>'
+                    f'<td>{span(d["p50"])}</td><td class="dim">{span(d["p80"])}</td></tr>')
+    if not rows:
+        return ""
+    return (f'<h3 class="sub">Worked example</h3>'
+            f'<p>Suppose the forecast says <b>{said}% cloud</b>. What that is really '
+            f'telling you, depending on how far ahead it was made:</p>'
+            f'<table class="vt"><thead><tr><th>Made</th><th>Lands here half the time</th>'
+            f'<th>And 8 times in 10</th></tr></thead><tbody>'
+            + "".join(rows) + '</tbody></table>'
+            f'<p class="note" style="margin-top:.7rem">Which is the real lesson of this '
+            f'section: it is not that far-out forecasts are inaccurate, it is that past '
+            f'about five days they stop being numbers at all. A week out, {said}% and '
+            f'{min(100, said + 25)}% are the same statement.</p>')
+
+
 def verification_section(sk):
     """How far a forecast at each lead typically moves before the night arrives.
 
@@ -1150,7 +1182,8 @@ def verification_section(sk):
             f'is small and the tail is not — most nights are called correctly and the '
             f'occasional one is wrong by a mile. An average of those two cases describes '
             f'neither, which is why none is quoted here.</p>'
-            f'<div class="vfs">'
+            + _worked_example(bl)
+            + f'<div class="vfs">'
             f'<div class="vf vfh"><span class="vfl">forecast</span>'
             f'<span class="vfbar"></span>'
             f'<span class="vfv">half<br>the time</span>'
