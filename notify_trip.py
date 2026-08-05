@@ -63,9 +63,14 @@ def ntfy(title, body, priority="default", tags="milky_way"):
     if not topic:
         return False
     import urllib.request
+    # HTTP headers are latin-1 only. The title carries an arrow glyph for the desktop
+    # popup, and passing it here raised UnicodeEncodeError and dropped the push entirely —
+    # the desktop notification succeeded, so the failure was invisible without testing the
+    # real trigger path. Strip to ASCII for the header; the body is UTF-8 and unaffected.
+    safe = title.encode("ascii", "replace").decode("ascii").replace("?", "")
     req = urllib.request.Request(
         f"https://ntfy.sh/{topic}", data=body.encode("utf-8"),
-        headers={"Title": title, "Priority": priority, "Tags": tags,
+        headers={"Title": safe.strip(), "Priority": priority, "Tags": tags,
                  "Click": URL, "User-Agent": "perseid-meteor-shower-2026"})
     try:
         with urllib.request.urlopen(req, timeout=20):
@@ -169,9 +174,11 @@ def main():
     title = f"{arrow} Trip odds {j}%  (base {base}%)"
     notify(title, body, urgency)
     # phone gets the same thing; a verdict change is worth a high-priority push
+    # arrow direction moves into the tags, which ntfy renders as an icon
     ntfy(title, body.replace(URL, "").strip(),
          priority="high" if crossed_verdict else "default",
-         tags="milky_way,warning" if delta < 0 else "milky_way")
+         tags=("chart_with_downwards_trend" if delta < 0
+               else "chart_with_upwards_trend") + ",milky_way")
     print(f"  notified: {pj}% -> {j}% ({delta:+d})"
           + (f", {'; '.join(why)}" if why else ""))
     json.dump({**cur, "at": datetime.now(EDT).isoformat()}, open(STATE, "w"), indent=1)
