@@ -11,8 +11,11 @@ __pycache__/
 # schedule table backups written by make_schedules.py
 .schedule_backup/
 
-# python venv for satellite.py (h5py) - rebuildable, not source
-venv/
+# python venv for satellite.py (h5py) - rebuildable, not source.
+# Glob, not a literal: renaming venv -> venv_off to test the no-venv fallback moved it
+# outside a bare 'venv/' rule and publish.sh's `git add -A` committed 40 MB of binaries.
+venv*/
+*.so
 
 # one-time pre-compaction copy of the history; git holds every version anyway
 forecast_history.precompact.json

@@ -1263,10 +1263,16 @@ SUN_MIN = 15.0   # deg. Below this the R/B cloud test is not trustworthy — a l
 def sun_alt(dt, lat, lon):
     """Solar elevation in degrees. NOAA low-precision algorithm, good to ~0.1 deg.
 
-    Validated at WEBCAM_SITE (45.0958, -71.2600), which is where observed() uses it:
-    computes sunset 20:03 and sunrise 05:39 EDT for 4 Aug 2026, against published values
-    of about 20:05 and 05:30. Other coordinates give other times — the numbers above are
-    not a general claim about the function.
+    Returns the GEOMETRIC altitude of the sun's centre — no refraction, no semi-diameter.
+    That matters if you compare it to an almanac: conventional sunrise and sunset are the
+    upper limb at -0.833 deg, which at this site is about five minutes later and earlier
+    respectively. Crossing zero here gives 20:03 and 05:39 EDT on 4 Aug 2026; crossing
+    -0.833 gives 20:08 and 05:34, which is what an almanac quoting ~20:05 and ~05:30 means.
+    An earlier version of this docstring compared the zero crossing against almanac values
+    and called it agreement — it was coincidence, not validation.
+
+    Only used here as a quality gate on webcam frames (SUN_MIN), where a few minutes either
+    way is immaterial and the geometric value is the appropriate one.
     """
     import math
     u = dt.astimezone(timezone.utc)

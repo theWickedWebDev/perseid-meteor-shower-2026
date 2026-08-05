@@ -311,6 +311,11 @@ survey on arrival settles it — that task is first on the Night 1 schedule for 
   beside `min(wind)` across the whole night — a pair that often came from different hours
   and therefore described a condition that never occurred. `fog_hours` was always the
   honest number; the parenthetical was not.
+- **Per-calendar-date climatology is deliberately absent.** Aug 11/12/13 medians came out
+  73 / 48 / 68%, which looks like a real difference between nights and is not: adjacent
+  calendar dates have no mechanism to differ by 25 points, the standard deviation is ~37 on
+  n=30, and resampling one pooled distribution reproduces a gap that large 34% of the time.
+  It was computed and never rendered; now it is not computed.
 - **No test suite.** Everything is verified ad hoc. That is how the low-sun bug survived
   shipping twice, in two different places.
 - **`EDT` is fixed at UTC−4** while Open-Meteo is queried with `America/New_York`. Identical

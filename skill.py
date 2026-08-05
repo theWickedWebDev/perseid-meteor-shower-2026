@@ -78,19 +78,15 @@ def climatology():
     if not by_year:
         return None
     allv = [v for nights in by_year.values() for v in nights.values()]
-    per_night = {}
-    for d in TRIP_NIGHTS:
-        vals = [n[d] for n in by_year.values() if d in n]
-        if vals:
-            per_night[str(d)] = {
-                "median": round(st.median(vals)),
-                "p_good": round(100 * sum(1 for v in vals if v < GO) / len(vals)),
-                "n": len(vals)}
+    # Per-calendar-date climatology is deliberately NOT computed. It looked meaningful —
+    # Aug 11 median 73%, Aug 12 48%, Aug 13 68% — but adjacent calendar dates cannot differ
+    # by 25 points for any physical reason, and resampling one pooled distribution produces
+    # a gap that large 34% of the time. With n=30 and a standard deviation near 37 points
+    # it is sampling noise wearing a table, and it would eventually be read as signal.
     trip_ok = sum(1 for n in by_year.values() if any(v < GO for v in n.values()))
     return {"years": len(by_year), "median": round(st.median(allv)),
             "p_night_good": round(100 * sum(1 for v in allv if v < GO) / len(allv)),
             "p_trip_good": round(100 * trip_ok / len(by_year)),
-            "per_night": per_night,
             "window": f"Aug {TRIP_NIGHTS[0]}-{TRIP_NIGHTS[-1]}"}
 
 
