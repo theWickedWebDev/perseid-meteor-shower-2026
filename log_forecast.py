@@ -1140,9 +1140,11 @@ def verification_section(sk):
             f'<i class="vf9" style="width:{100*d["p90"]/mx:.0f}%"></i>'
             f'<i class="vf8" style="width:{100*d["p80"]/mx:.0f}%"></i>'
             f'<i class="{cls}" style="width:{100*d["p50"]/mx:.0f}%"></i></span>'
-            f'<span class="vfv">±{d["p50"]}</span>'
-            f'<span class="vfv dim">±{d["p80"]}</span>'
-            f'<span class="vfv dim">±{d["p90"]}</span></div>')
+            # "+/-29" reads as a bracket around some value; the number is the size of the
+            # miss itself. "<=29" says what is meant: the miss was this big or smaller.
+            f'<span class="vfv">&le;{d["p50"]}</span>'
+            f'<span class="vfv dim">&le;{d["p80"]}</span>'
+            f'<span class="vfv dim">&le;{d["p90"]}</span></div>')
 
     g = v.get("given") or {}
     bad, good = g.get("said_bad"), g.get("said_good")
@@ -1174,10 +1176,11 @@ def verification_section(sk):
 
     return (f'<h2>How much a forecast still moves</h2>\n<div class="card">'
             f'<p class="lede">How far a forecast ends up shifting before the night arrives. '
-            f'Read a row as: <em>half the time a forecast made this far ahead is off by no '
-            f'more than the first number; eight times in ten by no more than the second; '
-            f'nine times in ten by no more than the third.</em> The tenth night is worse '
-            f'than all of them.</p>'
+            f'Every number below is <b>how many points the forecast was wrong by</b> — in '
+            f'either direction, too clear or too cloudy. Read a row as: <em>half the time a '
+            f'forecast made this far ahead was off by no more than the first number; eight '
+            f'times in ten by no more than the second; nine times in ten by no more than the '
+            f'third.</em> The tenth night is worse than all of them.</p>'
             f'<p>The distance between the columns is the point. One day out the typical miss '
             f'is small and the tail is not — most nights are called correctly and the '
             f'occasional one is wrong by a mile. An average of those two cases describes '
@@ -1189,6 +1192,7 @@ def verification_section(sk):
             f'<span class="vfv">half<br>the time</span>'
             f'<span class="vfv dim">8 in<br>10</span>'
             f'<span class="vfv dim">9 in<br>10</span></div>'
+            f'<div class="vfu">how many points the forecast was off by</div>'
             + "".join(rows) + '</div>'
             + cond
             + f'<p class="note" style="margin-top:.9rem"><b>What this is measured against.</b> '
@@ -2618,6 +2622,8 @@ svg{{width:100%;height:auto;display:block}}
 .vfbar i.warn{{background:var(--warn,#B5721A)}}
 .vfbar i.bad{{background:var(--bad,#B03A2C)}}
 .vfv{{text-align:right;font-variant-numeric:tabular-nums}}
+.vfu{{text-align:right;font-family:var(--mono);font-size:.55rem;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--muted);margin:-.1rem 0 .35rem}}
 .vt{{width:100%;border-collapse:collapse;margin-top:.6rem}}
 .vt td,.vt th{{padding:.4rem .5rem;text-align:left}}
 .vt tbody tr:not(.vtd) td{{border-top:1px solid var(--rule)}}
