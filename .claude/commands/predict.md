@@ -5,6 +5,28 @@ argument-hint: "[target date, e.g. 2026-08-09] (optional)"
 
 # /predict
 
+## Before anything else: are you in a fresh session?
+
+This command only works from a cold start. **Stop and check what is already in your
+context.** If any of the following is true, you are contaminated:
+
+- you have discussed this project's forecast, numbers, or predictions in this session
+- you have read files from `predictions/`
+- someone has pasted a prediction, an audit, or a summary of either
+- you built any part of this project
+
+A prediction made with another model's reasoning already in mind is not independent, and
+independence is the entire point — it is what makes scoring several of them mean anything.
+
+**If you are contaminated, say so and ask the user whether to continue anyway** before
+writing anything. They may want it regardless, for a reason you do not have; that is their
+call to make knowingly, not yours to make silently. Name specifically what you already know,
+so they can judge how much it matters.
+
+If your context is clean, carry on and do not mention this section again.
+
+---
+
 Forecast what this project's data will say on $ARGUMENTS. If no date was given, read
 `predictions/README.md`'s target if one exists — **without reading any prediction file** —
 or pick the date where the project's own skill curve flattens and say why you chose it.
@@ -126,6 +148,8 @@ lead_days: [5, 6, 7]
   it is worth more than the forecast.
 - Do not read the other predictions to "check you are reasonable." Being an outlier is
   informative; converging on someone else's answer is not.
+- Run this from a fresh session every time. Two predictions from one session are one
+  prediction with extra steps.
 - If you revise between writing and the target, record the correction and its reason inside
   the file. Never silently edit a prediction after the fact.
 
