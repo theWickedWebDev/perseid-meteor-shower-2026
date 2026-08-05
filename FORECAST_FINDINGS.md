@@ -19,6 +19,7 @@ Measured at the lake site, 45.2393 / −71.1964, unless stated. All times EDT.
 | Does waiting help? | Yes to ~day 5. Past that, **nothing measurable** | 7 nights — differences under 6 pts invisible |
 | Which model to believe? | **AIFS** past 5 days, **ECMWF** inside 3 | Weak — partly ranking pessimism (r −0.42) |
 | Can we see cloud at night? | Yes — satellite, not the webcam | Verified |
+| Anything else likely to spoil it? | **Night 3 fog** (7 h) and regional **smoke** | Both live as of 4 Aug |
 
 ---
 
@@ -121,6 +122,17 @@ than a normal year, and every night individually beats its own historical odds.
 This also settles the September question: the astronomy is worse (no Perseids, core window
 roughly halved) and the weather gamble is about the same. Trading a known better-than-average
 draw for an unknown one with worse astronomy is a poor swap.
+
+### The verdict is anchored to this, not to round numbers
+
+The banner's wording is derived from the base rate rather than fixed thresholds. It used to
+say "worth the drive" above 70% and "a real gamble" above 45% — which meant a
+climatologically *average* trip read as a gamble, while the line directly beneath it argued
+that absolute numbers are unreadable without the base rate. The page was contradicting
+itself one card apart.
+
+These dates are a gamble every year. The only question the data can answer is whether this
+year is a better or worse draw than usual, so that is what the verdict now says.
 
 **ERA5 caveat.** It is reanalysis — a model assimilating observations — at about 25 km.
 Checked against the satellite it agreed within 10 points on 73% of hours, but once read 23%
@@ -247,6 +259,13 @@ sun below 15° are now excluded from scoring, from the calibration column, and f
 caption under each photo. The number under each webcam frame is the **satellite**, not the
 camera.
 
+**A note on the sun angle.** `sun_alt()` returns the *geometric* altitude of the sun's
+centre — no refraction, no semi-diameter. Conventional sunrise and sunset are the upper limb
+at −0.833°, about five minutes later and earlier respectively. That distinction does not
+matter for a quality gate on webcam frames, but it did make an earlier docstring compare a
+zero crossing against almanac values using the other definition and call the near-miss
+agreement. It was coincidence.
+
 ### What the satellite still can't do
 
 Infrared struggles with **low cloud and fog at night**, when cloud-top temperature is close
@@ -283,7 +302,33 @@ nearly identical octants, a blur rather than a direction.
 
 ---
 
-## 7. The core window is not two clean hours
+## 7. Fog — the failure mode that likes good forecasts
+
+Radiative cooling needs a clear sky. So the nights that fog are disproportionately the
+nights that *forecast* best — anti-correlated with the very number the rest of the page
+optimises. A card can read GO and still lose you the back half of the night.
+
+Flagged when all three hold in the same hour, at the lake:
+
+| | |
+|---|---|
+| Dewpoint spread | under **2 °C** |
+| Wind at 10 m | under **5 km/h** |
+| Cloud cover | under **40%** — above that there is no radiative cooling to drive it |
+
+Wind is the term that saves most nights. Night 2 currently runs a spread of 1.4 °C — more
+saturated than Night 1 — and flags nothing, because 5.5 km/h keeps the layer mixed.
+
+**As of 4 Aug the live signal is on Night 3: 7 risk hours, worst at 2 AM with a 0.3 °C
+spread and 1.8 km/h of wind.** That was 2 hours this afternoon. It is moving the wrong way,
+and 2 AM is the middle of the Perseid window.
+
+The badge names the single worst hour rather than summarising the night, because summarising
+went wrong once already — see section 9.
+
+---
+
+## 8. The core window is not two clean hours
 
 `CORE_HR` is hours 22 and 23, but the Milky Way core drops below a 10° treeline at about
 **23:21 / 23:17 / 23:13** on the three nights — four minutes earlier each night. Most of hour
@@ -300,7 +345,7 @@ survey on arrival settles it — that task is first on the Night 1 schedule for 
 
 ---
 
-## 8. Things that are still weak
+## 9. Things that are still weak
 
 - **Correlated sources counted as independent votes.** NWS≈GFS, AIFS≈ECMWF. "Six sources
   agree" overstates it. The median limits the damage but does not remove it.
@@ -331,7 +376,7 @@ survey on arrival settles it — that task is first on the Night 1 schedule for 
 
 ---
 
-## 9. Smoke — measured, and currently a live concern
+## 10. Smoke — measured, and currently a live concern
 
 August in northern New Hampshire sits downwind of Quebec, and **cloud cover reads 0%
 straight through smoke**. A perfect-looking forecast can deliver a milky, low-contrast sky
@@ -355,7 +400,7 @@ a poor night for colour if the smoke arrives, and nothing else on the page would
 
 ---
 
-## 10. How it runs
+## 11. How it runs
 
 ```
 publish.sh          hourly from cron at :05
