@@ -102,6 +102,17 @@ def main():
                      "pred": p, "errs": errs,
                      "mae": st.mean(errs.values()) if errs else None, "verdict_ok": v_ok})
 
+    # Predictions are FOR 9 Aug. Scoring them against today's snapshot compares a forecast
+    # to a date it was not about, and the resulting error looks authoritative while meaning
+    # nothing. Say so rather than printing a confident wrong number.
+    TARGET = "2026-08-09"
+    taken = act["taken"][:10]
+    if taken < TARGET:
+        days = (datetime.fromisoformat(TARGET) - datetime.fromisoformat(taken)).days
+        print(f"  ⚠  PROVISIONAL — these predictions are for {TARGET}, and the newest")
+        print(f"     snapshot is {taken}, {days} day{'s' if days != 1 else ''} early.")
+        print(f"     The errors below are 'distance from today', not accuracy.\n")
+
     print(f"  actual, at snapshot {act['taken'][:16]}")
     print(f"    night1 {act['night1']}%  night2 {act['night2']}%  night3 {act['night3']}%  "
           f"spread1 ±{act['spread1']}  joint {act['joint']}%")
