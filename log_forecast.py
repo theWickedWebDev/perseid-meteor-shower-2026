@@ -1095,6 +1095,11 @@ def nightwatch_section(log):
     """
     if not log:
         return ""
+    # An entry with no flux is one where the measurement did not run, which is not the
+    # same as a sky with no stars. Plotting it as a zero bar reads as "socked in".
+    log = [e for e in log if (e.get("targets", {}).get("core") or {}).get("flux") is not None]
+    if not log:
+        return ""
     rows = log[-40:]
     latest = rows[-1]
     t = datetime.fromisoformat(latest["time"])

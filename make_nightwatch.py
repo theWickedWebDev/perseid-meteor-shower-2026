@@ -37,6 +37,13 @@ def main():
         print(f"wrote {OUT} (empty)")
         return 0
 
+    # same guard as the forecast page: unmeasured is not the same as dark
+    log = [e for e in log if (e.get("targets", {}).get("core") or {}).get("flux") is not None]
+    if not log:
+        open(OUT, "w").write("<!doctype html><meta charset=utf-8><title>Night watch</title>"
+                             "<p>No measured captures yet.</p>")
+        print(f"wrote {OUT} (no measured captures)")
+        return 0
     rows = log[-48:]
     latest = rows[-1]
     lt = datetime.fromisoformat(latest["time"])
