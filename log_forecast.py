@@ -1141,13 +1141,21 @@ def verification_section(sk):
             f'This is the whole argument for planning three nights rather than picking one.</p>')
 
     return (f'<h2>How much a forecast still moves</h2>\n<div class="card">'
-            f'<p class="lede">How far a forecast at each lead ends up shifting before the '
-            f'night arrives. The solid bar is the typical miss; the paler extensions behind '
-            f'it are the 8-in-10 and 9-in-10 cases.</p>'
+            f'<p class="lede">How far a forecast ends up shifting before the night arrives. '
+            f'Read a row as: <em>half the time a forecast made this far ahead is off by no '
+            f'more than the first number; eight times in ten by no more than the second; '
+            f'nine times in ten by no more than the third.</em> The tenth night is worse '
+            f'than all of them.</p>'
+            f'<p>The distance between the columns is the point. One day out the typical miss '
+            f'is small and the tail is not — most nights are called correctly and the '
+            f'occasional one is wrong by a mile. An average of those two cases describes '
+            f'neither, which is why none is quoted here.</p>'
             f'<div class="vfs">'
-            f'<div class="vf vfh"><span class="vfl"></span><span class="vfbar"></span>'
-            f'<span class="vfv">half</span><span class="vfv dim">8/10</span>'
-            f'<span class="vfv dim">9/10</span></div>'
+            f'<div class="vf vfh"><span class="vfl">forecast</span>'
+            f'<span class="vfbar"></span>'
+            f'<span class="vfv">half<br>the time</span>'
+            f'<span class="vfv dim">8 in<br>10</span>'
+            f'<span class="vfv dim">9 in<br>10</span></div>'
             + "".join(rows) + '</div>'
             + cond
             + f'<p class="note" style="margin-top:.9rem"><b>What this is measured against.</b> '
@@ -2565,7 +2573,8 @@ svg{{width:100%;height:auto;display:block}}
 .vfs{{display:flex;flex-direction:column;gap:.3rem;margin:.9rem 0 .5rem}}
 .vf{{display:grid;grid-template-columns:4.4rem 1fr 2.8rem 2.8rem 2.8rem;align-items:center;
   gap:.45rem;font-family:var(--mono);font-size:.72rem}}
-.vfh{{font-size:.58rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}}
+.vfh{{font-size:.55rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);
+  align-items:end;line-height:1.25}}
 .vfl{{color:var(--muted)}}
 .vfbar{{position:relative;height:9px;background:var(--sunken);border-radius:2px;
   overflow:hidden}}
