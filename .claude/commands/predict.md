@@ -109,7 +109,34 @@ value sits from it, and compare that distance to the measured error at this lead
 shrink.** That is not pessimism, it is regression — and it is the single most useful prior
 available at long lead.
 
-### 6. State what would show you wrong
+### 6. Name the one thing that would most change your forecast, and does not exist
+
+Before writing, ask: **what would I want to know that this project does not measure?**
+
+You have just spent real effort inside this data. That makes you briefly well placed to see
+what is missing — better placed than the people who built it, who have stopped noticing the
+shape of their own instrument.
+
+Name **one** thing. Not a list; a list is a way of avoiding a judgement. The single
+measurement, framing, or comparison whose absence most limits what can be concluded, and say
+concretely what it would change.
+
+Good answers are specific and buildable:
+
+- a quantity that exists in an API already being called, but is not pulled
+- a comparison between two things already logged separately
+- a control or baseline that would show whether an effect is real
+- a way of slicing existing data that would separate two explanations currently confounded
+- a question the project's own documentation raises and then does not answer
+
+Weak answers, which you should discard: "more data", "more models", "better validation",
+anything requiring hardware, anything that is really a restatement of a known limitation.
+
+This is run repeatedly by different models. If several independently name the same gap, that
+is a strong signal. If you name something nobody else does, that is worth more than agreeing
+about a number.
+
+### 7. State what would show you wrong
 
 Concretely, in advance, so it cannot be argued away afterwards. Name the observation that
 would falsify each significant claim. If you cannot name one, the claim is not a prediction.
@@ -126,9 +153,11 @@ Include:
 2. **Numbers with ranges.** Every figure a person would act on.
 3. **Reasoning, briefly.** What you weighted. Mark guesses as guesses.
 4. **Machinery predictions**, separated from the phenomenon ones.
-5. **What would show you wrong.**
-6. **A scoring table** with a blank "actual" column.
-7. **A machine-readable block at the very end**, so a scorer can grade it without parsing
+5. **The one missing measurement**, under a heading of its own — what it is, why it matters,
+   and roughly how to get it. Keep it to a paragraph.
+6. **What would show you wrong.**
+7. **A scoring table** with a blank "actual" column.
+8. **A machine-readable block at the very end**, so a scorer can grade it without parsing
    prose. Match whatever schema previous runs used if the project has a scorer; otherwise:
 
 ````
@@ -136,6 +165,7 @@ Include:
 written: 2026-08-06T09:15
 snapshots: 41
 lead_days: [5, 6, 7]
+missing: one short phrase naming the gap you identified
 <one line per predicted quantity>
 ```
 ````

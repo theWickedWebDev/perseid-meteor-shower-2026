@@ -151,6 +151,22 @@ def main():
                 print("  positive means later predictions were more accurate — the models were")
                 print("  using the data arriving. Near zero means they were not.")
 
+    # The gaps different models independently identify — repetition ranks them
+    gaps = [(os.path.basename(f), parse(f).get("missing"))
+            for f in files if parse(f).get("missing")]
+    if gaps:
+        print(f"\n  what each model said was missing ({len(gaps)} of {len(files)}):")
+        for f, g in gaps:
+            print(f"    {f[:16]}  {g}")
+        words = {}
+        for _, g in gaps:
+            for w in re.findall(r"[a-z]{5,}", g.lower()):
+                words[w] = words.get(w, 0) + 1
+        rep = sorted(((c, w) for w, c in words.items() if c > 1), reverse=True)[:6]
+        if rep:
+            print("    recurring: " + ", ".join(f"{w} ({c})" for c, w in rep))
+            print("    a gap several models name independently is worth building")
+
     if unscoreable:
         print(f"\n  unscoreable ({len(unscoreable)}) — no complete yaml block:")
         for f, keys in unscoreable:
