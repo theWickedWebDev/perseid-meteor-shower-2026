@@ -89,7 +89,7 @@ hr{border:0;border-top:1px solid var(--rule);margin:2rem 0}
 <h2 id="the-short-version">The short version</h2>
 <div class="scroll"><table><thead><tr><th>Question</th><th>Answer</th><th>Confidence</th></tr></thead><tbody><tr><td>Is 45% cloud good?</td><td>No. Median for these dates here is <b>65%</b></td><td>30 years, solid</td></tr><tr><td>Odds at least one night works?</td><td><b>83%</b>, against a <b>70%</b> base rate</td><td>Good, with caveats below</td></tr><tr><td>Does waiting help?</td><td>Yes to ~day 5. Past that, <b>nothing measurable</b></td><td>7 nights — differences under 6 pts invisible</td></tr><tr><td>Which model to believe?</td><td><b>AIFS</b> past 5 days, <b>ECMWF</b> inside 3</td><td>Weak — partly ranking pessimism (r −0.42)</td></tr><tr><td>Can we see cloud at night?</td><td>Yes — satellite, not the webcam</td><td>Verified</td></tr><tr><td>Anything else likely to spoil it?</td><td><b>Night 3 fog</b> (7 h) and regional <b>smoke</b></td><td>Both live as of 4 Aug</td></tr></tbody></table></div>
 <hr>
-<h2 id="1-everything-is-an-ensemble-nothing-is-one-model">1. Everything is an ensemble. Nothing is one model.</h2>
+<span id="ensemble"></span><h2 id="1-everything-is-an-ensemble-nothing-is-one-model">1. Everything is an ensemble. Nothing is one model.</h2>
 <p>Every figure — headline percentage, verdict, best hour, trend chart, movement table — is the <b>median across every source that reaches that night</b>, taken hour by hour and then averaged over the window.</p>
 <p>Median rather than mean, because with GEM at 92% and ECMWF at 38% for the same night, a mean invents a number nobody forecast and lets one outlier drag the verdict.</p>
 <p>Sources: NWS gridpoint, ECMWF, GFS, ICON, GEM, AIFS, JMA, UKMO, HRRR. They drop in and out by range — the page marks each <em>in play</em> or <em>out of range</em> rather than hiding the ones that can&#x27;t see that far.</p>
@@ -97,7 +97,7 @@ hr{border:0;border-top:1px solid var(--rule);margin:2rem 0}
 <h3 id="the-verdict-is-gated-on-agreement">The verdict is gated on agreement</h3>
 <p>A median of 30% drawn from sources spanning 4–82% is not a GO. Where the spread is 40 points or more the card reads <b>UNRESOLVED</b> with the span instead of a verdict. The page spent a while printing &quot;GO&quot; in 48pt over a 4–82% disagreement, which is exactly the overconfidence the whole thing exists to prevent.</p>
 <hr>
-<h2 id="2-the-trip-probability-and-the-assumption-inside-it">2. The trip probability, and the assumption inside it</h2>
+<span id="trip-probability"></span><h2 id="2-the-trip-probability-and-the-assumption-inside-it">2. The trip probability, and the assumption inside it</h2>
 <p><b>You do not need a particular night. You need one of three.</b> That is a joint probability, and it&#x27;s the number in the largest type on the page.</p>
 <p>It is computed by pooling three ensembles — GEFS (31 members), ECMWF ENS (51), GEM ENS (21) — and counting how many of the 103 members give <em>at least one</em> usable night. Each member is one physically consistent scenario spanning all three nights, so correlation is measured rather than assumed.</p>
 <p>Pooling matters. Run separately:</p>
@@ -119,7 +119,7 @@ its independence bound   72%      &lt;- two points apart</pre></div>
 <p><b>The comparison is like-for-like, but only since it was made so.</b> The ensemble weights hour 23 by the minutes the core is actually up (0.35 / 0.28 / 0.22 — see section 8); the climatology originally took a plain mean of hours 22 and 23. Unweighted the base rate reads 67%, weighted it reads <b>70%</b>, and the page compares the forecast against it directly. <code>climatology()</code> now applies the same weights, so the two numbers are computed the same way.</p>
 <p>The correlation figure is printed on the page beside the joint so the assumption stays visible. <b>If the nights were perfectly locked together the answer would be 47%, not 83%</b> — that floor is also shown.</p>
 <hr>
-<h2 id="3-climatology-what-good-means-here">3. Climatology: what &quot;good&quot; means here</h2>
+<span id="climatology"></span><h2 id="3-climatology-what-good-means-here">3. Climatology: what &quot;good&quot; means here</h2>
 <p>Thirty years of ERA5 (1996–2025) for exactly Aug 11, 12, 13, core window:</p>
 <div class="scroll"><table><thead><tr><th></th><th></th></tr></thead><tbody><tr><td>Median cloud in the core window</td><td><b>65%</b></td></tr><tr><td>Individual nights beating 30%</td><td><b>34%</b></td></tr><tr><td>Years with ≥1 usable night</td><td><b>70%</b> ← the base rate</td></tr></tbody></table></div>
 <p><b>Two nights in three are historically unusable at this site on these dates.</b> Three UNRESOLVED cards read as alarming until you know that. The current forecast is drawn better than a normal year, and every night individually beats its own historical odds.</p>
@@ -132,7 +132,7 @@ Sep 12   dark 20:43, core 12.4° → below 10° at 21:15    32 min</pre></div>
 <p>These dates are a gamble every year. The only question the data can answer is whether this year is a better or worse draw than usual, so that is what the verdict now says.</p>
 <p><b>ERA5 caveat.</b> It is reanalysis — a model assimilating observations — at about 25 km. Checked against the satellite it agreed within 10 points on 73% of hours, but once read 23% against the satellite&#x27;s 99%, having smoothed away a local deck. Fine for 30-year statistics, not a substitute for looking at tonight.</p>
 <hr>
-<h2 id="4-does-waiting-help-mostly-no">4. Does waiting help? Mostly no.</h2>
+<span id="waiting"></span><h2 id="4-does-waiting-help-mostly-no">4. Does waiting help? Mostly no.</h2>
 <p>Model error against satellite truth, by how far ahead the forecast was made. <b>Seven nights</b>, 51 verified hours — the model-hour count is larger but not independent, since seven models scoring one hour is a single observation and 02:00 is nearly the same draw as 01:00. Intervals below are bootstrapped by night:</p>
 <div class="scroll"><pre>lead      mean     95% CI
 7 days    38.1   [29.9, 46.0]
@@ -165,7 +165,20 @@ Sep 12   dark 20:43, core 12.4° → below 10° at 21:15    32 min</pre></div>
 <blockquote><b>This also corrects earlier advice.</b> The site originally said to weight ECMWF throughout. It now says AIFS at range, ECMWF inside three days.</blockquote>
 <p><b>Read this ranking with suspicion.</b> The correlation between &quot;forecasts more cloud&quot; and &quot;scores well&quot; is <b>−0.42</b> on this sample, so it is partly ranking pessimism rather than skill: on an overcast week the gloomiest model wins on error alone. AIFS, ECMWF and UKMO happen to sit nearest the truth mean of 77%; JMA and GEM are the optimistic ones and score worst. Directional at best until the sample contains clear nights.</p>
 <hr>
-<h2 id="5-ground-truth-satellite-not-the-webcam">5. Ground truth: satellite, not the webcam</h2>
+<h3 id="how-often-it-is-right-on-a-much-larger-sample">How often it is right, on a much larger sample</h3>
+<p>The measurements above score against the satellite, which is the honest reference and caps the sample at the nights the satellite has watched. A second pass trades reference quality for volume: 92 days of Open-Meteo previous runs, every model, core hours only, scored against each model&#x27;s own day-0 value for the same hour. Over a thousand readings per lead instead of a few dozen.</p>
+<p>That reference is an analysis rather than an observation, so it measures how far a forecast <b>moves</b> between issue and arrival, not how wrong it finally is. Bigger sample, weaker truth. Both numbers are worth having and neither replaces the other.</p>
+<p>&quot;Right&quot; means within <b>5 percentage points</b> of the outcome — not on the correct side of any threshold. An earlier version scored the GO line instead, which counted a 5% forecast against a 25% outcome as a hit, and folded a question about the trip into a measurement of the models.</p>
+<div class="scroll"><table><thead><tr><th>Lead</th><th>Right (±5)</th><th>Half the time within</th><th>9 in 10 within</th></tr></thead><tbody><tr><td>1 day</td><td>44%</td><td>±8</td><td>±66</td></tr><tr><td>2 days</td><td>38%</td><td>±11</td><td>±71</td></tr><tr><td>3 days</td><td>33%</td><td>±13</td><td>±80</td></tr><tr><td>4 days</td><td>28%</td><td>±19</td><td>±82</td></tr><tr><td>5 days</td><td>26%</td><td>±21</td><td>±82</td></tr><tr><td>6 days</td><td>23%</td><td>±24</td><td>±87</td></tr><tr><td>7 days</td><td>19%</td><td>±29</td><td>±86</td></tr></tbody></table></div>
+<p><b>The baselines matter more than the headline.</b> Three predictors that know nothing:</p>
+<div class="scroll"><table><thead><tr><th>Predictor</th><th>Scores</th></tr></thead><tbody><tr><td>Always say overcast</td><td><b>28%</b></td></tr><tr><td>Random guess 0–100</td><td>11%</td></tr><tr><td>Always say the 30-year average (53%)</td><td>7%</td></tr></tbody></table></div>
+<p>Always saying &quot;overcast&quot; is right 28% of the time because most nights here are. That is the bar. The forecast clears it out to three days, ties at four, and loses from five onward — the same conclusion the satellite-referenced curve reaches by a completely different route.</p>
+<p>Note the trap in choosing a baseline. Under the old GO-line scoring, &quot;always say cloudy&quot; scored 62% and the forecast could not beat it at seven days. Under a 5-point test the do-nothing predictors collapse and the forecast clears them at every lead. The stricter definition produces a smaller headline number and a better-looking model, which is a good reason to publish both the definition and the baseline rather than the number alone.</p>
+<h3 id="why-no-average-error-is-quoted-anywhere">Why no average error is quoted anywhere</h3>
+<p>The error distribution is bimodal, not bell-shaped. One day out:</p>
+<div class="scroll"><table><thead><tr><th>Off by</th><th>Share of nights</th></tr></thead><tbody><tr><td>0–2 points</td><td>27%</td></tr><tr><td>3–10</td><td>20%</td></tr><tr><td>11–25</td><td>19%</td></tr><tr><td>26–50</td><td>15%</td></tr><tr><td>51+</td><td><b>18%</b></td></tr></tbody></table></div>
+<p>A fifth of nights are called dead on and nearly a fifth are wrong by more than fifty points — the day before. Mean error is 22, median 8, and neither describes a night you would actually experience. Percentiles are quoted throughout for this reason.</p>
+<span id="ground-truth"></span><h2 id="5-ground-truth-satellite-not-the-webcam">5. Ground truth: satellite, not the webcam</h2>
 <p>The webcam can only score cloud in daylight. The trip happens at night. So the model scoreboard was being calibrated on afternoon cumulus and trusted for 2 AM stratus.</p>
 <p><code>satellite.py</code> reads <b>GOES-19 ABI-L2-ACMC</b>, the clear-sky mask, from the public S3 bucket: 2 km pixels, a new granule every 5 minutes, ~4.8 MB, no credentials. It detects cloud by temperature rather than reflected light, so it works after dark.</p>
 <p>Verified against a real night:</p>
@@ -178,7 +191,7 @@ Sep 12   dark 20:43, core 12.4° → below 10° at 21:15    32 min</pre></div>
 <h3 id="what-the-satellite-still-can-t-do">What the satellite still can&#x27;t do</h3>
 <p>Infrared struggles with <b>low cloud and fog at night</b>, when cloud-top temperature is close to ground temperature. That is the same gap the fog forecast covers, so the two are complements rather than duplicates. Neither alone is airtight on the failure mode most likely to cost you the back half of a night.</p>
 <hr>
-<h2 id="6-where-the-cloud-is-not-just-how-much">6. Where the cloud is, not just how much</h2>
+<span id="where"></span><h2 id="6-where-the-cloud-is-not-just-how-much">6. Where the cloud is, not just how much</h2>
 <p>A whole-dome percentage cannot say whether <em>your</em> sky is open. The southern programme lives in azimuth <b>177°–232°</b> at roughly 7–22° altitude — a narrow slot.</p>
 <p><b>This is currently unvalidated, and the honest version is less impressive than it first appeared here.</b> An earlier draft cited a reading of &quot;dome 54%, north 0%, south 78%&quot; from 4 Aug 00:56. That was computed live while testing and is <b>not in <code>satellite_log.json</code></b> — octants were not being stored at that hour, so the example cannot be reproduced from the record and should not have been quoted as though it could.</p>
 <p>What the 63 logged readings that <em>do</em> carry octants actually show:</p>
@@ -193,7 +206,7 @@ readings with a genuinely    3 of 63
 <p>A far ring cloudier than the near ring means something is on its way. There is also an <b>upwind</b> sample 30–90 km out along the 700 mb flow: on the night of 3/4 Aug it fell to 0% an hour before the sky overhead cleared.</p>
 <p>The scrubbable compass shows 12 hours of satellite observation running into 12 hours of HRRR forecast. HRRR because at 3 km it can resolve a 14 km offset; ECMWF at 25 km returns eight nearly identical octants, a blur rather than a direction.</p>
 <hr>
-<h2 id="7-fog-the-failure-mode-that-likes-good-forecasts">7. Fog — the failure mode that likes good forecasts</h2>
+<span id="fog"></span><h2 id="7-fog-the-failure-mode-that-likes-good-forecasts">7. Fog — the failure mode that likes good forecasts</h2>
 <p>Radiative cooling needs a clear sky. So the nights that fog are disproportionately the nights that <em>forecast</em> best — anti-correlated with the very number the rest of the page optimises. A card can read GO and still lose you the back half of the night.</p>
 <p>Flagged when all three hold in the same hour, at the lake:</p>
 <div class="scroll"><table><thead><tr><th></th><th></th></tr></thead><tbody><tr><td>Dewpoint spread</td><td>under <b>2 °C</b></td></tr><tr><td>Wind at 10 m</td><td>under <b>5 km/h</b></td></tr><tr><td>Cloud cover</td><td>under <b>40%</b> — above that there is no radiative cooling to drive it</td></tr></tbody></table></div>
@@ -206,15 +219,15 @@ readings with a genuinely    3 of 63
 <p>Hours are therefore weighted by the minutes actually available: hour 22 counts fully, hour 23 counts 0.35 / 0.28 / 0.22. Otherwise a cloudy 23:40 counts as heavily as a cloudy 22:15, which flatters or damns a night for weather occurring after the target has set.</p>
 <p><b>The treeline itself is provisional.</b> It was derived from a moon fiducial in a 2023 photo that carried a +2.7° altitude error. Correcting it suggests the treeline is nearer <b>7.3° than 10°</b>, which would buy about <b>29 more minutes of core each night</b>. The 360° horizon survey on arrival settles it — that task is first on the Night 1 schedule for a reason.</p>
 <hr>
-<h2 id="9-things-that-are-still-weak">9. Things that are still weak</h2>
+<span id="weak"></span><h2 id="9-things-that-are-still-weak">9. Things that are still weak</h2>
 <ul><li><b>Spread is reported two ways, and only one of them gates the verdict.</b> The full range (max minus min) is the tail risk — how wrong this could be if the outlier is right. But as an agreement test across eight heterogeneous models a single dissenter sets it, so it exceeded the 40-point gate on <b>143 of 144</b> night-readings ever recorded, including nights one day out. A verdict that fires 99% of the time is not a verdict. The gate now uses the interquartile spread, which clears 40 about a third of the time and can therefore discriminate; the full range is still displayed beside it.</li><li><b>Correlated sources counted as independent votes.</b> NWS≈GFS, AIFS≈ECMWF. &quot;Six sources agree&quot; overstates it. The median limits the damage but does not remove it.</li><li><b>Even member counts.</b> The median averages the middle two, which can produce a value no model forecast — mildly contradicting the reason for choosing median over mean.</li><li><b>Fog is reported from one hour, and only one.</b> The badge quotes the worst single hour by dewpoint spread and wind together, named on the card. It used to quote <code>min(spread)</code> beside <code>min(wind)</code> across the whole night — a pair that often came from different hours and therefore described a condition that never occurred. <code>fog_hours</code> was always the honest number; the parenthetical was not.</li><li><b>Per-calendar-date climatology is deliberately absent.</b> Aug 11/12/13 medians came out 73 / 48 / 68%, which looks like a real difference between nights and is not: adjacent calendar dates have no mechanism to differ by 25 points, the standard deviation is ~37 on n=30, and resampling one pooled distribution reproduces a gap that large 34% of the time. It was computed and never rendered; now it is not computed.</li><li><b>One ephemeris fact, one place.</b> The core-window weights derive from the core-set times in <code>schedule_data.ASTRO</code>, which is checked against astropy at import. They were briefly restated in three files; if the arrival survey confirms a 7.3° treeline, every core-set time moves ~29 minutes and all three weights change — that has to be one edit.</li><li><b>No test suite.</b> Everything is verified ad hoc. That is how the low-sun bug survived shipping twice, in two different places.</li><li><b><code>EDT</code> is fixed at UTC−4</b> while Open-Meteo is queried with <code>America/New_York</code>. Identical in August, an hour apart after 1 Nov. Harmless for this trip, wrong on reuse.</li><li><b>Skill sample is 7 nights.</b> One week, late Jul to early Aug, overcast on five of them and bimodal — 41 readings at or above 50% cloud, 10 at or below 9%, nothing between. The satellite log also has one genuine gap (the night of 29 Jul, 4 hours). Differences smaller than about 6 points are not measurable at this size.</li><li><b>Aerosol data stops at about 5 days</b>, so smoke cannot be seen for the trip nights until around 7 Aug. This mattered more than expected: the cards showed a fog badge and no haze badge, which read as &quot;checked, clear&quot; when it actually meant &quot;not checked&quot;. Absence now says so explicitly, for fog and haze alike.</li></ul>
 <hr>
-<h2 id="10-daytime-which-the-rest-of-this-ignores">10. Daytime, which the rest of this ignores</h2>
+<span id="daytime"></span><h2 id="10-daytime-which-the-rest-of-this-ignores">10. Daytime, which the rest of this ignores</h2>
 <p>Every other number here concerns roughly eighty minutes of sky per night. The trip is four days long, and a wet afternoon does not spoil it — it changes what you do with the day.</p>
 <p>The daytime block restricts to <b>8 AM to 7 PM</b> rather than using the daily maximum most forecasts publish. A 40% chance of rain driven by a shower at 3 AM says nothing useful about a walk at noon, and the night is already covered in detail above.</p>
 <p>It is coloured by <b>hours of rain, not probability</b>, because those diverge: a 30% chance that resolves into one damp hour is a good day out, and the same 30% spread across eight hours is not. Rain totals are shown but are the least useful figure — 6 mm in one afternoon burst is a different day from 6 mm of drizzle.</p>
 <hr>
-<h2 id="11-smoke-measured-and-currently-a-live-concern">11. Smoke — measured, and currently a live concern</h2>
+<span id="smoke"></span><h2 id="11-smoke-measured-and-currently-a-live-concern">11. Smoke — measured, and currently a live concern</h2>
 <p>August in northern New Hampshire sits downwind of Quebec, and <b>cloud cover reads 0% straight through smoke</b>. A perfect-looking forecast can deliver a milky, low-contrast sky that ruins exactly the faint red and blue the core is shot for.</p>
 <p>Aerosol optical depth above <b>0.30</b> is a visibly degraded sky. As of 4 Aug the lead-up nights already read:</p>
 <div class="scroll"><pre>Aug 05   0.16      Aug 07   0.44   &lt;- well over
@@ -237,7 +250,7 @@ Aug 06   0.30      Aug 08   0.17</pre></div>
 <div class="foot">
   <a href="forecast.html">← Back to the forecast</a> ·
   generated from <span style="font-family:var(--mono)">FORECAST_FINDINGS.md</span>,
-  last edited Wed 05 Aug 2026, 09:12 EDT
+  last edited Wed 05 Aug 2026, 15:35 EDT
 </div>
 </div>
 <script>

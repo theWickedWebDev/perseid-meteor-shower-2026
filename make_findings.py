@@ -23,6 +23,21 @@ from datetime import datetime, timedelta, timezone
 
 SRC = "FORECAST_FINDINGS.md"
 OUT = "findings.html"
+
+# Short anchors the forecast page links to, keyed on the section number so they survive a
+# heading being reworded. Add a line here when a new link-out appears on the forecast page.
+SHORT = {
+    "1-": "ensemble",
+    "2-": "trip-probability",
+    "3-": "climatology",
+    "4-": "waiting",
+    "5-": "ground-truth",
+    "6-": "where",
+    "7-": "fog",
+    "9-": "weak",
+    "10-": "daytime",
+    "11-": "smoke",
+}
 EDT = timezone(timedelta(hours=-4))
 
 
@@ -113,7 +128,14 @@ def convert(md):
             lvl = len(m.group(1))
             txt = m.group(2)
             slug = re.sub(r'[^a-z0-9]+', '-', txt.lower()).strip('-')
-            out.append(f'<h{lvl} id="{slug}">{inline(txt)}</h{lvl}>')
+            # forecast.html links here by short, stable names. Slugs are derived from the
+            # heading text, so rewording a heading silently breaks every inbound link — and
+            # a dead anchor just dumps the reader at the top of a long page with no sign
+            # anything went wrong. The alias is matched on the section number, which does
+            # not change when the wording does.
+            alias = next((v for k, v in SHORT.items() if slug.startswith(k)), None)
+            anchor = f'<span id="{alias}"></span>' if alias else ''
+            out.append(f'{anchor}<h{lvl} id="{slug}">{inline(txt)}</h{lvl}>')
             i += 1
             continue
 

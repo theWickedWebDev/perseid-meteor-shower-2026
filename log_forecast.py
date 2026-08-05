@@ -1078,25 +1078,24 @@ def base_rate_line(sk, latest):
             f'the question is only whether this year is a better or worse draw.</p>')
 
 
-def _calls_chart(v):
-    """How often the forecast landed within TOL points of the truth. The section headline.
+def _more(anchor, label="the full working"):
+    """Link out to findings.html rather than spending another paragraph here.
 
-    A pure measurement of forecast quality. An earlier version scored whether the forecast
-    fell on the correct side of the GO threshold, which folded a question about the trip into
-    a question about the models, and counted a 5% forecast against a 25% outcome as a hit.
-    Nothing here knows or cares what the number will be used for.
-
-    The line drawn across the bars is "always say the 30-year average for the date" — the
-    least a forecast has to beat before it was worth reading at all.
+    This page is read while deciding whether to get in the car. Every sentence of method on
+    it sits between the reader and the number they came for. The reasoning still exists in
+    full — it lives in FORECAST_FINDINGS.md, rendered as findings.html — and this is how the
+    two are stitched together. Anchors are short, stable aliases so rewording a heading over
+    there cannot silently break a link over here.
     """
+    return f'<p class="more"><a href="findings.html#{anchor}">{label} →</a></p>'
+
+
+def _calls_chart(v):
+    """Bars only. Every sentence of method here is a sentence before the number."""
     calls, base = v.get("calls") or {}, v.get("baselines") or {}
     if not calls:
         return ""
     tol = base.get("tol", 5)
-    # Draw the line at the STRONGEST know-nothing predictor, not the weakest. Marking
-    # climatology's 7% made the forecast look like it cleared the bar at every lead; the bar
-    # it actually has to clear is "always say overcast", which scores 28% here because most
-    # nights at this site really are overcast.
     cands = [base.get(k) for k in ("climatology", "always_overcast", "random")]
     dumb = max([c for c in cands if c is not None], default=None)
     rows = []
@@ -1109,40 +1108,19 @@ def _calls_chart(v):
             f'<span class="clbar"><i class="{cls}" style="width:{r}%"></i>'
             + (f'<b class="clmark" style="left:{dumb}%"></b>' if dumb else '')
             + f'</span><span class="clv">{r}%</span></div>')
-
-    others = ""
+    note = ""
     if dumb is not None:
-        beats = [k for k in sorted(calls, key=int) if calls[k]["right"] > dumb]
         loses = [k for k in sorted(calls, key=int) if calls[k]["right"] < dumb]
-        where = ""
-        if beats and loses:
-            where = (f' The forecast clears it out to <b>{beats[-1]} days</b> and stops '
-                     f'clearing it at <b>{loses[0]}</b> — past that you would do better '
-                     f'saying "overcast" and going back to bed.')
-        elif beats:
-            where = " The forecast clears it at every lead shown."
-        others = (
-            f'<p class="note" style="margin-top:.8rem">The line across the bars is '
-            f'<b>{dumb}%</b> — the best you can do while knowing nothing at all, which here '
-            f'is simply always saying overcast. Most nights at this site are, so that guess '
-            f'lands within {tol} points surprisingly often. Saying the 30-year average '
-            f'({base.get("climatology_median")}%) every time scores only '
-            f'{base.get("climatology")}%, and a random guess about {base.get("random")}%.'
-            + where + '</p>')
-
-    return (f'<p class="lede">How often the forecast came within <b>{tol} percentage '
-            f'points</b> of what actually happened. This measures the forecast and nothing '
-            f'else — no threshold, no verdict, and a miss is a miss whichever way it went.</p>'
-            f'<div class="cls">' + "".join(rows) + '</div>' + others)
+        note = (f'<p class="note" style="margin-top:.7rem">Line = <b>{dumb}%</b>, what you '
+                f'score by always saying "overcast" and knowing nothing'
+                + (f'. The forecast stops beating it at <b>{loses[0]} days</b>.'
+                   if loses else '.') + '</p>')
+    return (f'<p class="lede">How often it landed within <b>{tol} points</b> of what '
+            f'happened.</p><div class="cls">' + "".join(rows) + '</div>' + note)
 
 
 def _worked_example(bl, said=50):
-    """Turn the percentile table into the sentence a person actually wants.
-
-    Nobody reads "half within +/-29" and arrives at "so a 50% could be anything from 21 to
-    79". Doing that arithmetic on the page is the difference between a table that is correct
-    and a table that is understood.
-    """
+    """The percentile arithmetic, done for the reader instead of explained to them."""
     rows = []
     for k in ("1", "4", "7"):
         d = bl.get(k)
@@ -1150,38 +1128,20 @@ def _worked_example(bl, said=50):
             continue
         def span(pts):
             lo, hi = max(0, said - pts), min(100, said + pts)
-            return ("anything at all" if lo == 0 and hi == 100
-                    else f"<b>{lo}% – {hi}%</b>")
+            return "anything" if lo == 0 and hi == 100 else f"<b>{lo}–{hi}%</b>"
         rows.append(f'<tr><td>{k} day{"s" if k != "1" else ""} out</td>'
                     f'<td>{span(d["p50"])}</td><td class="dim">{span(d["p80"])}</td></tr>')
     if not rows:
         return ""
-    return (f'<h3 class="sub">Worked example</h3>'
-            f'<p>Suppose the forecast says <b>{said}% cloud</b>. What that is really '
-            f'telling you, depending on how far ahead it was made:</p>'
-            f'<table class="vt"><thead><tr><th>Made</th><th>Lands here half the time</th>'
-            f'<th>And 8 times in 10</th></tr></thead><tbody>'
-            + "".join(rows) + '</tbody></table>'
-            f'<p class="note" style="margin-top:.7rem">Which is the real lesson of this '
-            f'section: it is not that far-out forecasts are inaccurate, it is that past '
-            f'about five days they stop being numbers at all. A week out, {said}% and '
-            f'{min(100, said + 25)}% are the same statement.</p>')
+    return (f'<h3 class="sub">If it says {said}%, where does it land?</h3>'
+            f'<table class="vt"><thead><tr><th></th><th>half the time</th>'
+            f'<th>8 in 10</th></tr></thead><tbody>' + "".join(rows) + '</tbody></table>'
+            f'<p class="note" style="margin-top:.6rem">Past about five days it stops being '
+            f'a number: {said}% and {min(100, said + 25)}% say the same thing.</p>')
 
 
 def verification_section(sk):
-    """How far a forecast at each lead typically moves before the night arrives.
-
-    Separate from "Does waiting help?" and answering a different question. That section
-    measures error against the satellite, which is the honest reference but limits the
-    sample to the nights the satellite has watched. This one trades reference quality for
-    sample size — three months, every model, over a thousand readings per lead — and reports
-    percentiles rather than a mean, because the error distribution is badly skewed and a
-    mean of a skewed distribution describes nothing anyone experiences.
-
-    The conditional block at the end is the one worth having. Staring at a bad number six
-    days out the question is not "what is the mean absolute error", it is "does this ever
-    come good" — and that has an answer.
-    """
+    """How good the forecast is. Three charts, minimal prose, detail on the findings page."""
     v = (sk or {}).get("verification")
     if not v or not v.get("by_lead"):
         return ""
@@ -1198,8 +1158,6 @@ def verification_section(sk):
             f'<i class="vf9" style="width:{100*d["p90"]/mx:.0f}%"></i>'
             f'<i class="vf8" style="width:{100*d["p80"]/mx:.0f}%"></i>'
             f'<i class="{cls}" style="width:{100*d["p50"]/mx:.0f}%"></i></span>'
-            # "+/-29" reads as a bracket around some value; the number is the size of the
-            # miss itself. "<=29" says what is meant: the miss was this big or smaller.
             f'<span class="vfv">&le;{d["p50"]}</span>'
             f'<span class="vfv dim">&le;{d["p80"]}</span>'
             f'<span class="vfv dim">&le;{d["p90"]}</span></div>')
@@ -1209,58 +1167,28 @@ def verification_section(sk):
     cond = ""
     if bad and good:
         cond = (
-            f'<h3 class="sub">Does a bad number ever come good?</h3>'
-            f'<p>Pooled over {g["leads"]} days out, {g["n"]} readings.</p>'
-            # The outcome sentence spans its own full-width row rather than sitting in a
-            # fourth column. As a column it ran off the side of the card and needed a
-            # horizontal scrollbar to read a single sentence.
-            f'<table class="vt"><thead><tr><th>What it said</th><th>Times</th>'
-            f'<th>Typical outcome</th></tr></thead><tbody>'
+            f'<h3 class="sub">Does a bad number come good?</h3>'
+            f'<table class="vt"><thead><tr><th>Said, 6–7 days out</th><th>Times</th>'
+            f'<th>Turned out</th></tr></thead><tbody>'
             f'<tr><td><b>80% or worse</b></td><td class="n">{bad["n"]}</td>'
-            f'<td class="n">{bad["median_actual"]}%</td></tr>'
-            f'<tr class="vtd"><td colspan="3">turned out <b class="good">30% or '
-            f'clearer</b> {bad["recovered_30"]}% of the time · 55% or clearer '
-            f'{bad["recovered_55"]}% of the time</td></tr>'
+            f'<td class="n">clear <b class="good">{bad["recovered_30"]}%</b> of the time</td></tr>'
             f'<tr><td><b>20% or better</b></td><td class="n">{good["n"]}</td>'
-            f'<td class="n">{good["median_actual"]}%</td></tr>'
-            f'<tr class="vtd"><td colspan="3">turned out <b class="bad">worse than '
-            f'55%</b> {good["collapsed_55"]}% of the time</td></tr>'
+            f'<td class="n">cloudy <b class="bad">{good["collapsed_55"]}%</b> of the time</td></tr>'
             f'</tbody></table>'
-            f'<p class="note" style="margin-top:.8rem">Read the second row before taking '
-            f'comfort from a good night. Six or seven days out, a forecast of clear skies '
-            f'collapses about as often as a forecast of cloud recovers — so the night you '
-            f'are pleased about is roughly as unreliable as the one you have written off. '
-            f'This is the whole argument for planning three nights rather than picking one.</p>')
+            f'<p class="note" style="margin-top:.6rem">Symmetric. The night you are pleased '
+            f'about is as unreliable as the one you have written off.</p>')
 
     return (f'<h2>How often the forecast is right</h2>\n<div class="card">'
             + _calls_chart(v)
-            + f'<h3 class="sub">And how far off it is</h3>'
-            f'<p class="lede">How far a forecast ends up shifting before the night arrives. '
-            f'Every number below is <b>how many points the forecast was wrong by</b> — in '
-            f'either direction, too clear or too cloudy. Read a row as: <em>half the time a '
-            f'forecast made this far ahead was off by no more than the first number; eight '
-            f'times in ten by no more than the second; nine times in ten by no more than the '
-            f'third.</em> The tenth night is worse than all of them.</p>'
-            f'<p>The distance between the columns is the point. One day out the typical '
-            f'miss is small and the tail is not: a fifth of nights land dead on, and a fifth '
-            f'are out by more than fifty points. An average of those two cases describes '
-            f'neither, which is why none is quoted here.</p>'
-            + _worked_example(bl)
-            + f'<div class="vfs">'
-            f'<div class="vf vfh"><span class="vfl">forecast</span>'
-            f'<span class="vfbar"></span>'
-            f'<span class="vfv">half</span>'
-            f'<span class="vfv dim">8/10</span>'
+            + f'<h3 class="sub">And how far off</h3>'
+            f'<div class="vfs">'
+            f'<div class="vf vfh"><span class="vfl"></span><span class="vfbar"></span>'
+            f'<span class="vfv">half</span><span class="vfv dim">8/10</span>'
             f'<span class="vfv dim">9/10</span></div>'
             + "".join(rows) + '</div>'
+            + _worked_example(bl)
             + cond
-            + f'<p class="note" style="margin-top:.9rem"><b>What this is measured against.</b> '
-              f'{v["days"]} days of Open-Meteo previous runs, every model, core hours only, '
-              f'scored against {v["reference"]}. That is an analysis rather than an '
-              f'observation, so this measures how much a forecast <em>moves</em> between '
-              f'issue and arrival — not how wrong it finally is. For error against actual '
-              f'satellite observation see "Does waiting help?" above, which has a far better '
-              f'reference and a far smaller sample.</p>'
+            + _more("waiting", "Method, baselines and caveats")
             + '</div>')
 
 
@@ -1310,24 +1238,10 @@ def waiting_section(sk):
                         f'than the night itself, which cannot be real and sets the noise '
                         f'floor at roughly ±6 points.</p>')
 
-    # sample size, stated as episodes rather than hours
-    ne = ls.get("n_episodes")
-    samp = ""
-    if ne:
-        samp = (f'<p class="note"><b>Sample: {ne} nights</b>, {ls["n_hours"]} verified hours. '
-                f'The underlying count of model-hours is larger but not independent — seven '
-                f'models scoring the same hour is one observation, and 02:00 is nearly the '
-                f'same draw as 01:00. Every interval above is resampled by night, not by '
-                f'hour, which is why they are wide.</p>')
-    bs = ls.get("baselines") or {}
-    basel = ""
-    if bs.get("always_overcast") is not None:
-        basel = (f'<p class="note"><b>Context, and it is not flattering.</b> The verification '
-                 f'week averaged {bs.get("truth_mean")}% cloud, so a forecaster who simply '
-                 f'said "overcast" every night would score {bs["always_overcast"]}. The '
-                 f'models manage about 15–20 inside three days — better, but not by much — '
-                 f'and at seven days they are worse than that constant guess. Persistence '
-                 f'(assume tonight repeats last night) scores {bs.get("persistence", "—")}.</p>')
+    # The sample-size and baseline paragraphs moved to findings.html. They are the right
+    # caveats and the wrong place for them: four paragraphs of methodology between a chart
+    # and the next chart is how a decision page becomes a paper.
+    samp = basel = ""
 
     bm = ls.get("by_model") or {}
     rows = []
@@ -1704,19 +1618,17 @@ def daytime_section(latest):
             f'<td class="n">{v.get("rain_mm")} mm</td>'
             f'<td class="n">{v.get("cloud_mean")}%</td></tr>')
     return (f'<h2>Daytime — the other twenty-two hours</h2>\n<div class="card">'
-            f'<p class="lede">{DAY_HR[0]} AM to {DAY_HR[1] - 12} PM, for the moose drives, '
-            f'the hiking and getting the rig onto the porch dry. Not the daily maximum '
-            f'most forecasts show — a 40% chance driven by a shower at 3 AM says nothing '
-            f'about a walk at noon.</p>'
+                        f'<p class="lede">{DAY_HR[0]} AM to {DAY_HR[1] - 12} PM — the moose drives, the '
+            f'hiking, and getting the rig onto the porch dry. Hourly, not the daily maximum '
+            f'most forecasts quote.</p>'
             f'{strips}'
             f'<div class="scroll"><table class="mtable">'
             f'<thead><tr><th>day</th><th>temp</th><th>peak PoP</th><th>rain</th>'
             f'<th>when</th><th>total</th><th>cloud</th></tr></thead>'
             f'<tbody>{"".join(rows)}</tbody></table></div>'
-            f'<p class="note">Colour follows <b>hours of rain</b>, not probability. A 30% '
-            f'chance that resolves into one damp hour is a good day out; the same 30% '
-            f'spread across eight is not. Arrival is Tuesday afternoon and departure '
-            f'Friday morning, so Wednesday and Thursday are the full days.</p></div>')
+            f'<p class="note">Colour follows <b>hours of rain</b>, not probability — one '
+            f'damp hour out of eight is a good day out.</p>'
+            + _more("daytime", "Why hours rather than probability") + '</div>')
 
 
 def webcam_section(log=None):
@@ -2079,10 +1991,8 @@ def calibration(hist, wlog=None, sat=None):
                 'movement — check back tomorrow.</p>')
     avg, mx = sum(moves) / len(moves), max(moves)
     return (f'<p style="margin-bottom:.8rem"><b style="color:var(--ink)">Worst swing so far: '
-            f'{mx} points</b> (typical {avg:.0f}). You are asking how <em>wrong</em> a forecast '
-            f'could be — a tail question — so the worst case is the honest number and the mean '
-            f'understates it. A night reading 45% four days out could plausibly land anywhere '
-            f'within ±{mx} of that.</p>'
+            f'{mx} points</b> (typical {avg:.0f}) — so a night reading 45% today could land '
+            f'anywhere within ±{mx} of that.</p>'
             + (f'<p style="margin-bottom:.8rem">Against the webcam, the final forecast has '
                f'missed by <b style="color:var(--ink)">{sum(misses)/len(misses):.0f} points '
                f'on average</b>, worst {max(misses)}. Positive means it forecast more cloud '
@@ -2092,14 +2002,10 @@ def calibration(hist, wlog=None, sat=None):
             + '<div class="scroll"><table><thead><tr><th>Night</th><th>Lead</th><th>First</th>'
             '<th>Latest</th><th>Swing</th><th>Observed</th><th>Miss</th></tr></thead><tbody>'
             + "".join(rows) + '</tbody></table></div>'
-            + '<p class="note" style="margin-top:.8rem"><b>Observed</b> is the webcam at '
-            'Lopstick on First Connecticut Lake, 16.6 km SSW of the shooting site. Cloud can only '
-            'be scored while the sun is more than 15° up, so this is the last trustworthy look '
-            'before dark and the first after dawn — a bracket around the night, not a '
-            'measurement of it. '
-            'Frames nearer sunset and sunrise are discarded: a low sun reddens the whole '
-            'sky, and the red/blue test then reads clear air as overcast. Hover a value '
-            'for the usable frame count.</p>')
+            + '<p class="note" style="margin-top:.8rem"><b>Observed</b> is the webcam, '
+            '16.6 km SSW — a bracket around the night rather than a measurement of it, since '
+            'cloud can only be scored in daylight. Hover for the frame count.</p>'
+            + _more("ground-truth", "How the webcam is scored, and its blind spots"))
 
 
 WEBCAM_OVERRIDE = None      # preview_forecast.py sets this to render mock frames
@@ -2181,13 +2087,16 @@ def model_notes(latest):
                else '<span class="pill off">out of range</span>')
         # Two rows per source: the identity line, then the prose spanning the full width.
         # Prose in its own column forces a horizontal scrollbar on a phone.
+        # The "good for" and "watch for" prose lives in findings.html now. On this page it
+        # was two paragraphs per source, seven sources deep, between the reader and a
+        # decision — and none of it changes from hour to hour, which is the test for whether
+        # something belongs on a page that rebuilds hourly.
         rows.append(
             f'<tr class="mrow"><td><b>{name}</b> '
             f'<span class="dim">{who}</span></td>'
-            f'<td class="n">{grid}</td><td class="r">{tag}</td></tr>'
-            f'<tr class="mdesc"><td colspan="3">{good}'
-            f'<div class="wf">Watch for: {bad}</div></td></tr>')
-    return ('<table class="mtable"><tbody>' + "".join(rows) + '</tbody></table>')
+            f'<td class="n">{grid}</td><td class="r">{tag}</td></tr>')
+    return ('<table class="mtable"><tbody>' + "".join(rows) + '</tbody></table>'
+            + _more("ensemble", "What each source is good and bad at"))
 
 def trip_banner(latest, sk=None):
     """The decision, not the forecast: odds that at least one night gives you the core.
@@ -2678,6 +2587,10 @@ svg{{width:100%;height:auto;display:block}}
 .clbar b.clmark{{position:absolute;top:-2px;width:2px;height:18px;background:var(--ink);
   opacity:.55}}
 .clv{{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}}
+.more{{margin:.5rem 0 0;font-size:.82rem}}
+.more a{{color:var(--accent);text-decoration:none;font-family:var(--mono);font-size:.72rem;
+  letter-spacing:.04em}}
+.more a:hover{{text-decoration:underline}}
 .vfs{{display:flex;flex-direction:column;gap:.3rem;margin:.9rem 0 .5rem}}
 .vf{{display:grid;grid-template-columns:4.4rem 1fr 2.8rem 2.8rem 2.8rem;align-items:center;
   gap:.45rem;font-family:var(--mono);font-size:.72rem}}
@@ -2836,37 +2749,19 @@ td.trail{{font-family:var(--mono);font-size:1rem;letter-spacing:.12em}}
     <div style="margin-top:1rem">{model_notes(latest)}</div>
 
     <h3 class="sub">Should you weight one over another?</h3>
-    <p>Yes, and it changes as the trip approaches.</p>
     <table class="mtable"><tbody>
       <tr class="mrow"><td class="n">Now — 7+ days</td>
-        <td class="r"><b>AIFS, and the spread</b></td></tr>
-      <tr class="mdesc"><td colspan="2">Measured at this site, AIFS is the most accurate
-        model beyond five days and ECMWF one of the worst — the reverse of their short-range
-        order. Mostly though, read the spread rather than the number: a ±60 split means the
-        atmosphere has not committed and any single model quoting you 23% is guessing.
-        <b>Waiting past about five days out is where the forecast stops improving</b> — see
-        "Does waiting help?" above.</td></tr>
+        <td class="r"><b>The spread, not any model</b></td></tr>
       <tr class="mrow"><td class="n">8 Aug — decision day</td>
         <td class="r"><b>ECMWF, then UKMO</b></td></tr>
-      <tr class="mdesc"><td colspan="2">Inside three days ECMWF is the strongest here, UKMO
-        and ICON are both in range by then, and NWS has a human in the loop. HRRR still
-        cannot see 11 Aug. Note this is already past the point where extra waiting buys
-        accuracy — by the 6th or 7th you have essentially the whole picture.</td></tr>
       <tr class="mrow"><td class="n">9–10 Aug</td><td class="r"><b>HRRR</b></td></tr>
-      <tr class="mdesc"><td colspan="2">3 km resolves the valley and the lakes instead of
-        averaging them into a 13 km box. For terrain cloud nothing else here is close.</td></tr>
       <tr class="mrow"><td class="n">On site</td>
         <td class="r"><b>The webcam and your eyes</b></td></tr>
-      <tr class="mdesc"><td colspan="2">See the scoreboard above — it measures which model has
-        actually been right at this location, which beats any model's general
-        reputation.</td></tr>
     </tbody></table>
-
-    <p class="note" style="margin-top:1rem"><b>The honest caveat:</b> night-time low cloud
-    and valley fog are the weakest thing every global model does. They parameterise
-    boundary-layer cloud across a 13–25 km box over terrain that changes on a 1 km scale.
-    A clear synoptic pattern can still deliver a fogged-in lake at 3 AM, and none of these
-    will have told you. That is what the webcam is for.</p>
+    <p class="note" style="margin-top:.8rem">Night-time low cloud and valley fog are the
+    weakest thing every global model does — a clear synoptic pattern can still deliver a
+    fogged-in lake at 3 AM. That is what the webcam is for.</p>
+    {_more("waiting", "Why each of those, and what the measurements say")}
   </div>
 
   <div style="margin-top:2.5rem;padding-top:1.2rem;border-top:1px solid var(--rule);

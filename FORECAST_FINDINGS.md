@@ -270,6 +270,68 @@ worst. Directional at best until the sample contains clear nights.
 
 ---
 
+
+### How often it is right, on a much larger sample
+
+The measurements above score against the satellite, which is the honest reference and caps
+the sample at the nights the satellite has watched. A second pass trades reference quality
+for volume: 92 days of Open-Meteo previous runs, every model, core hours only,
+scored against each model's own day-0 value for the same hour. Over a thousand readings per lead instead of a few dozen.
+
+That reference is an analysis rather than an observation, so it measures how far a forecast
+**moves** between issue and arrival, not how wrong it finally is. Bigger sample, weaker
+truth. Both numbers are worth having and neither replaces the other.
+
+"Right" means within **5 percentage points** of the outcome — not on the correct
+side of any threshold. An earlier version scored the GO line instead, which counted a 5%
+forecast against a 25% outcome as a hit, and folded a question about the trip into a
+measurement of the models.
+
+| Lead | Right (±5) | Half the time within | 9 in 10 within |
+|---|---|---|---|
+| 1 day | 44% | ±8 | ±66 |
+| 2 days | 38% | ±11 | ±71 |
+| 3 days | 33% | ±13 | ±80 |
+| 4 days | 28% | ±19 | ±82 |
+| 5 days | 26% | ±21 | ±82 |
+| 6 days | 23% | ±24 | ±87 |
+| 7 days | 19% | ±29 | ±86 |
+
+**The baselines matter more than the headline.** Three predictors that know nothing:
+
+| Predictor | Scores |
+|---|---|
+| Always say overcast | **28%** |
+| Random guess 0–100 | 11% |
+| Always say the 30-year average (53%) | 7% |
+
+Always saying "overcast" is right 28% of the time because most nights
+here are. That is the bar. The forecast clears it out to three days, ties at four, and
+loses from five onward — the same conclusion the satellite-referenced curve reaches by a
+completely different route.
+
+Note the trap in choosing a baseline. Under the old GO-line scoring, "always say cloudy"
+scored 62% and the forecast could not beat it at seven days. Under a 5-point test the
+do-nothing predictors collapse and the forecast clears them at every lead. The stricter
+definition produces a smaller headline number and a better-looking model, which is a good
+reason to publish both the definition and the baseline rather than the number alone.
+
+### Why no average error is quoted anywhere
+
+The error distribution is bimodal, not bell-shaped. One day out:
+
+| Off by | Share of nights |
+|---|---|
+| 0–2 points | 27% |
+| 3–10 | 20% |
+| 11–25 | 19% |
+| 26–50 | 15% |
+| 51+ | **18%** |
+
+A fifth of nights are called dead on and nearly a fifth are wrong by more than fifty points
+— the day before. Mean error is 22, median 8, and neither describes a night you would
+actually experience. Percentiles are quoted throughout for this reason.
+
 ## 5. Ground truth: satellite, not the webcam
 
 The webcam can only score cloud in daylight. The trip happens at night. So the model
