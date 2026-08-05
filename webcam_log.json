@@ -137,9 +137,9 @@
   "cloud": null,
   "night": true,
   "stats": {
-   "lum": 31.8,
-   "lum_sd": 3.1,
-   "lum_p90": 35.0,
+   "lum": 23.1,
+   "lum_sd": 2.6,
+   "lum_p90": 26.0,
    "sat": 0.0,
    "rb": 1.0
   },

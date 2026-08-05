@@ -22,7 +22,10 @@ from datetime import datetime, timedelta, timezone
 SITE    = ("Lake spot", 45.2393, -71.1964)
 UA      = "perseid-meteor-shower-2026 (https://github.com/theWickedWebDev/perseid-meteor-shower-2026)"
 EDT     = timezone(timedelta(hours=-4))
-WEBCAM_SITE = (45.0958, -71.2600)   # First Connecticut Lake cam, not the shooting site
+WEBCAM_SITE = (45.10367, -71.28616)  # Lopstick, First Connecticut Lake — the camera
+                                     # itself, 16.6 km SSW of the shooting site. Fixed
+                                     # 4 Aug from a map pin; the previous value was an
+                                     # estimate and sat 2.2 km away.
 HIST    = "forecast_history.json"
 PRECOMPACT = "forecast_history.precompact.json"   # one-time pre-compaction copy
 LOG     = "FORECAST_LOG.md"
@@ -1164,7 +1167,7 @@ def webcam_section(log=None):
     <div class="scroll" style="margin-top:.8rem">{sat_strip(_satlog())}</div>
   </div>
   <div class="card">
-    <p class="lede">First Connecticut Lake, 16.7 km SSW of the site. Hourly frame, cloud estimated,
+    <p class="lede">Lopstick, First Connecticut Lake — 16.6 km SSW of the site. Hourly frame, cloud estimated,
     compared against what each model said for that hour.</p>
     <div class="live"><iframe src="https://www.youtube.com/embed/wNxk-XC8Z5s"
       title="First Connecticut Lake live webcam" loading="lazy" allowfullscreen
@@ -1433,7 +1436,7 @@ def calibration(hist, wlog=None, sat=None):
             '<th>Latest</th><th>Swing</th><th>Observed</th><th>Miss</th></tr></thead><tbody>'
             + "".join(rows) + '</tbody></table></div>'
             + '<p class="note" style="margin-top:.8rem"><b>Observed</b> is the webcam at '
-            'First Connecticut Lake, 16.7 km SSW of the shooting site. Cloud can only '
+            'Lopstick on First Connecticut Lake, 16.6 km SSW of the shooting site. Cloud can only '
             'be scored while the sun is more than 15° up, so this is the last trustworthy look '
             'before dark and the first after dawn — a bracket around the night, not a '
             'measurement of it. '

@@ -22,7 +22,7 @@ import json, os, subprocess, urllib.request
 from datetime import datetime, timedelta, timezone
 
 STREAM  = "https://www.youtube.com/watch?v=wNxk-XC8Z5s"
-SITE    = ("First Connecticut Lake", 45.0958, -71.2600)   # the webcam, not the shooting site
+SITE    = ("Lopstick, First Connecticut Lake", 45.10367, -71.28616)  # the camera itself
 EDT     = timezone(timedelta(hours=-4))
 LOG     = "webcam_log.json"
 SHOTS   = "webcam"
