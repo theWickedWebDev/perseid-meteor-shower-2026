@@ -1,5 +1,5 @@
 {
- "computed": "2026-08-04T18:33:05.684605-04:00",
+ "computed": "2026-08-04T20:15:24.770186-04:00",
  "climatology": {
   "years": 30,
   "median": 72,
@@ -26,46 +26,63 @@
  },
  "lead_skill": {
   "n_hours": 51,
+  "n_episodes": 7,
   "by_lead": {
    "0": {
     "mean": 19.7,
     "median": 6,
-    "n": 357
+    "n": 357,
+    "lo": 13.0,
+    "hi": 25.0
    },
    "1": {
     "mean": 14.6,
     "median": 4,
-    "n": 357
+    "n": 357,
+    "lo": 7.7,
+    "hi": 21.3
    },
    "2": {
     "mean": 18.0,
     "median": 5,
-    "n": 357
+    "n": 357,
+    "lo": 8.2,
+    "hi": 29.3
    },
    "3": {
     "mean": 20.8,
     "median": 8,
-    "n": 357
+    "n": 357,
+    "lo": 10.7,
+    "hi": 30.8
    },
    "4": {
     "mean": 17.9,
     "median": 6,
-    "n": 357
+    "n": 357,
+    "lo": 8.3,
+    "hi": 28.8
    },
    "5": {
     "mean": 20.6,
     "median": 8,
-    "n": 357
+    "n": 357,
+    "lo": 8.6,
+    "hi": 31.9
    },
    "6": {
     "mean": 23.2,
     "median": 8,
-    "n": 357
+    "n": 357,
+    "lo": 11.8,
+    "hi": 33.1
    },
    "7": {
     "mean": 38.1,
     "median": 32,
-    "n": 255
+    "n": 255,
+    "lo": 29.9,
+    "hi": 46.0
    }
   },
   "by_model": {
@@ -136,6 +153,42 @@
     "4": 8,
     "5": 18,
     "6": 33
+   }
+  },
+  "mean_forecast": {
+   "ECMWF": 77,
+   "GFS": 73,
+   "ICON": 85,
+   "GEM": 64,
+   "AIFS": 73,
+   "JMA": 58,
+   "UKMO": 79
+  },
+  "pessimism_r": -0.42,
+  "baselines": {
+   "always_overcast": 22.7,
+   "always_climatology": 33.7,
+   "truth_mean": 77,
+   "persistence": 38.7
+  },
+  "diffs": {
+   "7_3": {
+    "delta": 17.1,
+    "lo": 8.3,
+    "hi": 24.1,
+    "significant": true
+   },
+   "3_0": {
+    "delta": 1.0,
+    "lo": -8.8,
+    "hi": 11.0,
+    "significant": false
+   },
+   "1_0": {
+    "delta": -5.1,
+    "lo": -12.1,
+    "hi": 1.2,
+    "significant": false
    }
   }
  }

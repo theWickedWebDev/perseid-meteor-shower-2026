@@ -22,6 +22,7 @@ Nothing here is on the critical path: if the file is missing the page omits the 
 
 import json
 import os
+import random
 import statistics as st
 import sys
 import urllib.request
@@ -106,6 +107,51 @@ def truth_hours(satlog):
     return out
 
 
+def _episodes(hours):
+    """Group verified hours into contiguous nights.
+
+    The unit of independent information is a night, not an hour. Cloud at 02:00 is nearly
+    the same draw as cloud at 01:00, and seven models scoring the same hour are not seven
+    observations either. Resampling by episode is what stops 357 correlated numbers being
+    reported as though they were 357 independent ones.
+    """
+    ts = sorted(datetime.fromisoformat(h) for h in hours)
+    if not ts:
+        return []
+    eps, cur = [], [ts[0]]
+    for a_, b_ in zip(ts, ts[1:]):
+        if (b_ - a_).total_seconds() > 4 * 3600:
+            eps.append(cur); cur = [b_]
+        else:
+            cur.append(b_)
+    eps.append(cur)
+    return [[t.strftime("%Y-%m-%dT%H:00") for t in e] for e in eps]
+
+
+def _baselines(truth):
+    """What a forecaster with no skill would score. Context for the model numbers.
+
+    A week that was overcast most nights makes 'always 100%' look good, so a model beating
+    it by three points is barely doing anything. Without this the skill table flatters.
+    """
+    v = list(truth.values())
+    if not v:
+        return {}
+    out = {"always_overcast": round(st.mean([abs(100 - x) for x in v]), 1),
+           "always_climatology": round(st.mean([abs(72 - x) for x in v]), 1),
+           "truth_mean": round(st.mean(v))}
+    nights = {}
+    for k, x in truth.items():
+        d = datetime.fromisoformat(k)
+        key = (d if d.hour >= 21 else d - timedelta(days=1)).date()
+        nights.setdefault(key, []).append(x)
+    ks = sorted(nights)
+    pe = [abs(st.mean(nights[a]) - x) for a, b in zip(ks, ks[1:]) for x in nights[b]]
+    if pe:
+        out["persistence"] = round(st.mean(pe), 1)
+    return out
+
+
 def lead_skill(satlog):
     """Mean absolute error against the satellite, by how far ahead the forecast was made.
 
@@ -118,6 +164,7 @@ def lead_skill(satlog):
         return None
     varlist = ",".join(["cloud_cover"] + [f"cloud_cover_previous_day{i}" for i in range(1, 8)])
     per_lead, per_model = {}, {}
+    per_hour_lead, pred_by_model = {}, {}
     for key, name in MODELS:
         url = (f"https://previous-runs-api.open-meteo.com/v1/forecast?latitude={SITE[0]}"
                f"&longitude={SITE[1]}&hourly={varlist}&models={key}&forecast_days=2"
@@ -139,15 +186,80 @@ def lead_skill(satlog):
                 err = abs(series[i] - actual)
                 per_lead.setdefault(lead, []).append(err)
                 per_model.setdefault(name, {}).setdefault(lead, []).append(err)
+                per_hour_lead.setdefault((hour, lead), []).append(err)
+                if lead <= 2:
+                    pred_by_model.setdefault(name, []).append(series[i])
     if not per_lead:
         return None
+
+    # Bootstrap over nights so the reported uncertainty reflects the real sample size.
+    # Without it the curve invited conclusions it could not support: 1 day out appeared to
+    # beat the night itself by 5 points, which is impossible and sets the noise floor.
+    eps = _episodes(truth)
+    rng = random.Random(20260804)
+    by_ep = {}
+    for (hour, lead), errs in per_hour_lead.items():
+        by_ep.setdefault(lead, {}).setdefault(hour, []).extend(errs)
+
+    def mean_for(lead, keys):
+        v = [e for k in keys for e in by_ep.get(lead, {}).get(k, [])]
+        return st.mean(v) if v else None
+
+    ci, boots_by_lead = {}, {}
+    for lead in sorted(per_lead):
+        draws = []
+        for _ in range(2000):
+            pick = [eps[rng.randrange(len(eps))] for _ in range(len(eps))]
+            m = mean_for(lead, [k for ks in pick for k in ks])
+            if m is not None:
+                draws.append(m)
+        draws.sort()
+        boots_by_lead[lead] = draws
+        if draws:
+            ci[lead] = (round(draws[int(.025 * len(draws))], 1),
+                        round(draws[int(.975 * len(draws))], 1))
+
+    # is a given improvement bigger than the noise?
+    def diff_ci(a_, b_):
+        draws = []
+        for _ in range(2000):
+            pick = [eps[rng.randrange(len(eps))] for _ in range(len(eps))]
+            ks = [k for ks in pick for k in ks]
+            ma, mb = mean_for(a_, ks), mean_for(b_, ks)
+            if ma is not None and mb is not None:
+                draws.append(ma - mb)
+        if not draws:
+            return None
+        draws.sort()
+        lo, hi = draws[int(.025 * len(draws))], draws[int(.975 * len(draws))]
+        return {"delta": round(st.mean(draws), 1), "lo": round(lo, 1), "hi": round(hi, 1),
+                "significant": bool(lo > 0 or hi < 0)}
+
+    # pessimism confound: on an overcast week the gloomiest model wins on error alone
+    mean_pred = {m: round(st.mean(v)) for m, v in pred_by_model.items() if v}
+    bias_r = None
+    if len(mean_pred) >= 4:
+        xs = [mean_pred[m] for m in mean_pred]
+        ys = [st.mean(per_model[m].get(0, [0]) + per_model[m].get(1, [])) for m in mean_pred]
+        mx, my = st.mean(xs), st.mean(ys)
+        den = (sum((x - mx) ** 2 for x in xs) * sum((y - my) ** 2 for y in ys)) ** .5
+        if den:
+            bias_r = round(sum((x - mx) * (y - my) for x, y in zip(xs, ys)) / den, 2)
+
     return {
         "n_hours": len(truth),
+        "n_episodes": len(eps),
         "by_lead": {str(k): {"mean": round(st.mean(v), 1),
-                             "median": round(st.median(v), 1), "n": len(v)}
+                             "median": round(st.median(v), 1), "n": len(v),
+                             "lo": ci.get(k, (None, None))[0],
+                             "hi": ci.get(k, (None, None))[1]}
                     for k, v in sorted(per_lead.items())},
         "by_model": {m: {str(k): round(st.mean(v)) for k, v in sorted(d.items())}
                      for m, d in per_model.items()},
+        "mean_forecast": mean_pred,
+        "pessimism_r": bias_r,
+        "baselines": _baselines(truth),
+        "diffs": {"7_3": diff_ci(7, 3), "3_0": diff_ci(3, 0), "1_0": diff_ci(1, 0)},
     }
 
 

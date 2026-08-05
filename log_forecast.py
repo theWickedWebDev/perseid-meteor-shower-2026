@@ -915,22 +915,60 @@ def waiting_section(sk):
     mx = max(bl[k]["mean"] for k in leads) or 1
     bars = []
     for k in leads:
-        m = bl[k]["mean"]
-        w = 100 * m / mx
+        d = bl[k]
+        m = d["mean"]
+        lo, hi = d.get("lo"), d.get("hi")
         cls = "bad" if m >= 30 else "warn" if m >= 22 else "good"
+        # the confidence interval is drawn, not just quoted — the curve invited conclusions
+        # it could not support until the error bars were visible next to it
+        band = ""
+        if lo is not None and hi is not None:
+            band = (f'<i class="ci" style="left:{100*lo/mx:.0f}%;'
+                    f'width:{max(1, 100*(hi-lo)/mx):.0f}%"></i>')
         bars.append(f'<div class="lk"><span class="lkl">{k} d</span>'
-                    f'<span class="lkbar"><i class="{cls}" style="width:{w:.0f}%"></i></span>'
+                    f'<span class="lkbar"><i class="{cls}" style="width:{100*m/mx:.0f}%"></i>'
+                    f'{band}</span>'
                     f'<span class="lkv">{m:.0f}</span></div>')
-    e7 = bl.get("7", {}).get("mean")
-    e3 = bl.get("3", {}).get("mean")
-    e0 = bl.get("0", {}).get("mean")
+    diffs = ls.get("diffs") or {}
+    d73, d30 = diffs.get("7_3"), diffs.get("3_0")
     verdict = ""
-    if None not in (e7, e3, e0):
+    if d73 and d73.get("significant"):
         verdict = (f'<p>Waiting from seven days out to three gains '
-                   f'<b>{e7 - e3:.0f} points</b> of accuracy. Waiting from three days to '
-                   f'the night itself gains <b>{e3 - e0:.0f}</b>. The information arrives '
-                   f'early and then stops — there is no eleventh-hour clarity to hold out '
-                   f'for.</p>')
+                   f'<b>{d73["delta"]:.0f} points</b> of accuracy '
+                   f'<span class="dim">(95% CI {d73["lo"]:+.0f} to {d73["hi"]:+.0f})</span> — '
+                   f'a real effect, comfortably clear of the noise.</p>')
+    if d30:
+        if d30.get("significant"):
+            verdict += (f'<p>Waiting from three days to the night itself gains a further '
+                        f'<b>{d30["delta"]:.0f}</b>.</p>')
+        else:
+            verdict += (f'<p><b>Past about five days, waiting buys nothing measurable.</b> '
+                        f'Three days out to the night itself moves the error by '
+                        f'{d30["delta"]:+.0f} points, but the interval is '
+                        f'{d30["lo"]:+.0f} to {d30["hi"]:+.0f} — it straddles zero, so the '
+                        f'honest statement is that no improvement can be detected at this '
+                        f'sample size. The bars show it: one day out scores <em>better</em> '
+                        f'than the night itself, which cannot be real and sets the noise '
+                        f'floor at roughly ±6 points.</p>')
+
+    # sample size, stated as episodes rather than hours
+    ne = ls.get("n_episodes")
+    samp = ""
+    if ne:
+        samp = (f'<p class="note"><b>Sample: {ne} nights</b>, {ls["n_hours"]} verified hours. '
+                f'The underlying count of model-hours is larger but not independent — seven '
+                f'models scoring the same hour is one observation, and 02:00 is nearly the '
+                f'same draw as 01:00. Every interval above is resampled by night, not by '
+                f'hour, which is why they are wide.</p>')
+    bs = ls.get("baselines") or {}
+    basel = ""
+    if bs.get("always_overcast") is not None:
+        basel = (f'<p class="note"><b>Context, and it is not flattering.</b> The verification '
+                 f'week averaged {bs.get("truth_mean")}% cloud, so a forecaster who simply '
+                 f'said "overcast" every night would score {bs["always_overcast"]}. The '
+                 f'models manage about 15–20 inside three days — better, but not by much — '
+                 f'and at seven days they are worse than that constant guess. Persistence '
+                 f'(assume tonight repeats last night) scores {bs.get("persistence", "—")}.</p>')
 
     bm = ls.get("by_model") or {}
     rows = []
@@ -947,7 +985,7 @@ def waiting_section(sk):
              + "".join(rows) + '</tbody></table>')
     return (f'<h2>Does waiting help?</h2>\n<div class="card">'
             f'<p class="lede">Mean error against the satellite, by how far ahead the '
-            f'forecast was made. {ls["n_hours"]} verified night hours.</p>'
+            f'forecast was made. Bars show the 95% interval.</p>'
             f'<div class="lks">{bars and "".join(bars)}</div>'
             f'{verdict}'
             f'<p class="note">Typical error is far lower than the mean — the median at '
@@ -955,10 +993,15 @@ def waiting_section(sk):
             f'up by occasional total misses, which is where the risk lives: when the models '
             f'agree they are usually right, and when they split the tail is announcing '
             f'itself.</p>'
+            f'{samp}{basel}'
             f'<h3 class="sub">Which model, at which range</h3>'
             f'<div class="scroll">{table}</div>'
-            f'<p class="note">Lower is better. Measured at this site against satellite '
-            f'observation, so it reflects this terrain rather than a global scorecard.</p>'
+            f'<p class="note">Lower is better, measured at this site against satellite '
+            f'observation. <b>Read this ranking with suspicion.</b> The verification week '
+            f'was overcast on five nights of seven, and the correlation between "forecasts '
+            f'more cloud" and "scores well" is {ls.get("pessimism_r", "—")} — so the table '
+            f'is partly ranking pessimism rather than skill. It will mean more once the '
+            f'sample contains some genuinely clear nights.</p>'
             f'</div>')
 
 
@@ -1693,7 +1736,10 @@ h3.sub{{font-family:var(--serif);color:var(--ink);font-size:1rem;margin:1.8rem 0
   font-family:var(--mono);font-size:.72rem}}
 .lkl{{color:var(--muted)}}
 .lkbar{{background:var(--rule);border-radius:2px;height:8px;overflow:hidden}}
+.lkbar{{position:relative}}
 .lkbar i{{display:block;height:100%;border-radius:2px}}
+.lkbar i.ci{{position:absolute;top:0;height:100%;background:none;
+  border-left:1px solid var(--ink);border-right:1px solid var(--ink);opacity:.45}}
 .lkbar i.good{{background:var(--good)}} .lkbar i.warn{{background:var(--warn)}}
 .lkbar i.bad{{background:var(--bad)}}
 .lkv{{text-align:right;font-variant-numeric:tabular-nums}}

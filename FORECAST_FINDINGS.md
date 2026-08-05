@@ -131,23 +131,48 @@ not a substitute for looking at tonight.
 
 ## 4. Does waiting help? Mostly no.
 
-Model error against satellite truth, by how far ahead the forecast was made. 51 verified
-night hours:
+Model error against satellite truth, by how far ahead the forecast was made. **Seven
+nights**, 51 verified hours — the model-hour count is larger but not independent, since
+seven models scoring one hour is a single observation and 02:00 is nearly the same draw as
+01:00. Intervals below are bootstrapped by night:
 
 ```
-7 days   38  ####################
-6 days   23  ############
-5 days   21  ###########
-4 days   18  #########
-3 days   21  ###########
-2 days   18  #########
-1 day    15  ########
-0 days   20  ##########
+lead      mean     95% CI
+7 days    38.1   [29.9, 46.0]
+6 days    23.2   [11.8, 33.1]
+5 days    20.6   [ 8.6, 31.9]
+4 days    17.9   [ 8.3, 28.8]
+3 days    20.8   [10.7, 30.8]
+2 days    18.0   [ 8.2, 29.3]
+1 day     14.6   [ 7.7, 21.3]   <- below 0 d, which cannot be real
+0 days    19.7   [13.0, 25.0]
 ```
 
-**Waiting from 7 days to 3 gains 17 points of accuracy. Waiting from 3 days to the night
-itself gains 1.** The information arrives early and then stops. There is no eleventh-hour
-clarity to hold out for.
+### Is this better than no skill at all?
+
+Barely, and worse than that at range. The verification week averaged **77% cloud**:
+
+| Forecaster | Mean error |
+|---|---|
+| Always say "overcast" | **22.7** |
+| Models, 0–3 days | 15–20 |
+| Models, 7 days | 38.1 |
+| Always say climatology (72%) | 33.7 |
+| Persistence (tonight = last night) | 38.7 |
+
+Inside three days the models beat a constant "overcast" guess by only a few points. **At
+seven days they are worse than it.** That is a property of a week that was cloudy on five
+nights out of seven — the measure will mean more once some genuinely clear nights are in
+the sample.
+
+**Waiting from 7 days to 3 gains 17 points of accuracy** — 95% CI +8 to +24, comfortably
+clear of the noise. **From 3 days to the night itself, nothing measurable**: the point
+estimate is +1 with an interval of −9 to +11, straddling zero.
+
+The chart itself shows why the second number cannot be taken at face value — **1 day out
+scores 5 points better than the night itself**, which is impossible, and sets the noise
+floor at roughly ±6. An earlier version of this document stated the +1 as a finding. It is
+not one; it is smaller than the error bar.
 
 For the trip: Night 1 is Aug 11, so by **Aug 6 or 7** you have essentially the whole picture.
 Deciding on the 8th is not premature.
@@ -186,7 +211,11 @@ near and helps it far.
 > **This also corrects earlier advice.** The site originally said to weight ECMWF throughout.
 > It now says AIFS at range, ECMWF inside three days.
 
-Sample is small — treat as directional, not settled. It firms up as the satellite log grows.
+**Read this ranking with suspicion.** The correlation between "forecasts more cloud" and
+"scores well" is **−0.42** on this sample, so it is partly ranking pessimism rather than
+skill: on an overcast week the gloomiest model wins on error alone. AIFS, ECMWF and UKMO
+happen to sit nearest the truth mean of 77%; JMA and GEM are the optimistic ones and score
+worst. Directional at best until the sample contains clear nights.
 
 ---
 
@@ -281,7 +310,10 @@ survey on arrival settles it — that task is first on the Night 1 schedule for 
   shipping twice, in two different places.
 - **`EDT` is fixed at UTC−4** while Open-Meteo is queried with `America/New_York`. Identical
   in August, an hour apart after 1 Nov. Harmless for this trip, wrong on reuse.
-- **Skill sample is 51 hours over a handful of nights.** Directional, not settled.
+- **Skill sample is 7 nights.** One week, late Jul to early Aug, overcast on five of them
+  and bimodal — 41 readings at or above 50% cloud, 10 at or below 9%, nothing between. The
+  satellite log also has one genuine gap (the night of 29 Jul, 4 hours). Differences smaller
+  than about 6 points are not measurable at this size.
 - **Aerosol data stops at 5 days**, so smoke cannot be seen for the trip nights until about
   7 Aug. August in northern NH sits downwind of Quebec; a clear-looking night at AOD 0.5 is
   a milky one.
