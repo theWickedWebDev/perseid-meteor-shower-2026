@@ -42,6 +42,7 @@ fi
 # Regenerate unconditionally: the output is now a pure function of the source, so a
 # rebuild that changes nothing writes identical bytes and git sees no diff. An mtime guard
 # was wrong on a fresh clone, where checkout gives every file the same timestamp.
+$PY make_nightwatch.py >/dev/null 2>&1 || true   # star-count evidence page
 $PY make_findings.py >/dev/null || echo "$(date '+%F %T')  findings render failed"
 
 $PY preview_forecast.py >/dev/null 2>&1 || true   # mock preview, gitignored

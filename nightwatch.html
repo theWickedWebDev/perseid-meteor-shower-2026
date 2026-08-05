@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Night watch — can the core be seen?</title>
+<meta name="color-scheme" content="dark light">
+<style>
+:root{--ground:#0A0D14;--surface:#121722;--ink:#E7ECF5;--body:#BAC4D4;--muted:#7A8698;
+--rule:#232B39;--accent:#E3A445;--good:#6FBF95;--warn:#E3A445;--bad:#E8705C;
+--sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+--mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+--serif:ui-serif,"Iowan Old Style",Palatino,Georgia,serif}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--body);font-family:var(--sans);
+line-height:1.6;padding-bottom:3rem}
+.wrap{max-width:58rem;margin:0 auto;padding:0 clamp(1rem,3.5vw,1.6rem)}
+.bar{position:sticky;top:0;z-index:9;background:var(--ground);border-bottom:1px solid var(--rule)}
+.bar-in{max-width:58rem;margin:0 auto;padding:.5rem clamp(1rem,3.5vw,1.6rem)}
+.bar a{font-family:var(--mono);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;
+color:var(--muted);text-decoration:none}
+.bar a:hover{color:var(--accent)}
+h1{font-family:var(--serif);color:var(--ink);font-size:clamp(1.4rem,5vw,2rem);margin:1.6rem 0 .3rem}
+h2{font-family:var(--serif);color:var(--ink);font-size:1.15rem;margin:2.2rem 0 .7rem}
+p{max-width:44rem}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:4px;padding:1.1rem}
+.big{font-family:var(--mono);font-size:clamp(2.4rem,10vw,3.4rem);line-height:1;
+font-variant-numeric:tabular-nums}
+.big span{font-size:.85rem;color:var(--muted);margin-left:.5rem}
+.good{color:var(--good)}.warn{color:var(--warn)}.bad{color:var(--bad)}
+.dim{color:var(--muted)}
+.strip{display:flex;gap:2px;align-items:flex-end;height:76px;margin:1.1rem 0 .3rem;overflow-x:auto}
+.nb{flex:1 0 20px;min-width:20px;display:flex;flex-direction:column;justify-content:flex-end;
+height:100%;text-decoration:none}
+.nb i{display:block;width:100%;height:calc(6px + var(--f,0)*50px);border-radius:2px;background:var(--rule)}
+.nb.good i{background:var(--good)}.nb.warn i{background:var(--warn)}.nb.bad i{background:var(--bad)}
+.nb span{font-family:var(--mono);font-size:.5rem;color:var(--muted);text-align:center;margin-top:.2rem}
+.caps{display:grid;gap:1rem;grid-template-columns:1fr;margin-top:1rem}
+@media(min-width:44rem){.caps{grid-template-columns:1fr 1fr}}
+.cap{margin:0;background:var(--surface);border:1px solid var(--rule);border-radius:4px;
+overflow:hidden}
+.cap img{display:block;width:100%}
+.noimg{height:180px;display:flex;align-items:center;justify-content:center;color:var(--muted);
+font-family:var(--mono);font-size:.75rem}
+figcaption{padding:.6rem .8rem;font-family:var(--mono);font-size:.7rem;line-height:1.7}
+.tt{display:inline-block;min-width:3.6rem;color:#7dd3fc}
+.tt.rho{color:#ffd166}.tt.tea{color:#9fb3c8}
+table{border-collapse:collapse;width:100%;font-size:.82rem;font-family:var(--mono)}
+th,td{text-align:left;padding:.35rem .6rem;border-bottom:1px solid var(--rule);white-space:nowrap}
+th{font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+td.n{text-align:right;font-variant-numeric:tabular-nums}
+.scroll{overflow-x:auto}
+.note{color:var(--muted);font-size:.86rem}
+.legend span{display:inline-block;margin-right:1rem;font-family:var(--mono);font-size:.72rem}
+</style>
+</head>
+<body>
+<div class="bar"><div class="bar-in"><a href="forecast.html">← Forecast</a></div></div>
+<div class="wrap">
+<h1>Can the core actually be seen?</h1>
+<p>The webcam at Lopstick was plate-solved from its own stars: <b>bearing 178.5°</b>,
+94° wide, pitched 3° below level. Every target of this trip falls inside that frame —
+the Milky Way core, Rho Ophiuchi, M8 and M20 — at the same low southern altitudes you
+will be shooting them at, from 16.6 km away.</p>
+<p>So this is not a cloud proxy. A star either shows through or it does not. It also covers
+the case the satellite handles worst: infrared struggles with low cloud whose tops sit near
+ground temperature, and low cloud is exactly what blocks a target at 16°.</p>
+
+<div class="card">
+  <div class="big good">
+    3<span>stars in the core region · Tue 22:01</span></div>
+  <p class="note">Flux 1,673 · brightest source
+  9× the noise · core at
+  15.7° altitude</p>
+  <div class="strip"><a class="nb bad" href="#c0" style="--f:0.00" title="Tue 21:49 — 4 stars, flux 0"><i></i><span>21:49</span></a><a class="nb bad" href="#c1" style="--f:0.00" title="Tue 21:51 — 2 stars, flux 0"><i></i><span>21:51</span></a><a class="nb good" href="#c2" style="--f:0.73" title="Tue 21:54 — 3 stars, flux 1222"><i></i><span>21:54</span></a><a class="nb good" href="#c3" style="--f:0.62" title="Tue 22:00 — 3 stars, flux 1040"><i></i><span>22:00</span></a><a class="nb good" href="#c4" style="--f:1.00" title="Tue 22:01 — 3 stars, flux 1673"><i></i><span>22:01</span></a></div>
+  <p class="note">One bar per capture, height is light collected in the core region.
+  Click a bar to jump to that frame.</p>
+</div>
+
+<h2>Why flux and not just a count</h2>
+<p>A star count depends on where the detection threshold lands, and the stack noise moves
+between captures. Two grabs two minutes apart gave 15 sources and then 5 — not because the
+sky changed, but because σ went from 0.78 to 0.88 and the 6σ cut moved with it. Flux is the
+total light collected and does not care where a threshold sits, so it is the number to
+compare across captures and across nights.</p>
+<p class="legend"><span style="color:#7dd3fc">● core region</span>
+<span style="color:#ffd166">● Rho Ophiuchi</span>
+<span style="color:#9fb3c8">● teapot</span>
+<span style="color:#3ddc84">● detected source</span></p>
+
+<h2>The frames</h2>
+<p>Each is a median stack of the 30 least-compressed frames from a 30-second grab at 1080p,
+stretched so faint stars are visible, masked to sky only. Newest first.</p>
+<div class="caps"><figure class="cap" id="c4"><img loading="lazy" src="nightwatch/2026-08-04T2201.jpg" alt="stacked frame 22:01"><figcaption><b>Tue 04 Aug · 22:01</b><br><span class="tt">core</span> 3 stars · flux 1,673 · peak 9× · alt 15.7°<br><span class="tt rho">rho</span> 2 stars · flux 3,243 · peak 113×<br><span class="tt tea">teapot</span> 2 stars · flux 1,793<br><span class="dim">30 of 60 frames stacked · noise σ 1.04 · 5 sources in sky</span></figcaption></figure><figure class="cap" id="c3"><div class="noimg">frame not kept</div><figcaption><b>Tue 04 Aug · 22:00</b><br><span class="tt">core</span> 3 stars · flux 1,040 · peak 11× · alt 15.7°<br><span class="tt rho">rho</span> 2 stars · flux 3,498 · peak 117×<br><span class="tt tea">teapot</span> 3 stars · flux 1,031<br><span class="dim">30 of 60 frames stacked · noise σ 1.03 · 6 sources in sky</span></figcaption></figure><figure class="cap" id="c2"><div class="noimg">frame not kept</div><figcaption><b>Tue 04 Aug · 21:54</b><br><span class="tt">core</span> 3 stars · flux 1,222 · peak 11× · alt 15.8°<br><span class="tt rho">rho</span> 3 stars · flux 7,453 · peak 150×<br><span class="tt tea">teapot</span> 4 stars · flux 1,240<br><span class="dim">30 of 60 frames stacked · noise σ 0.89 · 8 sources in sky</span></figcaption></figure><figure class="cap" id="c1"><div class="noimg">frame not kept</div><figcaption><b>Tue 04 Aug · 21:51</b><br><span class="tt">core</span> 2 stars · flux 0 · peak 0× · alt 15.8°<br><span class="tt rho">rho</span> 2 stars · flux 0 · peak 0×<br><span class="tt tea">teapot</span> 1 stars · flux 0<br><span class="dim">30 of 60 frames stacked · noise σ 0.88 · 5 sources in sky</span></figcaption></figure><figure class="cap" id="c0"><div class="noimg">frame not kept</div><figcaption><b>Tue 04 Aug · 21:49</b><br><span class="tt">core</span> 4 stars · flux 0 · peak 0× · alt 15.8°<br><span class="tt rho">rho</span> 5 stars · flux 0 · peak 0×<br><span class="tt tea">teapot</span> 2 stars · flux 0<br><span class="dim">30 of 60 frames stacked · noise σ 0.78 · 15 sources in sky</span></figcaption></figure></div>
+
+<h2>Every reading</h2>
+<div class="scroll"><table>
+<thead><tr><th>time</th><th>core ★</th><th>core flux</th><th>rho ★</th><th>rho flux</th>
+<th>core alt</th><th>σ</th><th>sky</th></tr></thead>
+<tbody><tr><td>22:01</td><td class="n">3</td><td class="n">1,673</td><td class="n">2</td><td class="n">3,243</td><td class="n">15.7°</td><td class="n">1.04</td><td class="n">18.7</td></tr><tr><td>22:00</td><td class="n">3</td><td class="n">1,040</td><td class="n">2</td><td class="n">3,498</td><td class="n">15.7°</td><td class="n">1.03</td><td class="n">18.3</td></tr><tr><td>21:54</td><td class="n">3</td><td class="n">1,222</td><td class="n">3</td><td class="n">7,453</td><td class="n">15.8°</td><td class="n">0.89</td><td class="n">17.0</td></tr><tr><td>21:51</td><td class="n">2</td><td class="n">0</td><td class="n">2</td><td class="n">0</td><td class="n">15.8°</td><td class="n">0.88</td><td class="n">17.4</td></tr><tr><td>21:49</td><td class="n">4</td><td class="n">0</td><td class="n">5</td><td class="n">0</td><td class="n">15.8°</td><td class="n">0.78</td><td class="n">16.7</td></tr></tbody></table></div>
+<p class="note" style="margin-top:1rem">Captured every 15 minutes through the dark hours.
+Calibrated on the night of 4 Aug 2026 — the only fully dark night before the trip.</p>
+</div>
+</body>
+</html>

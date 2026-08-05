@@ -72,6 +72,22 @@ h3.sub{font-family:var(--serif);color:var(--ink);font-size:1rem;margin:1.8rem 0 
 .tripbig{font-family:var(--mono);font-size:clamp(2.6rem,11vw,3.6rem);line-height:1;
   font-variant-numeric:tabular-nums;margin:.2rem 0 .1rem}
 .tripsub{margin:.1rem 0 .9rem;color:var(--body)}
+.ev{font-family:var(--mono);font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--accent);text-decoration:none;margin-left:.6rem;vertical-align:middle}
+.ev:hover{text-decoration:underline}
+.nwbig{font-family:var(--mono);font-size:clamp(2.2rem,9vw,3rem);line-height:1;
+  margin:.6rem 0 .1rem;font-variant-numeric:tabular-nums}
+.nwbig span{font-size:.9rem;color:var(--muted);margin-left:.4rem}
+.nwstrip{display:flex;gap:2px;align-items:flex-end;height:70px;margin:1rem 0 .4rem;
+  overflow-x:auto}
+.nw{flex:1 0 16px;display:flex;flex-direction:column;justify-content:flex-end;
+  height:100%;min-width:16px}
+.nw i{display:block;width:100%;height:calc(6px + var(--f,0) * 48px);border-radius:2px;
+  background:var(--rule)}
+.nw.good i{background:var(--good)} .nw.warn i{background:var(--warn)}
+.nw.bad i{background:var(--bad)}
+.nw span{font-family:var(--mono);font-size:.55rem;color:var(--muted);text-align:center;
+  margin-top:.2rem}
 .lds{display:flex;flex-direction:column;gap:.3rem;margin:.9rem 0 .5rem}
 .ld{display:grid;grid-template-columns:5.2rem 1fr 2.8rem auto;align-items:center;
   gap:.5rem;font-family:var(--mono);font-size:.72rem}
@@ -255,10 +271,10 @@ td.trail{font-family:var(--mono);font-size:1rem;letter-spacing:.12em}
 </div></div>
 
 <div class="wrap">
-  <div class="eyebrow" style="margin-top:2rem">Fetched Tue 04 Aug, 21:12 EDT · forecast issued
+  <div class="eyebrow" style="margin-top:2rem">Fetched Tue 04 Aug, 21:58 EDT · forecast issued
     Tue 04 Aug 19:11 · gridpoint GYX 28,125</div>
   <h1>Forecast trend</h1>
-  <div class="next" data-cron-min="5"><span id="nextcheck"><b>Next check 22:05</b> <span class="dim">— in 40 min, then hourly</span></span><span class="dim"> · next model data: 21:39 UKMO · 23:35 ICON · 23:42 JMA</span></div>
+  <div class="next" data-cron-min="5"><span id="nextcheck"><b>Next check 22:05</b> <span class="dim">— in 1 min, then hourly</span></span><span class="dim"> · next model data: 23:35 ICON · 23:42 JMA · 01:39 AIFS</span></div>
   <p class="lede">Cloud cover. <b>Core window 10–11:30 PM</b> decides go/no-go; <b>1–4 AM</b> is
   Perseids and the scope. Each point is one forecast run.</p>
 
@@ -286,114 +302,121 @@ td.trail{font-family:var(--mono);font-size:1rem;letter-spacing:.12em}
 <text class="ax" x="38" y="22.0" text-anchor="end">100%</text>
 <text class="ax" x="46.0" y="296" text-anchor="middle">04 Aug</text>
 <text class="ax dim" x="46.0" y="310" text-anchor="middle">14:39</text>
-<text class="ax dim" x="86.4" y="310" text-anchor="middle">15:04</text>
-<text class="ax dim" x="126.9" y="310" text-anchor="middle">15:28</text>
-<text class="ax dim" x="167.3" y="310" text-anchor="middle">15:37</text>
-<text class="ax dim" x="207.7" y="310" text-anchor="middle">16:03</text>
-<text class="ax dim" x="248.1" y="310" text-anchor="middle">16:53</text>
-<text class="ax dim" x="288.6" y="310" text-anchor="middle">17:37</text>
-<text class="ax dim" x="329.0" y="310" text-anchor="middle">17:59</text>
-<text class="ax dim" x="369.4" y="310" text-anchor="middle">18:05</text>
-<text class="ax dim" x="409.9" y="310" text-anchor="middle">19:05</text>
-<text class="ax dim" x="450.3" y="310" text-anchor="middle">19:44</text>
-<text class="ax dim" x="490.7" y="310" text-anchor="middle">19:50</text>
-<text class="ax dim" x="531.1" y="310" text-anchor="middle">20:05</text>
-<text class="ax dim" x="571.6" y="310" text-anchor="middle">21:12</text>
-<text class="ax dim" x="612.0" y="310" text-anchor="middle">21:12</text>
+<text class="ax dim" x="83.7" y="310" text-anchor="middle">15:04</text>
+<text class="ax dim" x="121.5" y="310" text-anchor="middle">15:28</text>
+<text class="ax dim" x="159.2" y="310" text-anchor="middle">15:37</text>
+<text class="ax dim" x="196.9" y="310" text-anchor="middle">16:03</text>
+<text class="ax dim" x="234.7" y="310" text-anchor="middle">16:53</text>
+<text class="ax dim" x="272.4" y="310" text-anchor="middle">17:37</text>
+<text class="ax dim" x="310.1" y="310" text-anchor="middle">17:59</text>
+<text class="ax dim" x="347.9" y="310" text-anchor="middle">18:05</text>
+<text class="ax dim" x="385.6" y="310" text-anchor="middle">19:05</text>
+<text class="ax dim" x="423.3" y="310" text-anchor="middle">19:44</text>
+<text class="ax dim" x="461.1" y="310" text-anchor="middle">19:50</text>
+<text class="ax dim" x="498.8" y="310" text-anchor="middle">20:05</text>
+<text class="ax dim" x="536.5" y="310" text-anchor="middle">21:12</text>
+<text class="ax dim" x="574.3" y="310" text-anchor="middle">21:12</text>
+<text class="ax dim" x="612.0" y="310" text-anchor="middle">21:58</text>
 <line class="rng0" x1="42.0" y1="218.2" x2="42.0" y2="64.8"/>
-<line class="rng0" x1="82.4" y1="218.2" x2="82.4" y2="64.8"/>
-<line class="rng0" x1="122.9" y1="218.2" x2="122.9" y2="64.8"/>
-<line class="rng0" x1="163.3" y1="218.2" x2="163.3" y2="64.8"/>
-<line class="rng0" x1="203.7" y1="267.6" x2="203.7" y2="64.8"/>
-<line class="rng0" x1="244.1" y1="267.6" x2="244.1" y2="64.8"/>
-<line class="rng0" x1="284.6" y1="267.6" x2="284.6" y2="64.8"/>
-<line class="rng0" x1="325.0" y1="267.6" x2="325.0" y2="64.8"/>
-<line class="rng0" x1="365.4" y1="267.6" x2="365.4" y2="64.8"/>
-<line class="rng0" x1="405.9" y1="267.6" x2="405.9" y2="64.8"/>
-<line class="rng0" x1="446.3" y1="267.6" x2="446.3" y2="64.8"/>
-<line class="rng0" x1="486.7" y1="267.6" x2="486.7" y2="64.8"/>
-<line class="rng0" x1="527.1" y1="267.6" x2="527.1" y2="64.8"/>
-<line class="rng0" x1="567.6" y1="267.6" x2="567.6" y2="64.8"/>
+<line class="rng0" x1="79.7" y1="218.2" x2="79.7" y2="64.8"/>
+<line class="rng0" x1="117.5" y1="218.2" x2="117.5" y2="64.8"/>
+<line class="rng0" x1="155.2" y1="218.2" x2="155.2" y2="64.8"/>
+<line class="rng0" x1="192.9" y1="267.6" x2="192.9" y2="64.8"/>
+<line class="rng0" x1="230.7" y1="267.6" x2="230.7" y2="64.8"/>
+<line class="rng0" x1="268.4" y1="267.6" x2="268.4" y2="64.8"/>
+<line class="rng0" x1="306.1" y1="267.6" x2="306.1" y2="64.8"/>
+<line class="rng0" x1="343.9" y1="267.6" x2="343.9" y2="64.8"/>
+<line class="rng0" x1="381.6" y1="267.6" x2="381.6" y2="64.8"/>
+<line class="rng0" x1="419.3" y1="267.6" x2="419.3" y2="64.8"/>
+<line class="rng0" x1="457.1" y1="267.6" x2="457.1" y2="64.8"/>
+<line class="rng0" x1="494.8" y1="267.6" x2="494.8" y2="64.8"/>
+<line class="rng0" x1="532.5" y1="267.6" x2="532.5" y2="64.8"/>
+<line class="rng0" x1="570.3" y1="267.6" x2="570.3" y2="64.8"/>
 <line class="rng0" x1="608.0" y1="267.6" x2="608.0" y2="64.8"/>
 <line class="rng1" x1="46.0" y1="179.2" x2="46.0" y2="38.8"/>
-<line class="rng1" x1="86.4" y1="179.2" x2="86.4" y2="38.8"/>
-<line class="rng1" x1="126.9" y1="179.2" x2="126.9" y2="38.8"/>
-<line class="rng1" x1="167.3" y1="179.2" x2="167.3" y2="38.8"/>
-<line class="rng1" x1="207.7" y1="278.0" x2="207.7" y2="38.8"/>
-<line class="rng1" x1="248.1" y1="278.0" x2="248.1" y2="38.8"/>
-<line class="rng1" x1="288.6" y1="278.0" x2="288.6" y2="38.8"/>
-<line class="rng1" x1="329.0" y1="278.0" x2="329.0" y2="38.8"/>
-<line class="rng1" x1="369.4" y1="278.0" x2="369.4" y2="38.8"/>
-<line class="rng1" x1="409.9" y1="278.0" x2="409.9" y2="38.8"/>
-<line class="rng1" x1="450.3" y1="278.0" x2="450.3" y2="38.8"/>
-<line class="rng1" x1="490.7" y1="278.0" x2="490.7" y2="38.8"/>
-<line class="rng1" x1="531.1" y1="278.0" x2="531.1" y2="38.8"/>
-<line class="rng1" x1="571.6" y1="278.0" x2="571.6" y2="38.8"/>
+<line class="rng1" x1="83.7" y1="179.2" x2="83.7" y2="38.8"/>
+<line class="rng1" x1="121.5" y1="179.2" x2="121.5" y2="38.8"/>
+<line class="rng1" x1="159.2" y1="179.2" x2="159.2" y2="38.8"/>
+<line class="rng1" x1="196.9" y1="278.0" x2="196.9" y2="38.8"/>
+<line class="rng1" x1="234.7" y1="278.0" x2="234.7" y2="38.8"/>
+<line class="rng1" x1="272.4" y1="278.0" x2="272.4" y2="38.8"/>
+<line class="rng1" x1="310.1" y1="278.0" x2="310.1" y2="38.8"/>
+<line class="rng1" x1="347.9" y1="278.0" x2="347.9" y2="38.8"/>
+<line class="rng1" x1="385.6" y1="278.0" x2="385.6" y2="38.8"/>
+<line class="rng1" x1="423.3" y1="278.0" x2="423.3" y2="38.8"/>
+<line class="rng1" x1="461.1" y1="278.0" x2="461.1" y2="38.8"/>
+<line class="rng1" x1="498.8" y1="278.0" x2="498.8" y2="38.8"/>
+<line class="rng1" x1="536.5" y1="278.0" x2="536.5" y2="38.8"/>
+<line class="rng1" x1="574.3" y1="278.0" x2="574.3" y2="38.8"/>
 <line class="rng1" x1="612.0" y1="278.0" x2="612.0" y2="38.8"/>
 <line class="rng2" x1="50.0" y1="231.2" x2="50.0" y2="18.0"/>
-<line class="rng2" x1="90.4" y1="231.2" x2="90.4" y2="18.0"/>
-<line class="rng2" x1="130.9" y1="231.2" x2="130.9" y2="18.0"/>
-<line class="rng2" x1="171.3" y1="231.2" x2="171.3" y2="18.0"/>
-<line class="rng2" x1="211.7" y1="231.2" x2="211.7" y2="70.0"/>
-<line class="rng2" x1="252.1" y1="231.2" x2="252.1" y2="70.0"/>
-<line class="rng2" x1="292.6" y1="231.2" x2="292.6" y2="70.0"/>
-<line class="rng2" x1="333.0" y1="231.2" x2="333.0" y2="70.0"/>
-<line class="rng2" x1="373.4" y1="231.2" x2="373.4" y2="70.0"/>
-<line class="rng2" x1="413.9" y1="231.2" x2="413.9" y2="70.0"/>
-<line class="rng2" x1="454.3" y1="231.2" x2="454.3" y2="70.0"/>
-<line class="rng2" x1="494.7" y1="226.0" x2="494.7" y2="70.0"/>
-<line class="rng2" x1="535.1" y1="226.0" x2="535.1" y2="70.0"/>
-<line class="rng2" x1="575.6" y1="226.0" x2="575.6" y2="70.0"/>
+<line class="rng2" x1="87.7" y1="231.2" x2="87.7" y2="18.0"/>
+<line class="rng2" x1="125.5" y1="231.2" x2="125.5" y2="18.0"/>
+<line class="rng2" x1="163.2" y1="231.2" x2="163.2" y2="18.0"/>
+<line class="rng2" x1="200.9" y1="231.2" x2="200.9" y2="70.0"/>
+<line class="rng2" x1="238.7" y1="231.2" x2="238.7" y2="70.0"/>
+<line class="rng2" x1="276.4" y1="231.2" x2="276.4" y2="70.0"/>
+<line class="rng2" x1="314.1" y1="231.2" x2="314.1" y2="70.0"/>
+<line class="rng2" x1="351.9" y1="231.2" x2="351.9" y2="70.0"/>
+<line class="rng2" x1="389.6" y1="231.2" x2="389.6" y2="70.0"/>
+<line class="rng2" x1="427.3" y1="231.2" x2="427.3" y2="70.0"/>
+<line class="rng2" x1="465.1" y1="226.0" x2="465.1" y2="70.0"/>
+<line class="rng2" x1="502.8" y1="226.0" x2="502.8" y2="70.0"/>
+<line class="rng2" x1="540.5" y1="226.0" x2="540.5" y2="70.0"/>
+<line class="rng2" x1="578.3" y1="226.0" x2="578.3" y2="70.0"/>
 <line class="rng2" x1="616.0" y1="226.0" x2="616.0" y2="70.0"/>
-<path class="s0" d="M46.0,137.6 L86.4,145.4 L126.9,174.0 L167.3,174.0 L207.7,200.0 L248.1,200.0 L288.6,200.0 L329.0,207.8 L369.4,207.8 L409.9,207.8 L450.3,205.2 L490.7,215.6 L531.1,215.6 L571.6,215.6 L612.0,215.6" fill="none"/>
+<path class="s0" d="M46.0,137.6 L83.7,145.4 L121.5,174.0 L159.2,174.0 L196.9,200.0 L234.7,200.0 L272.4,200.0 L310.1,207.8 L347.9,207.8 L385.6,207.8 L423.3,205.2 L461.1,215.6 L498.8,215.6 L536.5,215.6 L574.3,215.6 L612.0,215.6" fill="none"/>
 <circle class="s0 dot" cx="46.0" cy="137.6" r="4.5"/>
-<circle class="s0 dot" cx="86.4" cy="145.4" r="4.5"/>
-<circle class="s0 dot" cx="126.9" cy="174.0" r="4.5"/>
-<circle class="s0 dot" cx="167.3" cy="174.0" r="4.5"/>
-<circle class="s0 dot" cx="207.7" cy="200.0" r="4.5"/>
-<circle class="s0 dot" cx="248.1" cy="200.0" r="4.5"/>
-<circle class="s0 dot" cx="288.6" cy="200.0" r="4.5"/>
-<circle class="s0 dot" cx="329.0" cy="207.8" r="4.5"/>
-<circle class="s0 dot" cx="369.4" cy="207.8" r="4.5"/>
-<circle class="s0 dot" cx="409.9" cy="207.8" r="4.5"/>
-<circle class="s0 dot" cx="450.3" cy="205.2" r="4.5"/>
-<circle class="s0 dot" cx="490.7" cy="215.6" r="4.5"/>
-<circle class="s0 dot" cx="531.1" cy="215.6" r="4.5"/>
-<circle class="s0 dot" cx="571.6" cy="215.6" r="4.5"/>
+<circle class="s0 dot" cx="83.7" cy="145.4" r="4.5"/>
+<circle class="s0 dot" cx="121.5" cy="174.0" r="4.5"/>
+<circle class="s0 dot" cx="159.2" cy="174.0" r="4.5"/>
+<circle class="s0 dot" cx="196.9" cy="200.0" r="4.5"/>
+<circle class="s0 dot" cx="234.7" cy="200.0" r="4.5"/>
+<circle class="s0 dot" cx="272.4" cy="200.0" r="4.5"/>
+<circle class="s0 dot" cx="310.1" cy="207.8" r="4.5"/>
+<circle class="s0 dot" cx="347.9" cy="207.8" r="4.5"/>
+<circle class="s0 dot" cx="385.6" cy="207.8" r="4.5"/>
+<circle class="s0 dot" cx="423.3" cy="205.2" r="4.5"/>
+<circle class="s0 dot" cx="461.1" cy="215.6" r="4.5"/>
+<circle class="s0 dot" cx="498.8" cy="215.6" r="4.5"/>
+<circle class="s0 dot" cx="536.5" cy="215.6" r="4.5"/>
+<circle class="s0 dot" cx="574.3" cy="215.6" r="4.5"/>
 <circle class="s0 dot" cx="612.0" cy="215.6" r="4.5"/>
 <text class="s0 lab" x="624.0" y="219.6">Night 1 · 24%</text>
-<path class="s1" d="M46.0,132.4 L86.4,132.4 L126.9,137.6 L167.3,137.6 L207.7,137.6 L248.1,137.6 L288.6,137.6 L329.0,140.2 L369.4,140.2 L409.9,140.2 L450.3,132.4 L490.7,194.8 L531.1,194.8 L571.6,194.8 L612.0,194.8" fill="none" stroke-dasharray="7 4"/>
+<path class="s1" d="M46.0,132.4 L83.7,132.4 L121.5,137.6 L159.2,137.6 L196.9,137.6 L234.7,137.6 L272.4,137.6 L310.1,140.2 L347.9,140.2 L385.6,140.2 L423.3,132.4 L461.1,194.8 L498.8,194.8 L536.5,194.8 L574.3,194.8 L612.0,194.8" fill="none" stroke-dasharray="7 4"/>
 <circle class="s1 dot" cx="46.0" cy="132.4" r="4.5"/>
-<circle class="s1 dot" cx="86.4" cy="132.4" r="4.5"/>
-<circle class="s1 dot" cx="126.9" cy="137.6" r="4.5"/>
-<circle class="s1 dot" cx="167.3" cy="137.6" r="4.5"/>
-<circle class="s1 dot" cx="207.7" cy="137.6" r="4.5"/>
-<circle class="s1 dot" cx="248.1" cy="137.6" r="4.5"/>
-<circle class="s1 dot" cx="288.6" cy="137.6" r="4.5"/>
-<circle class="s1 dot" cx="329.0" cy="140.2" r="4.5"/>
-<circle class="s1 dot" cx="369.4" cy="140.2" r="4.5"/>
-<circle class="s1 dot" cx="409.9" cy="140.2" r="4.5"/>
-<circle class="s1 dot" cx="450.3" cy="132.4" r="4.5"/>
-<circle class="s1 dot" cx="490.7" cy="194.8" r="4.5"/>
-<circle class="s1 dot" cx="531.1" cy="194.8" r="4.5"/>
-<circle class="s1 dot" cx="571.6" cy="194.8" r="4.5"/>
+<circle class="s1 dot" cx="83.7" cy="132.4" r="4.5"/>
+<circle class="s1 dot" cx="121.5" cy="137.6" r="4.5"/>
+<circle class="s1 dot" cx="159.2" cy="137.6" r="4.5"/>
+<circle class="s1 dot" cx="196.9" cy="137.6" r="4.5"/>
+<circle class="s1 dot" cx="234.7" cy="137.6" r="4.5"/>
+<circle class="s1 dot" cx="272.4" cy="137.6" r="4.5"/>
+<circle class="s1 dot" cx="310.1" cy="140.2" r="4.5"/>
+<circle class="s1 dot" cx="347.9" cy="140.2" r="4.5"/>
+<circle class="s1 dot" cx="385.6" cy="140.2" r="4.5"/>
+<circle class="s1 dot" cx="423.3" cy="132.4" r="4.5"/>
+<circle class="s1 dot" cx="461.1" cy="194.8" r="4.5"/>
+<circle class="s1 dot" cx="498.8" cy="194.8" r="4.5"/>
+<circle class="s1 dot" cx="536.5" cy="194.8" r="4.5"/>
+<circle class="s1 dot" cx="574.3" cy="194.8" r="4.5"/>
 <circle class="s1 dot" cx="612.0" cy="194.8" r="4.5"/>
 <text class="s1 lab" x="624.0" y="198.8">Night 2 · 32%</text>
-<path class="s2" d="M46.0,127.2 L86.4,127.2 L126.9,127.2 L167.3,127.2 L207.7,127.2 L248.1,127.2 L288.6,127.2 L329.0,127.2 L369.4,127.2 L409.9,127.2 L450.3,127.2 L490.7,127.2 L531.1,127.2 L571.6,127.2 L612.0,127.2" fill="none" stroke-dasharray="2 4"/>
+<path class="s2" d="M46.0,127.2 L83.7,127.2 L121.5,127.2 L159.2,127.2 L196.9,127.2 L234.7,127.2 L272.4,127.2 L310.1,127.2 L347.9,127.2 L385.6,127.2 L423.3,127.2 L461.1,127.2 L498.8,127.2 L536.5,127.2 L574.3,127.2 L612.0,127.2" fill="none" stroke-dasharray="2 4"/>
 <circle class="s2 dot" cx="46.0" cy="127.2" r="4.5"/>
-<circle class="s2 dot" cx="86.4" cy="127.2" r="4.5"/>
-<circle class="s2 dot" cx="126.9" cy="127.2" r="4.5"/>
-<circle class="s2 dot" cx="167.3" cy="127.2" r="4.5"/>
-<circle class="s2 dot" cx="207.7" cy="127.2" r="4.5"/>
-<circle class="s2 dot" cx="248.1" cy="127.2" r="4.5"/>
-<circle class="s2 dot" cx="288.6" cy="127.2" r="4.5"/>
-<circle class="s2 dot" cx="329.0" cy="127.2" r="4.5"/>
-<circle class="s2 dot" cx="369.4" cy="127.2" r="4.5"/>
-<circle class="s2 dot" cx="409.9" cy="127.2" r="4.5"/>
-<circle class="s2 dot" cx="450.3" cy="127.2" r="4.5"/>
-<circle class="s2 dot" cx="490.7" cy="127.2" r="4.5"/>
-<circle class="s2 dot" cx="531.1" cy="127.2" r="4.5"/>
-<circle class="s2 dot" cx="571.6" cy="127.2" r="4.5"/>
+<circle class="s2 dot" cx="83.7" cy="127.2" r="4.5"/>
+<circle class="s2 dot" cx="121.5" cy="127.2" r="4.5"/>
+<circle class="s2 dot" cx="159.2" cy="127.2" r="4.5"/>
+<circle class="s2 dot" cx="196.9" cy="127.2" r="4.5"/>
+<circle class="s2 dot" cx="234.7" cy="127.2" r="4.5"/>
+<circle class="s2 dot" cx="272.4" cy="127.2" r="4.5"/>
+<circle class="s2 dot" cx="310.1" cy="127.2" r="4.5"/>
+<circle class="s2 dot" cx="347.9" cy="127.2" r="4.5"/>
+<circle class="s2 dot" cx="385.6" cy="127.2" r="4.5"/>
+<circle class="s2 dot" cx="423.3" cy="127.2" r="4.5"/>
+<circle class="s2 dot" cx="461.1" cy="127.2" r="4.5"/>
+<circle class="s2 dot" cx="498.8" cy="127.2" r="4.5"/>
+<circle class="s2 dot" cx="536.5" cy="127.2" r="4.5"/>
+<circle class="s2 dot" cx="574.3" cy="127.2" r="4.5"/>
 <circle class="s2 dot" cx="612.0" cy="127.2" r="4.5"/>
 <text class="s2 lab" x="624.0" y="131.2">Night 3 · 58%</text>
 <line class="axis" x1="46" y1="278" x2="612" y2="278"/>
@@ -403,12 +426,14 @@ td.trail{font-family:var(--mono);font-size:1rem;letter-spacing:.12em}
   </div>
 
   <h2>How much each night has moved</h2>
-  <div class="card"><div class="scroll"><table><thead><tr><th>Night</th><th>First</th><th>Latest</th><th>Change</th><th>Each step</th><th>Range</th><th>Model spread</th></tr></thead><tbody><tr><td>Night 1</td><td class='n'>54%</td><td class='n'>24%</td><td class='n better'>↓ 30</td><td class='trail'><span class="good">↓</span><span class="good">↓</span><span class="dim">→</span><span class="good">↓</span><span class="dim">→</span><span class="dim">→</span><span class="good">↓</span><span class="dim">→</span><span class="dim">→</span><span class="bad">↑</span><span class="good">↓</span><span class="dim">→</span><span class="dim">→</span><span class="dim">→</span></td><td class='n'>30</td><td class='n bad'>±59 → ±78</td></tr><tr><td>Night 2</td><td class='n'>56%</td><td class='n'>32%</td><td class='n better'>↓ 24</td><td class='trail'><span class="dim">→</span><span class="good">↓</span><span class="dim">→</span><span class="dim">→</span><span class="dim">→</span><span class="dim">→</span><span class="good">↓</span><span class="dim">→</span><span class="dim">→</span><span class="bad">↑</span><span class="good">↓</span><span class="dim">→</span><span class="dim">→</span><span class="dim">→</span></td><td class='n'>24</td><td class='n bad'>±54 → ±92</td></tr><tr><td>Night 3</td><td class='n'>58%</td><td class='n'>58%</td><td class='n '>→ 0</td><td class='trail'><span class="dim">→</span><span class="dim">→</span><span class="dim">→</span><span class="dim">→</span><span class="dim">→</span><span class="dim">→</span><span class="dim">→</span><span class="dim">→</span><span class="dim">→</span><span class="dim">→</span><span class="dim">→</span><span class="dim">→</span><span class="dim">→</span><span class="dim">→</span></td><td class='n'>0</td><td class='n good'>±82 → ±60</td></tr></tbody></table></div></div>
+  <div class="card"><div class="scroll"><table><thead><tr><th>Night</th><th>First</th><th>Latest</th><th>Change</th><th>Each step</th><th>Range</th><th>Model spread</th></tr></thead><tbody><tr><td>Night 1</td><td class='n'>54%</td><td class='n'>24%</td><td class='n better'>↓ 30</td><td class='trail'><span class="good">↓</span><span class="good">↓</span><span class="dim">→</span><span class="good">↓</span><span class="dim">→</span><span class="dim">→</span><span class="good">↓</span><span class="dim">→</span><span class="dim">→</span><span class="bad">↑</span><span class="good">↓</span><span class="dim">→</span><span class="dim">→</span><span class="dim">→</span><span class="dim">→</span></td><td class='n'>30</td><td class='n bad'>±59 → ±78</td></tr><tr><td>Night 2</td><td class='n'>56%</td><td class='n'>32%</td><td class='n better'>↓ 24</td><td class='trail'><span class="dim">→</span><span class="good">↓</span><span class="dim">→</span><span class="dim">→</span><span class="dim">→</span><span class="dim">→</span><span class="good">↓</span><span class="dim">→</span><span class="dim">→</span><span class="bad">↑</span><span class="good">↓</span><span class="dim">→</span><span class="dim">→</span><span class="dim">→</span><span class="dim">→</span></td><td class='n'>24</td><td class='n bad'>±54 → ±92</td></tr><tr><td>Night 3</td><td class='n'>58%</td><td class='n'>58%</td><td class='n '>→ 0</td><td class='trail'><span class="dim">→</span><span class="dim">→</span><span class="dim">→</span><span class="dim">→</span><span class="dim">→</span><span class="dim">→</span><span class="dim">→</span><span class="dim">→</span><span class="dim">→</span><span class="dim">→</span><span class="dim">→</span><span class="dim">→</span><span class="dim">→</span><span class="dim">→</span><span class="dim">→</span></td><td class='n'>0</td><td class='n good'>±82 → ±60</td></tr></tbody></table></div></div>
 
   
   <h2>Ground truth — satellite and webcam</h2>
-  <div class="card" style="margin-bottom:.8rem"><span class="eyebrow">Where the cloud is · Tue 21:16</span><p class="lede" style="margin-top:.3rem">Your whole southern programme lives between azimuth 177° and 232°. <b>the southern slot is open</b></p><div class="rings"><div class="rk"><span class="rkl">0–9 km</span><span class="rkv good">0%</span></div><div class="rk"><span class="rkl">9–25 km</span><span class="rkv good">0%</span></div><div class="rk"><span class="rkl">25–60 km</span><span class="rkv good">0%</span></div></div><div class="compass"><div class="oc" style="--f:0.00"><span class="ocv good">0</span><span class="ocl">NW</span></div><div class="oc" style="--f:0.00"><span class="ocv good">0</span><span class="ocl">N</span></div><div class="oc" style="--f:0.00"><span class="ocv good">0</span><span class="ocl">NE</span></div><div class="oc" style="--f:0.00"><span class="ocv good">0</span><span class="ocl">W</span></div><div class="oc mid" style="--f:0.00"><span class="ocv good">0%</span><span class="ocl">dome</span></div><div class="oc" style="--f:0.00"><span class="ocv good">0</span><span class="ocl">E</span></div><div class="oc slot" style="--f:0.00"><span class="ocv good">0</span><span class="ocl">SW</span></div><div class="oc slot" style="--f:0.00"><span class="ocv good">0</span><span class="ocl">S</span></div><div class="oc" style="--f:0.00"><span class="ocv good">0</span><span class="ocl">SE</span></div></div><p class="note"><b class="good">0% cloud upwind</b> — 30–90 km out on the 315° flow, which is roughly what arrives overhead in the next hour.</p><p class="note">Left: cloud in the southern slot by distance — near cloud blocks low altitudes, far cloud blocks the cirrus band. Right: cloud by compass octant, south-west highlighted because that is where the core sits.</p></div>
-  <div class="card" style="margin-bottom:.8rem"><span class="eyebrow">Is it opening or closing?</span><div class="filmhead"><b id="cfTime">—</b><span id="cfKind" class="cfkind">—</span></div><div class="compass" id="cfGrid"><div class="oc" data-oct="NW"><span class="ocv">—</span><span class="ocl">NW</span></div><div class="oc" data-oct="N"><span class="ocv">—</span><span class="ocl">N</span></div><div class="oc" data-oct="NE"><span class="ocv">—</span><span class="ocl">NE</span></div><div class="oc" data-oct="W"><span class="ocv">—</span><span class="ocl">W</span></div><div class="oc mid" data-oct="dome"><span class="ocv">—</span><span class="ocl">dome</span></div><div class="oc" data-oct="E"><span class="ocv">—</span><span class="ocl">E</span></div><div class="oc slot" data-oct="SW"><span class="ocv">—</span><span class="ocl">SW</span></div><div class="oc slot" data-oct="S"><span class="ocv">—</span><span class="ocl">S</span></div><div class="oc" data-oct="SE"><span class="ocv">—</span><span class="ocl">SE</span></div></div><div class="cfctl"><button class="btn" id="cfPlay" aria-label="Play or pause">▶ Play</button><input type="range" id="cfSlide" min="0" max="23" value="11" aria-label="Time"></div><div class="cftrack" id="cfTrack"></div><p class="note">Left of the marker is what the satellite saw; right of it is HRRR. Watch south-west — that is the core. Cloud arriving there before it arrives overhead is your warning.</p><script id="cfData" type="application/json">[{"time": "2026-08-04T10:00:00-04:00", "octants": {"N": 0, "NE": 0, "E": 0, "SE": 0, "S": 0, "SW": 0, "W": 0, "NW": 0}, "cloud": 0, "kind": "observed"}, {"time": "2026-08-04T11:00:00-04:00", "octants": {"N": 0, "NE": 0, "E": 0, "SE": 0, "S": 0, "SW": 0, "W": 0, "NW": 0}, "cloud": 0, "kind": "observed"}, {"time": "2026-08-04T12:00:00-04:00", "octants": {"N": 0, "NE": 0, "E": 0, "SE": 0, "S": 0, "SW": 0, "W": 0, "NW": 0}, "cloud": 0, "kind": "observed"}, {"time": "2026-08-04T13:00:00-04:00", "octants": {"N": 0, "NE": 0, "E": 0, "SE": 0, "S": 0, "SW": 0, "W": 0, "NW": 0}, "cloud": 0, "kind": "observed"}, {"time": "2026-08-04T14:00:00-04:00", "octants": {"N": 0, "NE": 0, "E": 0, "SE": 0, "S": 0, "SW": 0, "W": 0, "NW": 0}, "cloud": 0, "kind": "observed"}, {"time": "2026-08-04T15:00:00-04:00", "octants": {"N": 0, "NE": 0, "E": 0, "SE": 0, "S": 0, "SW": 0, "W": 0, "NW": 0}, "cloud": 0, "kind": "observed"}, {"time": "2026-08-04T16:00:00-04:00", "octants": {"N": 0, "NE": 0, "E": 0, "SE": 0, "S": 0, "SW": 0, "W": 0, "NW": 0}, "cloud": 0, "kind": "observed"}, {"time": "2026-08-04T17:00:00-04:00", "octants": {"N": 0, "NE": 0, "E": 0, "SE": 0, "S": 0, "SW": 0, "W": 0, "NW": 0}, "cloud": 0, "kind": "observed"}, {"time": "2026-08-04T18:00:00-04:00", "octants": {"N": 0, "NE": 0, "E": 0, "SE": 0, "S": 0, "SW": 0, "W": 0, "NW": 0}, "cloud": 0, "kind": "observed"}, {"time": "2026-08-04T19:00:00-04:00", "octants": {"N": 0, "NE": 0, "E": 0, "SE": 0, "S": 0, "SW": 0, "W": 0, "NW": 0}, "cloud": 0, "kind": "observed"}, {"time": "2026-08-04T20:00:00-04:00", "octants": {"N": 0, "NE": 0, "E": 0, "SE": 0, "S": 0, "SW": 0, "W": 0, "NW": 0}, "cloud": 0, "kind": "observed"}, {"time": "2026-08-04T21:00:00-04:00", "octants": {"N": 0, "NE": 0, "E": 0, "SE": 0, "S": 0, "SW": 0, "W": 0, "NW": 0}, "cloud": 0, "kind": "observed"}, {"time": "2026-08-04T22:00:00-04:00", "octants": {"N": 0, "NE": 0, "E": 0, "SE": 0, "S": 0, "SW": 0, "W": 0, "NW": 0}, "cloud": 0, "kind": "forecast", "model": "ncep_hrrr_conus"}, {"time": "2026-08-04T23:00:00-04:00", "octants": {"N": 0, "NE": 0, "E": 0, "SE": 0, "S": 0, "SW": 0, "W": 0, "NW": 0}, "cloud": 0, "kind": "forecast", "model": "ncep_hrrr_conus"}, {"time": "2026-08-05T00:00:00-04:00", "octants": {"N": 0, "NE": 0, "E": 0, "SE": 0, "S": 0, "SW": 0, "W": 0, "NW": 0}, "cloud": 0, "kind": "forecast", "model": "ncep_hrrr_conus"}, {"time": "2026-08-05T01:00:00-04:00", "octants": {"N": 0, "NE": 0, "E": 0, "SE": 0, "S": 0, "SW": 0, "W": 0, "NW": 0}, "cloud": 0, "kind": "forecast", "model": "ncep_hrrr_conus"}, {"time": "2026-08-05T02:00:00-04:00", "octants": {"N": 0, "NE": 0, "E": 0, "SE": 0, "S": 0, "SW": 0, "W": 0, "NW": 0}, "cloud": 0, "kind": "forecast", "model": "ncep_hrrr_conus"}, {"time": "2026-08-05T03:00:00-04:00", "octants": {"N": 0, "NE": 0, "E": 0, "SE": 0, "S": 0, "SW": 0, "W": 0, "NW": 0}, "cloud": 0, "kind": "forecast", "model": "ncep_hrrr_conus"}, {"time": "2026-08-05T04:00:00-04:00", "octants": {"N": 0, "NE": 0, "E": 0, "SE": 0, "S": 0, "SW": 0, "W": 0, "NW": 0}, "cloud": 0, "kind": "forecast", "model": "ncep_hrrr_conus"}, {"time": "2026-08-05T05:00:00-04:00", "octants": {"N": 0, "NE": 0, "E": 0, "SE": 0, "S": 0, "SW": 0, "W": 0, "NW": 0}, "cloud": 0, "kind": "forecast", "model": "ncep_hrrr_conus"}, {"time": "2026-08-05T06:00:00-04:00", "octants": {"N": 0, "NE": 0, "E": 0, "SE": 0, "S": 0, "SW": 0, "W": 0, "NW": 0}, "cloud": 0, "kind": "forecast", "model": "ncep_hrrr_conus"}, {"time": "2026-08-05T07:00:00-04:00", "octants": {"N": 0, "NE": 0, "E": 0, "SE": 0, "S": 0, "SW": 0, "W": 0, "NW": 0}, "cloud": 0, "kind": "forecast", "model": "ncep_hrrr_conus"}, {"time": "2026-08-05T08:00:00-04:00", "octants": {"N": 0, "NE": 0, "E": 0, "SE": 0, "S": 0, "SW": 0, "W": 0, "NW": 0}, "cloud": 0, "kind": "forecast", "model": "ncep_hrrr_conus"}, {"time": "2026-08-05T09:00:00-04:00", "octants": {"N": 0, "NE": 0, "E": 0, "SE": 0, "S": 0, "SW": 0, "W": 0, "NW": 0}, "cloud": 0, "kind": "forecast", "model": "ncep_hrrr_conus"}]</script></div>
+  <h2>Can the core actually be seen? <a class="ev" href="nightwatch.html">see the frames →</a></h2>
+<div class="card"><p class="lede">The webcam is pointed at <b>your targets</b> — solved from its own star field to bearing 178.5°, 94° wide. The Milky Way core sits at 15.7° altitude in that frame, Rho Ophiuchi at 17.4°. Same sky, 16.6 km away.</p><div class="nwbig good">3<span> stars in the core region</span></div><p class="tripsub">Tue 04 Aug 22:01 — the core region is showing stars. Flux <b>1,673</b>, brightest source 9× the noise.</p><div class="nwstrip"><div class="nw bad" style="--f:0.00" title="Tue 21:49 — 4 stars, flux 0"><i></i><span>21</span></div><div class="nw bad" style="--f:0.00" title="Tue 21:51 — 2 stars, flux 0"><i></i><span>21</span></div><div class="nw good" style="--f:0.73" title="Tue 21:54 — 3 stars, flux 1222"><i></i><span>21</span></div><div class="nw good" style="--f:0.62" title="Tue 22:00 — 3 stars, flux 1040"><i></i><span>22</span></div><div class="nw good" style="--f:1.00" title="Tue 22:01 — 3 stars, flux 1673"><i></i><span>22</span></div></div><p class="note">One bar per capture through the night, height is light collected in the core region. Rho currently reads flux <b>3,243</b> — that region contains Antares, so it is the steadiest anchor: it should hold all night under clear sky and collapse the moment cloud crosses it.</p><p class="note">Why this beats a cloud percentage: it is the only reading here that measures the actual target sky rather than the whole dome, and the only one that works on the low cloud infrared struggles with. Calibrated on the night of 4 Aug, the one fully dark night before the trip.</p></div>
+  <div class="card" style="margin-bottom:.8rem"><span class="eyebrow">Where the cloud is · Tue 21:56</span><p class="lede" style="margin-top:.3rem">Your whole southern programme lives between azimuth 177° and 232°. <b>the southern slot is open</b></p><div class="rings"><div class="rk"><span class="rkl">0–9 km</span><span class="rkv good">0%</span></div><div class="rk"><span class="rkl">9–25 km</span><span class="rkv good">0%</span></div><div class="rk"><span class="rkl">25–60 km</span><span class="rkv good">0%</span></div></div><div class="compass"><div class="oc" style="--f:0.00"><span class="ocv good">0</span><span class="ocl">NW</span></div><div class="oc" style="--f:0.00"><span class="ocv good">0</span><span class="ocl">N</span></div><div class="oc" style="--f:0.00"><span class="ocv good">0</span><span class="ocl">NE</span></div><div class="oc" style="--f:0.00"><span class="ocv good">0</span><span class="ocl">W</span></div><div class="oc mid" style="--f:0.00"><span class="ocv good">0%</span><span class="ocl">dome</span></div><div class="oc" style="--f:0.00"><span class="ocv good">0</span><span class="ocl">E</span></div><div class="oc slot" style="--f:0.00"><span class="ocv good">0</span><span class="ocl">SW</span></div><div class="oc slot" style="--f:0.00"><span class="ocv good">0</span><span class="ocl">S</span></div><div class="oc" style="--f:0.00"><span class="ocv good">0</span><span class="ocl">SE</span></div></div><p class="note"><b class="good">0% cloud upwind</b> — 30–90 km out on the 334° flow, which is roughly what arrives overhead in the next hour.</p><p class="note">Left: cloud in the southern slot by distance — near cloud blocks low altitudes, far cloud blocks the cirrus band. Right: cloud by compass octant, south-west highlighted because that is where the core sits.</p></div>
+  <div class="card" style="margin-bottom:.8rem"><span class="eyebrow">Is it opening or closing?</span><div class="filmhead"><b id="cfTime">—</b><span id="cfKind" class="cfkind">—</span></div><div class="compass" id="cfGrid"><div class="oc" data-oct="NW"><span class="ocv">—</span><span class="ocl">NW</span></div><div class="oc" data-oct="N"><span class="ocv">—</span><span class="ocl">N</span></div><div class="oc" data-oct="NE"><span class="ocv">—</span><span class="ocl">NE</span></div><div class="oc" data-oct="W"><span class="ocv">—</span><span class="ocl">W</span></div><div class="oc mid" data-oct="dome"><span class="ocv">—</span><span class="ocl">dome</span></div><div class="oc" data-oct="E"><span class="ocv">—</span><span class="ocl">E</span></div><div class="oc slot" data-oct="SW"><span class="ocv">—</span><span class="ocl">SW</span></div><div class="oc slot" data-oct="S"><span class="ocv">—</span><span class="ocl">S</span></div><div class="oc" data-oct="SE"><span class="ocv">—</span><span class="ocl">SE</span></div></div><div class="cfctl"><button class="btn" id="cfPlay" aria-label="Play or pause">▶ Play</button><input type="range" id="cfSlide" min="0" max="23" value="11" aria-label="Time"></div><div class="cftrack" id="cfTrack"></div><p class="note">Left of the marker is what the satellite saw; right of it is HRRR. Watch south-west — that is the core. Cloud arriving there before it arrives overhead is your warning.</p><script id="cfData" type="application/json">[{"time": "2026-08-04T10:00:00-04:00", "octants": {"N": 0, "NE": 0, "E": 0, "SE": 0, "S": 0, "SW": 0, "W": 0, "NW": 0}, "cloud": 0, "kind": "observed"}, {"time": "2026-08-04T11:00:00-04:00", "octants": {"N": 0, "NE": 0, "E": 0, "SE": 0, "S": 0, "SW": 0, "W": 0, "NW": 0}, "cloud": 0, "kind": "observed"}, {"time": "2026-08-04T12:00:00-04:00", "octants": {"N": 0, "NE": 0, "E": 0, "SE": 0, "S": 0, "SW": 0, "W": 0, "NW": 0}, "cloud": 0, "kind": "observed"}, {"time": "2026-08-04T13:00:00-04:00", "octants": {"N": 0, "NE": 0, "E": 0, "SE": 0, "S": 0, "SW": 0, "W": 0, "NW": 0}, "cloud": 0, "kind": "observed"}, {"time": "2026-08-04T14:00:00-04:00", "octants": {"N": 0, "NE": 0, "E": 0, "SE": 0, "S": 0, "SW": 0, "W": 0, "NW": 0}, "cloud": 0, "kind": "observed"}, {"time": "2026-08-04T15:00:00-04:00", "octants": {"N": 0, "NE": 0, "E": 0, "SE": 0, "S": 0, "SW": 0, "W": 0, "NW": 0}, "cloud": 0, "kind": "observed"}, {"time": "2026-08-04T16:00:00-04:00", "octants": {"N": 0, "NE": 0, "E": 0, "SE": 0, "S": 0, "SW": 0, "W": 0, "NW": 0}, "cloud": 0, "kind": "observed"}, {"time": "2026-08-04T17:00:00-04:00", "octants": {"N": 0, "NE": 0, "E": 0, "SE": 0, "S": 0, "SW": 0, "W": 0, "NW": 0}, "cloud": 0, "kind": "observed"}, {"time": "2026-08-04T18:00:00-04:00", "octants": {"N": 0, "NE": 0, "E": 0, "SE": 0, "S": 0, "SW": 0, "W": 0, "NW": 0}, "cloud": 0, "kind": "observed"}, {"time": "2026-08-04T19:00:00-04:00", "octants": {"N": 0, "NE": 0, "E": 0, "SE": 0, "S": 0, "SW": 0, "W": 0, "NW": 0}, "cloud": 0, "kind": "observed"}, {"time": "2026-08-04T20:00:00-04:00", "octants": {"N": 0, "NE": 0, "E": 0, "SE": 0, "S": 0, "SW": 0, "W": 0, "NW": 0}, "cloud": 0, "kind": "observed"}, {"time": "2026-08-04T21:00:00-04:00", "octants": {"N": 0, "NE": 0, "E": 0, "SE": 0, "S": 0, "SW": 0, "W": 0, "NW": 0}, "cloud": 0, "kind": "observed"}, {"time": "2026-08-04T23:00:00-04:00", "octants": {"N": 0, "NE": 0, "E": 0, "SE": 0, "S": 0, "SW": 0, "W": 0, "NW": 0}, "cloud": 0, "kind": "forecast", "model": "ncep_hrrr_conus"}, {"time": "2026-08-05T00:00:00-04:00", "octants": {"N": 0, "NE": 0, "E": 0, "SE": 0, "S": 0, "SW": 0, "W": 0, "NW": 0}, "cloud": 0, "kind": "forecast", "model": "ncep_hrrr_conus"}, {"time": "2026-08-05T01:00:00-04:00", "octants": {"N": 0, "NE": 0, "E": 0, "SE": 0, "S": 0, "SW": 0, "W": 0, "NW": 0}, "cloud": 0, "kind": "forecast", "model": "ncep_hrrr_conus"}, {"time": "2026-08-05T02:00:00-04:00", "octants": {"N": 0, "NE": 0, "E": 0, "SE": 0, "S": 0, "SW": 0, "W": 0, "NW": 0}, "cloud": 0, "kind": "forecast", "model": "ncep_hrrr_conus"}, {"time": "2026-08-05T03:00:00-04:00", "octants": {"N": 0, "NE": 0, "E": 0, "SE": 0, "S": 0, "SW": 0, "W": 0, "NW": 0}, "cloud": 0, "kind": "forecast", "model": "ncep_hrrr_conus"}, {"time": "2026-08-05T04:00:00-04:00", "octants": {"N": 0, "NE": 0, "E": 0, "SE": 0, "S": 0, "SW": 0, "W": 0, "NW": 0}, "cloud": 0, "kind": "forecast", "model": "ncep_hrrr_conus"}, {"time": "2026-08-05T05:00:00-04:00", "octants": {"N": 0, "NE": 0, "E": 0, "SE": 0, "S": 0, "SW": 0, "W": 0, "NW": 0}, "cloud": 0, "kind": "forecast", "model": "ncep_hrrr_conus"}, {"time": "2026-08-05T06:00:00-04:00", "octants": {"N": 0, "NE": 0, "E": 0, "SE": 0, "S": 0, "SW": 0, "W": 0, "NW": 0}, "cloud": 0, "kind": "forecast", "model": "ncep_hrrr_conus"}, {"time": "2026-08-05T07:00:00-04:00", "octants": {"N": 0, "NE": 0, "E": 0, "SE": 0, "S": 0, "SW": 0, "W": 0, "NW": 0}, "cloud": 0, "kind": "forecast", "model": "ncep_hrrr_conus"}, {"time": "2026-08-05T08:00:00-04:00", "octants": {"N": 0, "NE": 0, "E": 0, "SE": 0, "S": 0, "SW": 0, "W": 0, "NW": 0}, "cloud": 0, "kind": "forecast", "model": "ncep_hrrr_conus"}, {"time": "2026-08-05T09:00:00-04:00", "octants": {"N": 0, "NE": 0, "E": 0, "SE": 0, "S": 0, "SW": 0, "W": 0, "NW": 0}, "cloud": 0, "kind": "forecast", "model": "ncep_hrrr_conus"}, {"time": "2026-08-05T10:00:00-04:00", "octants": {"N": 0, "NE": 0, "E": 0, "SE": 0, "S": 0, "SW": 0, "W": 0, "NW": 0}, "cloud": 0, "kind": "forecast", "model": "ncep_hrrr_conus"}]</script></div>
   <div class="card" style="margin-bottom:.8rem">
     <p class="lede">What was actually overhead, hour by hour — <b>including after dark</b>,
     which the camera cannot see. This is what the models get marked against.</p>
@@ -423,7 +448,7 @@ td.trail{font-family:var(--mono);font-size:1rem;letter-spacing:.12em}
     <p class="note">Live — needs a connection. Frames below are archived.</p>
     <div class="scroll" style="margin-top:1rem"><table><thead><tr><th>Model</th><th>Checks</th><th>Mean error vs camera</th></tr></thead><tbody><tr><td>GFS</td><td class='n'>10</td><td class='n good'>0 pts</td></tr><tr><td>GEM</td><td class='n'>10</td><td class='n good'>0 pts</td></tr><tr><td>JMA</td><td class='n'>5</td><td class='n good'>0 pts</td></tr><tr><td>ECMWF</td><td class='n'>10</td><td class='n good'>1 pts</td></tr><tr><td>ICON</td><td class='n'>10</td><td class='n good'>2 pts</td></tr><tr><td>AIFS</td><td class='n'>5</td><td class='n good'>3 pts</td></tr></tbody></table></div><p class="note"><b>Not yet a ranking.</b> 10 scored frames spanning 0 points of cloud — a winner needs at least 12 frames across 30 points. Under a steady clear sky every model looks perfect and the order is noise.</p>
     <h3 style="margin-top:1.4rem">Hour by hour, forecast above the photo</h3>
-    <div class="film scroll"><figure class="shot"><span class="hr">Tue 21:00</span><span class="fc dim">0–0%</span><img src="webcam/2026-08-04T21.jpg" alt="webcam 04 Aug 21:00" loading="lazy"><span class="obs good">0%</span></figure><figure class="shot"><span class="hr">Tue 20:00</span><span class="fc">0–0%</span><img src="webcam/2026-08-04T20.jpg" alt="webcam 04 Aug 20:00" loading="lazy"><span class="obs good">0%</span></figure><figure class="shot"><span class="hr">Tue 19:00</span><span class="fc">0–0%</span><img src="webcam/2026-08-04T19.jpg" alt="webcam 04 Aug 19:00" loading="lazy"><span class="obs good">0%</span></figure><figure class="shot"><span class="hr">Tue 18:00</span><span class="fc">0–1%</span><img src="webcam/2026-08-04T18.jpg" alt="webcam 04 Aug 18:00" loading="lazy"><span class="obs good">0%</span><span class="cam">cam 0%</span></figure><figure class="shot"><span class="hr">Tue 17:00</span><span class="fc">0–1%</span><img src="webcam/2026-08-04T17.jpg" alt="webcam 04 Aug 17:00" loading="lazy"><span class="obs good">0%</span><span class="cam">cam 0%</span></figure><figure class="shot"><span class="hr">Tue 16:00</span><span class="fc">0–8%</span><img src="webcam/2026-08-04T16.jpg" alt="webcam 04 Aug 16:00" loading="lazy"><span class="obs good">0%</span><span class="cam">cam 0%</span></figure><figure class="shot"><span class="hr">Tue 15:00</span><span class="fc">0–10%</span><img src="webcam/2026-08-04T15.jpg" alt="webcam 04 Aug 15:00" loading="lazy"><span class="obs good">0%</span><span class="cam">cam 0%</span></figure><figure class="shot"><span class="hr">Tue 14:00</span><span class="fc">0–1%</span><img src="webcam/2026-08-04T14.jpg" alt="webcam 04 Aug 14:00" loading="lazy"><span class="obs good">0%</span><span class="cam">cam 0%</span></figure></div>
+    <div class="film scroll"><figure class="shot"><span class="hr">Tue 22:00</span><span class="fc dim">0–0%</span><img src="webcam/2026-08-04T22.jpg" alt="webcam 04 Aug 22:00" loading="lazy"><span class="obs dim">—</span></figure><figure class="shot"><span class="hr">Tue 21:00</span><span class="fc dim">0–0%</span><img src="webcam/2026-08-04T21.jpg" alt="webcam 04 Aug 21:00" loading="lazy"><span class="obs good">0%</span></figure><figure class="shot"><span class="hr">Tue 20:00</span><span class="fc">0–0%</span><img src="webcam/2026-08-04T20.jpg" alt="webcam 04 Aug 20:00" loading="lazy"><span class="obs good">0%</span></figure><figure class="shot"><span class="hr">Tue 19:00</span><span class="fc">0–0%</span><img src="webcam/2026-08-04T19.jpg" alt="webcam 04 Aug 19:00" loading="lazy"><span class="obs good">0%</span></figure><figure class="shot"><span class="hr">Tue 18:00</span><span class="fc">0–1%</span><img src="webcam/2026-08-04T18.jpg" alt="webcam 04 Aug 18:00" loading="lazy"><span class="obs good">0%</span><span class="cam">cam 0%</span></figure><figure class="shot"><span class="hr">Tue 17:00</span><span class="fc">0–1%</span><img src="webcam/2026-08-04T17.jpg" alt="webcam 04 Aug 17:00" loading="lazy"><span class="obs good">0%</span><span class="cam">cam 0%</span></figure><figure class="shot"><span class="hr">Tue 16:00</span><span class="fc">0–8%</span><img src="webcam/2026-08-04T16.jpg" alt="webcam 04 Aug 16:00" loading="lazy"><span class="obs good">0%</span><span class="cam">cam 0%</span></figure><figure class="shot"><span class="hr">Tue 15:00</span><span class="fc">0–10%</span><img src="webcam/2026-08-04T15.jpg" alt="webcam 04 Aug 15:00" loading="lazy"><span class="obs good">0%</span><span class="cam">cam 0%</span></figure><figure class="shot"><span class="hr">Tue 14:00</span><span class="fc">0–1%</span><img src="webcam/2026-08-04T14.jpg" alt="webcam 04 Aug 14:00" loading="lazy"><span class="obs good">0%</span><span class="cam">cam 0%</span></figure></div>
     <p class="note">Above each photo, what the models forecast for that hour. Below it,
     what the <b>satellite</b> saw — <b class="good">within 15</b> /
     <b class="warn">30</b> / <b class="bad">beyond</b>. The camera's own estimate appears
@@ -530,7 +555,7 @@ td.trail{font-family:var(--mono);font-size:1rem;letter-spacing:.12em}
   <h2>Calibration — the nights before the trip</h2>
   <div class="card">
     <p class="lede">Nights before the trip, which verify while you watch — so this measures how far a forecast actually travels in this pattern.</p>
-    <p style="margin-bottom:.8rem"><b style="color:var(--ink)">Worst swing so far: 38 points</b> (typical 27). You are asking how <em>wrong</em> a forecast could be — a tail question — so the worst case is the honest number and the mean understates it. A night reading 45% four days out could plausibly land anywhere within ±38 of that.</p><p class="note" style="margin-bottom:.8rem">The observed column fills in the morning after each lead-up night, once the webcam has frames spanning it.</p><div class="scroll"><table><thead><tr><th>Night</th><th>Lead</th><th>First</th><th>Latest</th><th>Swing</th><th>Observed</th><th>Miss</th></tr></thead><tbody><tr><td>Wed 05 Aug</td><td class='n'>1d → 1d</td><td class='n'>16%</td><td class='n'>52%</td><td class='n'>36</td><td class='n dim'>—</td><td class='n dim'>—</td></tr><tr><td>Thu 06 Aug</td><td class='n'>2d → 2d</td><td class='n'>54%</td><td class='n'>74%</td><td class='n'>32</td><td class='n dim'>—</td><td class='n dim'>—</td></tr><tr><td>Fri 07 Aug</td><td class='n'>3d → 3d</td><td class='n'>92%</td><td class='n'>90%</td><td class='n'>8</td><td class='n dim'>—</td><td class='n dim'>—</td></tr><tr><td>Sat 08 Aug</td><td class='n'>4d → 4d</td><td class='n'>66%</td><td class='n'>50%</td><td class='n'>24</td><td class='n dim'>—</td><td class='n dim'>—</td></tr><tr><td>Sun 09 Aug</td><td class='n'>5d → 5d</td><td class='n'>56%</td><td class='n'>24%</td><td class='n'>38</td><td class='n dim'>—</td><td class='n dim'>—</td></tr><tr><td>Mon 10 Aug</td><td class='n'>6d → 6d</td><td class='n'>66%</td><td class='n'>92%</td><td class='n'>26</td><td class='n dim'>—</td><td class='n dim'>—</td></tr></tbody></table></div><p class="note" style="margin-top:.8rem"><b>Observed</b> is the webcam at Lopstick on First Connecticut Lake, 16.6 km SSW of the shooting site. Cloud can only be scored while the sun is more than 15° up, so this is the last trustworthy look before dark and the first after dawn — a bracket around the night, not a measurement of it. Frames nearer sunset and sunrise are discarded: a low sun reddens the whole sky, and the red/blue test then reads clear air as overcast. Hover a value for the usable frame count.</p>
+    <p style="margin-bottom:.8rem"><b style="color:var(--ink)">Worst swing so far: 38 points</b> (typical 27). You are asking how <em>wrong</em> a forecast could be — a tail question — so the worst case is the honest number and the mean understates it. A night reading 45% four days out could plausibly land anywhere within ±38 of that.</p><p class="note" style="margin-bottom:.8rem">The observed column fills in the morning after each lead-up night, once the webcam has frames spanning it.</p><div class="scroll"><table><thead><tr><th>Night</th><th>Lead</th><th>First</th><th>Latest</th><th>Swing</th><th>Observed</th><th>Miss</th></tr></thead><tbody><tr><td>Wed 05 Aug</td><td class='n'>1d → 1d</td><td class='n'>16%</td><td class='n'>31%</td><td class='n'>36</td><td class='n dim'>—</td><td class='n dim'>—</td></tr><tr><td>Thu 06 Aug</td><td class='n'>2d → 2d</td><td class='n'>54%</td><td class='n'>74%</td><td class='n'>32</td><td class='n dim'>—</td><td class='n dim'>—</td></tr><tr><td>Fri 07 Aug</td><td class='n'>3d → 3d</td><td class='n'>92%</td><td class='n'>90%</td><td class='n'>8</td><td class='n dim'>—</td><td class='n dim'>—</td></tr><tr><td>Sat 08 Aug</td><td class='n'>4d → 4d</td><td class='n'>66%</td><td class='n'>50%</td><td class='n'>24</td><td class='n dim'>—</td><td class='n dim'>—</td></tr><tr><td>Sun 09 Aug</td><td class='n'>5d → 5d</td><td class='n'>56%</td><td class='n'>24%</td><td class='n'>38</td><td class='n dim'>—</td><td class='n dim'>—</td></tr><tr><td>Mon 10 Aug</td><td class='n'>6d → 6d</td><td class='n'>66%</td><td class='n'>92%</td><td class='n'>26</td><td class='n dim'>—</td><td class='n dim'>—</td></tr></tbody></table></div><p class="note" style="margin-top:.8rem"><b>Observed</b> is the webcam at Lopstick on First Connecticut Lake, 16.6 km SSW of the shooting site. Cloud can only be scored while the sun is more than 15° up, so this is the last trustworthy look before dark and the first after dawn — a bracket around the night, not a measurement of it. Frames nearer sunset and sunrise are discarded: a low sun reddens the whole sky, and the red/blue test then reads clear air as overcast. Hover a value for the usable frame count.</p>
   </div>
 
   <h2>What the percentage means</h2>
@@ -597,7 +622,7 @@ td.trail{font-family:var(--mono);font-size:1rem;letter-spacing:.12em}
     <a href="index.html" style="color:var(--accent)">← Trip plan</a>
     <span style="opacity:.5"> · </span>
     <a href="findings.html" style="color:var(--accent)">How these numbers are made</a>
-    <div class="vint"><div class="vk">Page built</div><div class="vv">Tue 04 Aug 2026, 21:12 EDT</div><div class="vk">NWS package</div><div class="vv">issued Tue 04 Aug 19:11 EDT</div><div class="vk">AIFS</div><div class="vv">18Z run · published 04 Aug 19:39</div><div class="vk">ECMWF</div><div class="vv">18Z run · published 04 Aug 21:09</div><div class="vk">GFS</div><div class="vv">18Z run · published 04 Aug 19:51</div><div class="vk">HRRR</div><div class="vv">23Z run · published 04 Aug 20:34</div><div class="vk">ICON</div><div class="vv">18Z run · published 04 Aug 17:35</div><div class="vk">JMA</div><div class="vv">12Z run · published 04 Aug 17:42</div><div class="vk">UKMO</div><div class="vv">12Z run · published 04 Aug 15:39</div><div class="vk">GEM</div><div class="vv">run time unknown</div></div>
+    <div class="vint"><div class="vk">Page built</div><div class="vv">Tue 04 Aug 2026, 21:58 EDT</div><div class="vk">NWS package</div><div class="vv">issued Tue 04 Aug 19:11 EDT</div><div class="vk">AIFS</div><div class="vv">18Z run · published 04 Aug 19:39</div><div class="vk">ECMWF</div><div class="vv">18Z run · published 04 Aug 21:09</div><div class="vk">GFS</div><div class="vv">18Z run · published 04 Aug 19:51</div><div class="vk">HRRR</div><div class="vv">00Z run · published 04 Aug 21:55</div><div class="vk">ICON</div><div class="vv">18Z run · published 04 Aug 17:35</div><div class="vk">JMA</div><div class="vv">12Z run · published 04 Aug 17:42</div><div class="vk">UKMO</div><div class="vv">18Z run · published 04 Aug 21:16</div><div class="vk">GEM</div><div class="vv">run time unknown</div></div>
     <p style="margin-top:.7rem;opacity:.8">Rebuilt hourly from
     <span style="font-family:var(--mono)">api.weather.gov</span>, Open-Meteo and the lake webcam.</p>
     <p style="margin-top:.35rem;opacity:.8">Each model is a snapshot of a different run — so a

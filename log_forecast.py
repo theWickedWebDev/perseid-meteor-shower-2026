@@ -1068,6 +1068,81 @@ def waiting_section(sk):
             f'</div>')
 
 
+def _nightlog():
+    """Star counts in the trip's own target regions. Empty if nightwatch has not run."""
+    try:
+        return json.load(open("nightwatch_log.json"))
+    except Exception:
+        return []
+
+
+def nightwatch_section(log):
+    """Can the core actually be seen right now — measured, not forecast.
+
+    The webcam at Lopstick points at bearing 178.5 deg with a 94 deg field, which was
+    solved from the stars themselves. Every target of this trip falls inside that frame:
+    the Milky Way core at 16 deg altitude, Rho Ophiuchi at 19, M8 and M20 at 20-22. The
+    same low southern sky the whole trip depends on, from 16.6 km away.
+
+    That makes this the only measurement here that asks the actual question. Cloud cover
+    is a proxy; a star either shows through or it does not. It also covers the satellite's
+    weakest case, since infrared struggles with low cloud whose tops sit near ground
+    temperature — and low cloud is exactly what blocks a target at 16 degrees.
+
+    Flux rather than star count is the headline. A count depends on where the detection
+    threshold lands, and the stack noise moves between captures: two grabs two minutes
+    apart gave 15 sources and then 5 for that reason alone. Flux does not care.
+    """
+    if not log:
+        return ""
+    rows = log[-40:]
+    latest = rows[-1]
+    t = datetime.fromisoformat(latest["time"])
+    core = (latest.get("targets") or {}).get("core") or {}
+    rho = (latest.get("targets") or {}).get("rho") or {}
+
+    fl = [max(0.0, (e.get("targets", {}).get("core") or {}).get("flux", 0) or 0) for e in rows]
+    mx = max(fl + [1])
+    cells = []
+    for e, f in zip(rows, fl):
+        et = datetime.fromisoformat(e["time"])
+        c = (e.get("targets") or {}).get("core") or {}
+        n = c.get("stars")
+        frac = min(1.0, f / mx)
+        cls = "good" if frac > .5 else "warn" if frac > .15 else "bad"
+        cells.append(f'<div class="nw {cls}" style="--f:{frac:.2f}" '
+                     f'title="{et:%a %H:%M} — {n} stars, flux {f:.0f}">'
+                     f'<i></i><span>{et:%H}</span></div>')
+
+    n = core.get("stars")
+    verdict = ("the core region is showing stars" if (n or 0) >= 3 else
+               "a couple of stars in the core region" if (n or 0) >= 1 else
+               "nothing visible in the core region")
+    vc = "good" if (n or 0) >= 3 else "warn" if (n or 0) >= 1 else "bad"
+    return (f'<h2>Can the core actually be seen? '
+            f'<a class="ev" href="nightwatch.html">see the frames →</a></h2>\n<div class="card">'
+            f'<p class="lede">The webcam is pointed at <b>your targets</b> — solved from '
+            f'its own star field to bearing 178.5°, 94° wide. The Milky Way core sits at '
+            f'{core.get("alt", "—")}° altitude in that frame, Rho Ophiuchi at '
+            f'{rho.get("alt", "—")}°. Same sky, 16.6 km away.</p>'
+            f'<div class="nwbig {vc}">{n if n is not None else "—"}<span> stars in the core '
+            f'region</span></div>'
+            f'<p class="tripsub">{t:%a %d %b %H:%M} — {verdict}. '
+            f'Flux <b>{core.get("flux", 0):,.0f}</b>, brightest source '
+            f'{core.get("peak", 0):.0f}× the noise.</p>'
+            f'<div class="nwstrip">{"".join(cells)}</div>'
+            f'<p class="note">One bar per capture through the night, height is light '
+            f'collected in the core region. Rho currently reads flux '
+            f'<b>{rho.get("flux", 0):,.0f}</b> — that region contains Antares, so it is the '
+            f'steadiest anchor: it should hold all night under clear sky and collapse the '
+            f'moment cloud crosses it.</p>'
+            f'<p class="note">Why this beats a cloud percentage: it is the only reading '
+            f'here that measures the actual target sky rather than the whole dome, and the '
+            f'only one that works on the low cloud infrared struggles with. Calibrated on '
+            f'the night of 4 Aug, the one fully dark night before the trip.</p>'
+            f'</div>')
+
+
 def webcam_section(log=None):
     """Live view, an hourly filmstrip with the forecast above each frame, and a scoreboard.
 
@@ -1159,6 +1234,7 @@ def webcam_section(log=None):
 
     return f'''
   <h2>Ground truth — satellite and webcam</h2>
+  {nightwatch_section(_nightlog())}
   {sky_now(_satlog())}
   {compass_film(_satlog())}
   <div class="card" style="margin-bottom:.8rem">
@@ -1855,6 +1931,22 @@ h3.sub{{font-family:var(--serif);color:var(--ink);font-size:1rem;margin:1.8rem 0
 .tripbig{{font-family:var(--mono);font-size:clamp(2.6rem,11vw,3.6rem);line-height:1;
   font-variant-numeric:tabular-nums;margin:.2rem 0 .1rem}}
 .tripsub{{margin:.1rem 0 .9rem;color:var(--body)}}
+.ev{{font-family:var(--mono);font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--accent);text-decoration:none;margin-left:.6rem;vertical-align:middle}}
+.ev:hover{{text-decoration:underline}}
+.nwbig{{font-family:var(--mono);font-size:clamp(2.2rem,9vw,3rem);line-height:1;
+  margin:.6rem 0 .1rem;font-variant-numeric:tabular-nums}}
+.nwbig span{{font-size:.9rem;color:var(--muted);margin-left:.4rem}}
+.nwstrip{{display:flex;gap:2px;align-items:flex-end;height:70px;margin:1rem 0 .4rem;
+  overflow-x:auto}}
+.nw{{flex:1 0 16px;display:flex;flex-direction:column;justify-content:flex-end;
+  height:100%;min-width:16px}}
+.nw i{{display:block;width:100%;height:calc(6px + var(--f,0) * 48px);border-radius:2px;
+  background:var(--rule)}}
+.nw.good i{{background:var(--good)}} .nw.warn i{{background:var(--warn)}}
+.nw.bad i{{background:var(--bad)}}
+.nw span{{font-family:var(--mono);font-size:.55rem;color:var(--muted);text-align:center;
+  margin-top:.2rem}}
 .lds{{display:flex;flex-direction:column;gap:.3rem;margin:.9rem 0 .5rem}}
 .ld{{display:grid;grid-template-columns:5.2rem 1fr 2.8rem auto;align-items:center;
   gap:.5rem;font-family:var(--mono);font-size:.72rem}}
