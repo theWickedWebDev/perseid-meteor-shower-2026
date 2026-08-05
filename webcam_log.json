@@ -525,5 +525,24 @@
    "ICON": 18,
    "GEM": 1
   }
+ },
+ {
+  "time": "2026-08-05T17:00:00-04:00",
+  "cloud": 0,
+  "night": false,
+  "stats": {
+   "lum": 172.4,
+   "lum_sd": 7.6,
+   "lum_p90": 182.3,
+   "sat": 100.8,
+   "rb": 0.556
+  },
+  "shot": "webcam/2026-08-05T17.jpg",
+  "models": {
+   "ECMWF": 0,
+   "GFS": 0,
+   "ICON": 14,
+   "GEM": 1
+  }
  }
 ]
