@@ -404,6 +404,9 @@ def conditions():
     return out
 
 
+# WMO codes that mean something is falling out of the sky
+PRECIP_CODES = {51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 71, 73, 75, 77,
+                80, 81, 82, 85, 86, 95, 96, 99}
 DAY_HR = (8, 19)     # the hours you would actually be outdoors, 8 AM to 7 PM
 TRIP_DAYS = [("Tue 11", "2026-08-11"), ("Wed 12", "2026-08-12"),
              ("Thu 13", "2026-08-13"), ("Fri 14", "2026-08-14")]
@@ -443,16 +446,34 @@ def daytime():
                 pop.append(pp)
             if pr is not None:
                 rain.append(pr)
-                if pr >= 0.2:
-                    wet.append(k[11:16])
+            # An hour counts as wet if EITHER measurable rain is forecast or the weather
+            # code says precipitation. Counting only millimetres put "dry" next to three
+            # drizzle icons on 12 Aug: 0.1 mm an hour is below the 0.2 threshold but the
+            # code was 51 and the strip drew rain. The label and the picture have to agree.
+            wc = h["weather_code"][i]
+            if (pr is not None and pr >= 0.2) or (wc is not None and wc in PRECIP_CODES):
+                wet.append(k[11:16])
             for src, dst in ((h["temperature_2m"][i], temp), (h["wind_speed_10m"][i], wind),
                              (h["cloud_cover"][i], cloud)):
                 if src is not None:
                     dst.append(src)
         if not pop and not temp:
             continue
+        # keep the hour-by-hour too, for the strip
+        hours = []
+        for k in keys:
+            i = idx.get(k)
+            if i is None:
+                continue
+            hours.append({"h": int(k[11:13]),
+                          "pop": h["precipitation_probability"][i],
+                          "mm": h["precipitation"][i],
+                          "t": h["temperature_2m"][i],
+                          "cloud": h["cloud_cover"][i],
+                          "code": h["weather_code"][i]})
         out[label] = {
             "date": day,
+            "hours": hours,
             "pop_max": max(pop) if pop else None,
             "pop_mean": round(sum(pop) / len(pop)) if pop else None,
             "rain_mm": round(sum(rain), 1) if rain else None,
@@ -1361,6 +1382,97 @@ def crosscheck_block(nightlog, satlog):
             f'sampled over the camera, so a mismatch is not the 16.6 km between them.{tail}</p>')
 
 
+# Emoji or drawn glyphs, switchable. Emoji read instantly and are what everyone expects
+# from a weather strip; drawn ones inherit the theme colour, render identically everywhere,
+# and sit better against a restrained palette. Flip this and rebuild to compare.
+WX_EMOJI = True
+
+WX_CHARS = {0: "\u2600\ufe0f", 1: "\U0001f324\ufe0f", 2: "\u26c5", 3: "\u2601\ufe0f",
+            45: "\U0001f32b\ufe0f", 48: "\U0001f32b\ufe0f",
+            51: "\U0001f327\ufe0f", 53: "\U0001f327\ufe0f", 55: "\U0001f327\ufe0f",
+            56: "\U0001f327\ufe0f", 57: "\U0001f327\ufe0f",
+            61: "\U0001f326\ufe0f", 63: "\U0001f327\ufe0f", 65: "\U0001f327\ufe0f",
+            66: "\U0001f327\ufe0f", 67: "\U0001f327\ufe0f",
+            71: "\U0001f328\ufe0f", 73: "\U0001f328\ufe0f", 75: "\U0001f328\ufe0f",
+            80: "\U0001f326\ufe0f", 81: "\U0001f327\ufe0f", 82: "\u26c8\ufe0f",
+            95: "\u26c8\ufe0f", 96: "\u26c8\ufe0f", 99: "\u26c8\ufe0f"}
+
+
+def wx_icon(code, size=22):
+    if WX_EMOJI:
+        return f'<span class="wxe">{WX_CHARS.get(code if code is not None else 3, "\u2601\ufe0f")}</span>'
+    return _wx_svg(code, size)
+
+
+def _wx_svg(code, size=22):
+    c = code if code is not None else 3
+    sun = f'<circle cx="11" cy="9" r="4.4" fill="none" stroke="currentColor" stroke-width="1.6"/>'
+    rays = "".join(
+        f'<line x1="{11 + 6.6 * __import__("math").cos(a):.1f}" '
+        f'y1="{9 + 6.6 * __import__("math").sin(a):.1f}" '
+        f'x2="{11 + 8.6 * __import__("math").cos(a):.1f}" '
+        f'y2="{9 + 8.6 * __import__("math").sin(a):.1f}" '
+        f'stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>'
+        for a in [__import__("math").radians(d) for d in range(0, 360, 45)])
+    cloud = ('<path d="M6 19h11a3.4 3.4 0 0 0 .2-6.8 5 5 0 0 0-9.5-1.2A3.6 3.6 0 0 0 6 19z" '
+             'fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>')
+    small_sun = ('<circle cx="15.5" cy="7.5" r="3.2" fill="none" stroke="currentColor" '
+                 'stroke-width="1.5"/>')
+    drops = lambda n: "".join(
+        f'<line x1="{8 + i * 3.6}" y1="20.5" x2="{6.8 + i * 3.6}" y2="{23.5}" '
+        f'stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>' for i in range(n))
+    fog = "".join(f'<line x1="4" y1="{13 + i * 3.2}" x2="18" y2="{13 + i * 3.2}" '
+                  f'stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>'
+                  for i in range(3))
+    bolt = ('<path d="M12 19l-3 4.4h2.6L10.4 27l4.6-5.2h-2.6L14.2 19z" fill="currentColor"/>')
+
+    if c == 0:
+        body = rays + sun
+    elif c == 1:
+        body = small_sun + cloud
+    elif c == 2:
+        body = small_sun + cloud
+    elif c == 3:
+        body = cloud
+    elif c in (45, 48):
+        body = fog
+    elif c in (51, 53, 55, 56, 57):
+        body = cloud + drops(2)
+    elif c in (61, 63, 80, 81):
+        body = cloud + drops(3)
+    elif c in (65, 82):
+        body = cloud + drops(4)
+    elif c in (95, 96, 99):
+        body = cloud + bolt
+    else:
+        body = cloud
+    return (f'<svg class="wx" viewBox="0 0 24 28" width="{size}" height="{size*28//24}" '
+            f'aria-hidden="true">{body}</svg>')
+
+
+def daytime_strip(v):
+    """One day, hour by hour — icon, temperature, rain chance."""
+    hrs = v.get("hours") or []
+    if not hrs:
+        return ""
+    mx = max([x.get("mm") or 0 for x in hrs] + [0.1])
+    cells = []
+    for x in hrs:
+        pop = x.get("pop")
+        mm = x.get("mm") or 0
+        pc = "bad" if (pop or 0) >= 50 else "warn" if (pop or 0) >= 25 else "dim"
+        bar = (f'<i style="height:{max(2, round(18 * mm / mx))}px"></i>'
+               if mm > 0 else '<i class="none"></i>')
+        cells.append(
+            f'<div class="wh" title="{x["h"]:02d}:00 — {x.get("cloud")}% cloud, {mm:.1f} mm">'
+            f'<span class="whh">{hr12(x["h"]).replace(" ", "")}</span>'
+            f'{wx_icon(x.get("code"))}'
+            f'<span class="wht">{round(x["t"]) if x.get("t") is not None else "—"}°</span>'
+            f'<span class="whp {pc}">{pop if pop is not None else "—"}%</span>'
+            f'<span class="whb">{bar}</span></div>')
+    return f'<div class="whs">{"".join(cells)}</div>'
+
+
 def daytime_section(latest):
     """Daylight hours — moose drives, hiking, hauling the rig onto the porch.
 
@@ -1371,6 +1483,19 @@ def daytime_section(latest):
     d = latest.get("daytime") or {}
     if not d:
         return ""
+    strips = ""
+    for label, v in d.items():
+        st_ = daytime_strip(v)
+        if st_:
+            wet = v.get("wet_hours") or 0
+            mm_ = v.get("rain_mm") or 0
+            tag = ("dry" if wet == 0 else
+                   f"{wet} h of drizzle, {mm_} mm" if mm_ < 1.0 else
+                   f"{wet} h of rain, {mm_} mm")
+            strips += (f'<div class="whday"><span class="whlab">{label} Aug'
+                       f'<span class="dim"> · {v.get("t_lo")}–{v.get("t_hi")}°C · {tag}'
+                       f'</span></span><div class="scroll">{st_}</div></div>')
+
     rows = []
     for label, v in d.items():
         pop = v.get("pop_max")
@@ -1379,7 +1504,9 @@ def daytime_section(latest):
         # damp hour is a good day out; the same 30% spread across eight is not.
         cls = "good" if wet <= 1 else "warn" if wet <= 4 else "bad"
         when = (f'{v["wet_from"]}–{v["wet_to"]}' if wet else "—")
+        mm = v.get("rain_mm") or 0
         verdict = ("dry" if wet == 0 else
+                   f"drizzle, {wet} h" if mm < 1.0 else
                    "a shower" if wet <= 2 else
                    f"wet for {wet} h")
         rows.append(
@@ -1395,6 +1522,7 @@ def daytime_section(latest):
             f'the hiking and getting the rig onto the porch dry. Not the daily maximum '
             f'most forecasts show — a 40% chance driven by a shower at 3 AM says nothing '
             f'about a walk at noon.</p>'
+            f'{strips}'
             f'<div class="scroll"><table class="mtable">'
             f'<thead><tr><th>day</th><th>temp</th><th>peak PoP</th><th>rain</th>'
             f'<th>when</th><th>total</th><th>cloud</th></tr></thead>'
@@ -2199,6 +2327,22 @@ h3.sub{{font-family:var(--serif);color:var(--ink);font-size:1rem;margin:1.8rem 0
 .ev{{font-family:var(--mono);font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;
   color:var(--accent);text-decoration:none;margin-left:.6rem;vertical-align:middle}}
 .ev:hover{{text-decoration:underline}}
+.whday{{margin:1rem 0}}
+.whlab{{font-family:var(--mono);font-size:.68rem;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--ink)}}
+.whs{{display:flex;gap:2px;margin-top:.35rem}}
+.wh{{flex:1 0 46px;min-width:46px;display:flex;flex-direction:column;align-items:center;
+  gap:.15rem;padding:.35rem .1rem;background:var(--surface);border:1px solid var(--rule);
+  border-radius:3px}}
+.whh{{font-family:var(--mono);font-size:.55rem;color:var(--muted)}}
+.wxe{{font-size:1.15rem;line-height:1.1}}
+.wx{{color:var(--body);opacity:.9}}
+.wht{{font-family:var(--mono);font-size:.78rem;color:var(--ink);
+  font-variant-numeric:tabular-nums}}
+.whp{{font-family:var(--mono);font-size:.6rem;font-variant-numeric:tabular-nums}}
+.whb{{height:20px;display:flex;align-items:flex-end}}
+.whb i{{display:block;width:11px;background:var(--accent);border-radius:1px;opacity:.75}}
+.whb i.none{{height:2px;background:var(--rule);opacity:.6}}
 .nwbig{{font-family:var(--mono);font-size:clamp(2.2rem,9vw,3rem);line-height:1;
   margin:.6rem 0 .1rem;font-variant-numeric:tabular-nums}}
 .nwbig span{{font-size:.9rem;color:var(--muted);margin-left:.4rem}}
@@ -2611,6 +2755,10 @@ def main():
         # Refresh them on the existing entry instead of banking a duplicate snapshot.
         if new.get("trip"):
             hist[-1]["trip"] = new["trip"]
+        # daytime belongs to "now" the same way trip and cond do — and when its shape
+        # changes, the stored copy has to follow or the page renders an older schema
+        if new.get("daytime"):
+            hist[-1]["daytime"] = new["daytime"]
         # Merge conditions per night and per field. A partial outage — one endpoint timing
         # out while the other answers — returns a dict that is truthy but missing whole
         # nights, and replacing wholesale threw away good readings. Seen in the wild.
