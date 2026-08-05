@@ -33,7 +33,22 @@ KEEP    = 48                       # archived frames to retain
 # different part of the scene at each resolution.
 # Box excludes the pole at far left, the conifers at right, and the bottom band where
 # horizon haze reads as false cloud.
-CAL = {"y0": 0.019, "y1": 0.241, "x0": 0.078, "x1": 0.677, "rb": 0.85, "dark": 40}
+# y1 was 0.241, which stopped at row 103 of 428 — the top third of the sky. Overlaying the
+# flagged pixels on a cirrus frame showed the analysed strip cutting a cloud sheet in half:
+# most of the cloud sat below the box and was never examined, so the estimate read 10% on a
+# sky that plainly had more than that.
+#
+# It cannot simply extend to the horizon. On a cloudless frame the red/blue ratio climbs
+# from 0.73 at the top to 0.94 near the treeline — clear sky whitens on its own, because
+# near the horizon you look sideways through far more atmosphere — and past about row 170 it
+# crosses the 0.85 threshold on its own. Whiteness from haze and whiteness from cloud are
+# the same number to this test, so below that the reading means nothing.
+#
+# 0.32 ends at row 136, where a clear sky still reads 0.81 — under the threshold with margin.
+# Measured across five cloudless frames it costs 0-4% of false positive and roughly doubles
+# the reading during cirrus. Using sky nearer the horizon needs a per-row clear-sky baseline
+# rather than one flat threshold, which needs more confirmed-clear frames than exist yet.
+CAL = {"y0": 0.019, "y1": 0.32, "x0": 0.078, "x1": 0.677, "rb": 0.85, "dark": 40}
 
 MODELS = [("ecmwf_ifs025", "ECMWF"), ("gfs_seamless", "GFS"),
           ("icon_seamless", "ICON"), ("gem_seamless", "GEM")]
