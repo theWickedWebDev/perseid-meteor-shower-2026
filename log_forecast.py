@@ -1189,10 +1189,9 @@ def verification_section(sk):
             + f'<div class="vfs">'
             f'<div class="vf vfh"><span class="vfl">forecast</span>'
             f'<span class="vfbar"></span>'
-            f'<span class="vfv">half<br>the time</span>'
-            f'<span class="vfv dim">8 in<br>10</span>'
-            f'<span class="vfv dim">9 in<br>10</span></div>'
-            f'<div class="vfu">how many points the forecast was off by</div>'
+            f'<span class="vfv">half</span>'
+            f'<span class="vfv dim">8/10</span>'
+            f'<span class="vfv dim">9/10</span></div>'
             + "".join(rows) + '</div>'
             + cond
             + f'<p class="note" style="margin-top:.9rem"><b>What this is measured against.</b> '
@@ -2610,8 +2609,7 @@ svg{{width:100%;height:auto;display:block}}
 .vfs{{display:flex;flex-direction:column;gap:.3rem;margin:.9rem 0 .5rem}}
 .vf{{display:grid;grid-template-columns:4.4rem 1fr 2.8rem 2.8rem 2.8rem;align-items:center;
   gap:.45rem;font-family:var(--mono);font-size:.72rem}}
-.vfh{{font-size:.55rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);
-  align-items:end;line-height:1.25}}
+.vfh{{font-size:.58rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}}
 .vfl{{color:var(--muted)}}
 .vfbar{{position:relative;height:9px;background:var(--sunken);border-radius:2px;
   overflow:hidden}}
@@ -2622,8 +2620,6 @@ svg{{width:100%;height:auto;display:block}}
 .vfbar i.warn{{background:var(--warn,#B5721A)}}
 .vfbar i.bad{{background:var(--bad,#B03A2C)}}
 .vfv{{text-align:right;font-variant-numeric:tabular-nums}}
-.vfu{{text-align:right;font-family:var(--mono);font-size:.55rem;letter-spacing:.06em;
-  text-transform:uppercase;color:var(--muted);margin:-.1rem 0 .35rem}}
 .vt{{width:100%;border-collapse:collapse;margin-top:.6rem}}
 .vt td,.vt th{{padding:.4rem .5rem;text-align:left}}
 .vt tbody tr:not(.vtd) td{{border-top:1px solid var(--rule)}}
