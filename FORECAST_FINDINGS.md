@@ -16,8 +16,8 @@ Measured at the lake site, 45.2393 / −71.1964, unless stated. All times EDT.
 |---|---|---|
 | Is 45% cloud good? | No. Median for these dates here is **72%** | 30 years, solid |
 | Odds at least one night works? | **83%**, against a **67%** base rate | Good, with caveats below |
-| Does waiting help? | Only to about day 5. After that, nothing | 51 verified hours, suggestive |
-| Which model to believe? | **AIFS** past 5 days, **ECMWF** inside 3 | Small sample, directionally clear |
+| Does waiting help? | Yes to ~day 5. Past that, **nothing measurable** | 7 nights — differences under 6 pts invisible |
+| Which model to believe? | **AIFS** past 5 days, **ECMWF** inside 3 | Weak — partly ranking pessimism (r −0.42) |
 | Can we see cloud at night? | Yes — satellite, not the webcam | Verified |
 
 ---
