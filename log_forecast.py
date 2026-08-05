@@ -295,6 +295,19 @@ def ensemble_trip():
     if not rows:
         return None
 
+    # The same question at several standards, because one threshold hides the difference
+    # between "workable" and "actually good". 30% is shootable but lossy; 10% is the night
+    # you would drive four hours for.
+    ladder = []
+    for thr, word in ((SUCKER, "sucker holes"), (GO, "shootable"), (20, "genuinely good"),
+                      (10, "excellent"), (5, "pristine")):
+        ladder.append({
+            "thr": thr, "word": word,
+            "joint": round(100 * sum(1 for r in rows
+                                     if any(r[l] < thr for l, _ in NIGHTS)) / len(rows)),
+            "per": {l: round(100 * sum(1 for r in rows if r[l] < thr) / len(rows))
+                    for l, _ in NIGHTS}})
+
     per = {lab: sum(1 for r in rows if r[lab] < GO) / len(rows) for lab, _ in NIGHTS}
     joint = sum(1 for r in rows if any(r[lab] < GO for lab, _ in NIGHTS)) / len(rows)
     ind = 1.0
@@ -315,7 +328,7 @@ def ensemble_trip():
             if den:
                 rs.append(num / den)
     return {"per": {l: round(100 * v) for l, v in per.items()},
-            "joint": round(100 * joint), "n": len(rows),
+            "joint": round(100 * joint), "n": len(rows), "ladder": ladder,
             "indep": round(100 * ind),
             "floor": round(100 * max(per.values())),
             "corr": round(_st.mean(rs), 3) if rs else None,
@@ -1562,6 +1575,24 @@ def trip_banner(latest, sk=None):
                  f'their own independence bound. These dates genuinely are near-independent; '
                  f'three days is long enough for a system to pass. If the nights were '
                  f'locked together the answer would be <b>{floor}%</b> instead.</p>')
+    lad = ""
+    if t.get("ladder"):
+        rows_ = []
+        for e in t["ladder"]:
+            v = e["joint"]
+            c = "good" if v >= 70 else "warn" if v >= 45 else "bad"
+            hi = ' class="lead"' if e["thr"] == GO else ''
+            rows_.append(
+                f'<div class="ld"{hi}><span class="ldl">under {e["thr"]}%</span>'
+                f'<span class="ldbar"><i class="{c}" style="width:{v}%"></i></span>'
+                f'<span class="ldv {c}">{v}%</span>'
+                f'<span class="ldw">{e["word"]}</span></div>')
+        lad = (f'<div class="lds">{"".join(rows_)}</div>'
+               f'<p class="note">Same question at five standards. The headline uses '
+               f'<b>{GO}%</b> — shootable, though you would lose frames. Ask for a night '
+               f'you would actually drive four hours for and the answer is materially '
+               f'lower.</p>')
+
     bars = []
     for label, _ in NIGHTS:
         v = t["per"].get(label, 0)
@@ -1574,6 +1605,8 @@ def trip_banner(latest, sk=None):
             f'<div class="tripbig {cls}">{j}%</div>'
             f'<p class="tripsub"><b>chance at least one of the three nights has a usable '
             f'core window</b> — {verdict}.</p>'
+            f'{lad}'
+            f'<p class="eyebrow" style="margin-top:.9rem">Per night, at {GO}%</p>'
             f'<div class="pks">{"".join(bars)}</div>'
             f'{diag}'
             f'</div>')
@@ -1819,6 +1852,18 @@ h3.sub{{font-family:var(--serif);color:var(--ink);font-size:1rem;margin:1.8rem 0
 .tripbig{{font-family:var(--mono);font-size:clamp(2.6rem,11vw,3.6rem);line-height:1;
   font-variant-numeric:tabular-nums;margin:.2rem 0 .1rem}}
 .tripsub{{margin:.1rem 0 .9rem;color:var(--body)}}
+.lds{{display:flex;flex-direction:column;gap:.3rem;margin:.9rem 0 .5rem}}
+.ld{{display:grid;grid-template-columns:5.2rem 1fr 2.8rem auto;align-items:center;
+  gap:.5rem;font-family:var(--mono);font-size:.72rem}}
+.ld.lead{{font-weight:700}}
+.ld.lead .ldl,.ld.lead .ldw{{color:var(--ink)}}
+.ldl{{color:var(--muted)}}
+.ldbar{{background:var(--rule);border-radius:2px;height:7px;overflow:hidden}}
+.ldbar i{{display:block;height:100%;border-radius:2px}}
+.ldbar i.good{{background:var(--good)}} .ldbar i.warn{{background:var(--warn)}}
+.ldbar i.bad{{background:var(--bad)}}
+.ldv{{text-align:right;font-variant-numeric:tabular-nums}}
+.ldw{{color:var(--muted);font-size:.66rem}}
 .pks{{display:flex;flex-direction:column;gap:.3rem;margin-bottom:.7rem}}
 .pk{{display:grid;grid-template-columns:5.2rem 1fr 2.6rem;align-items:center;gap:.5rem;
   font-family:var(--mono);font-size:.72rem}}

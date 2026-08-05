@@ -114,6 +114,14 @@ def build():
                "Night 2": [38, 41, 48, 57, 72][i],
                "Night 3": [35, 33, 30, 26, 18][i]}
         joint = [62, 66, 71, 76, 81][i]
+        # the ladder tightens as the pivot night firms up — the top of it barely moves,
+        # the bottom of it moves a lot, which is the point of showing five standards
+        ladder = [{"thr": t_, "word": w_,
+                   "joint": max(0, min(100, joint - off + i * gain)),
+                   "per": {l: max(0, min(100, per[l] - off // 2)) for l, _ in lf.NIGHTS}}
+                  for t_, w_, off, gain in ((40, "sucker holes", -7, 0), (30, "shootable", 0, 0),
+                                            (20, "genuinely good", 11, 1),
+                                            (10, "excellent", 27, 2), (5, "pristine", 38, 3))]
         # fog: night 2 goes calm and saturated as the ridge builds — the classic trap where
         # the best-forecast night is the one that fogs
         cond = {}
@@ -136,7 +144,9 @@ def build():
 
         hist.append({
             "taken": taken.isoformat(),
-            "trip": {"per": per, "joint": joint, "n": 31},
+            "trip": {"per": per, "joint": joint, "n": 103, "ladder": ladder,
+                     "indep": joint + 1, "floor": max(per.values()), "corr": -0.03,
+                     "sources": {"GEFS": 31, "ECMWF ENS": 51, "GEM ENS": 21}},
             "cond": cond,
             "issued": (taken - timedelta(hours=5)).astimezone().isoformat(),
             "grid": "GYX 28,125 (MOCK)",
