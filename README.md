@@ -35,6 +35,7 @@ sits above 10° over a lake. Everything here exists to make that 90 minutes work
 | [SCHEDULE_3_NIGHTS.md](SCHEDULE_3_NIGHTS.md) | Full plan · [2 nights](SCHEDULE_2_NIGHTS.md) · [1 night](SCHEDULE_1_NIGHT.md) |
 | [OPEN_ITEMS.md](OPEN_ITEMS.md) | Pre-trip checklist and unresolved questions |
 | [predictions/](predictions/) | Independent forecasts of what the data will say on 9 Aug, one per model |
+| [PREDICTION_PROMPT.md](PREDICTION_PROMPT.md) | Hand this to a fresh model to add another independent forecast |
 | [FORECAST_FINDINGS.md](FORECAST_FINDINGS.md) | **How the forecast numbers are made, and what they're worth** · [rendered](findings.html) |
 | [FORECAST_LOG.md](FORECAST_LOG.md) | Auto-generated forecast history |
 

@@ -31,6 +31,12 @@ They also disagree in a way that is worth watching. The sharpest split is **Nigh
 That is a direct test of *"regress the anomaly toward climatology"* against *"trust the best
 model inside three days"*, and one of them will be visibly wrong.
 
+## Adding another
+
+Hand [`PREDICTION_PROMPT.md`](../PREDICTION_PROMPT.md) to a fresh model with read
+access to the repo. It is self-contained, bakes in no run-date, and tells the model
+not to read this directory.
+
 ## Rules
 
 - Predictions are written **before** the target date and never edited afterwards. Any
