@@ -1620,7 +1620,7 @@ def webcam_section(log=None):
         img = (f'<img src="{e["shot"]}" alt="webcam {t:%d %b %H:%M}" loading="lazy">'
                if os.path.exists(e["shot"]) else '<div class="noimg"></div>')
         cells.append(f'<figure class="shot"><span class="hr">{t:%a %H:%M}</span>'
-                     f'<span class="fcrow">{fc}{camtag}{obs}</span>{img}</figure>')
+                     f'<span class="fcrow">{fc}{obs}{camtag}</span>{img}</figure>')
 
     return f'''
   <h2>Ground truth — satellite and webcam</h2>
@@ -1644,9 +1644,10 @@ def webcam_section(log=None):
     <div class="film scroll">{"".join(cells)}</div>
     <p class="note">Three readings of the same hour, deliberately uncoloured so they are
     compared rather than ranked. <b>Models</b> is the range across the four models,
-    <b>Cam</b> is what the frame itself shows from the red/blue ratio of the sky, and
-    <b>Sat</b> is the GOES satellite. Models and Sat are both for the shooting site; only
-    Cam describes the place in the photograph, 16.6 km away. Cam is blank wherever the sun
+    <b>Sat</b> is the GOES satellite, and <b>Cam</b> is what the frame itself shows from
+    the red/blue ratio of the sky. Models and Sat are both for the shooting site; Cam sits
+    last because it is the only one that describes the place in the photograph, 16.6 km
+    away. Cam is blank wherever the sun
     sat too low for it to mean anything — a reddened sky reads as cloud, so those hours
     show nothing rather than a number we would disbelieve. Where Models sit near zero and
     Cam does not, that is thin cirrus: the models threshold it away, and it is the one
