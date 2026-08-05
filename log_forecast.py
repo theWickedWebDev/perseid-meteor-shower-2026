@@ -1078,6 +1078,88 @@ def base_rate_line(sk, latest):
             f'the question is only whether this year is a better or worse draw.</p>')
 
 
+def verification_section(sk):
+    """How far a forecast at each lead typically moves before the night arrives.
+
+    Separate from "Does waiting help?" and answering a different question. That section
+    measures error against the satellite, which is the honest reference but limits the
+    sample to the nights the satellite has watched. This one trades reference quality for
+    sample size — three months, every model, over a thousand readings per lead — and reports
+    percentiles rather than a mean, because the error distribution is badly skewed and a
+    mean of a skewed distribution describes nothing anyone experiences.
+
+    The conditional block at the end is the one worth having. Staring at a bad number six
+    days out the question is not "what is the mean absolute error", it is "does this ever
+    come good" — and that has an answer.
+    """
+    v = (sk or {}).get("verification")
+    if not v or not v.get("by_lead"):
+        return ""
+    bl = v["by_lead"]
+    leads = sorted(bl, key=int)
+    mx = max(bl[k]["p90"] for k in leads) or 1
+    rows = []
+    for k in leads:
+        d = bl[k]
+        cls = "good" if d["p50"] <= 12 else "warn" if d["p50"] <= 22 else "bad"
+        rows.append(
+            f'<div class="vf"><span class="vfl">{k} day{"s" if k != "1" else ""}</span>'
+            f'<span class="vfbar">'
+            f'<i class="vf9" style="width:{100*d["p90"]/mx:.0f}%"></i>'
+            f'<i class="vf8" style="width:{100*d["p80"]/mx:.0f}%"></i>'
+            f'<i class="{cls}" style="width:{100*d["p50"]/mx:.0f}%"></i></span>'
+            f'<span class="vfv">±{d["p50"]}</span>'
+            f'<span class="vfv dim">±{d["p80"]}</span>'
+            f'<span class="vfv dim">±{d["p90"]}</span></div>')
+
+    g = v.get("given") or {}
+    bad, good = g.get("said_bad"), g.get("said_good")
+    cond = ""
+    if bad and good:
+        cond = (
+            f'<h3 class="sub">Does a bad number ever come good?</h3>'
+            f'<p>Pooled over {g["leads"]} days out, {g["n"]} readings.</p>'
+            # The outcome sentence spans its own full-width row rather than sitting in a
+            # fourth column. As a column it ran off the side of the card and needed a
+            # horizontal scrollbar to read a single sentence.
+            f'<table class="vt"><thead><tr><th>What it said</th><th>Times</th>'
+            f'<th>Typical outcome</th></tr></thead><tbody>'
+            f'<tr><td><b>80% or worse</b></td><td class="n">{bad["n"]}</td>'
+            f'<td class="n">{bad["median_actual"]}%</td></tr>'
+            f'<tr class="vtd"><td colspan="3">came good ({GO}% or better) '
+            f'<b class="good">{bad["recovered_go"]}%</b> of the time · at least '
+            f'half-usable {bad["recovered_55"]}% of the time</td></tr>'
+            f'<tr><td><b>20% or better</b></td><td class="n">{good["n"]}</td>'
+            f'<td class="n">{good["median_actual"]}%</td></tr>'
+            f'<tr class="vtd"><td colspan="3">fell apart (past 55%) '
+            f'<b class="bad">{good["collapsed_55"]}%</b> of the time</td></tr>'
+            f'</tbody></table>'
+            f'<p class="note" style="margin-top:.8rem">Read the second row before taking '
+            f'comfort from a good night. Six or seven days out, a forecast of clear skies '
+            f'collapses about as often as a forecast of cloud recovers — so the night you '
+            f'are pleased about is roughly as unreliable as the one you have written off. '
+            f'This is the whole argument for planning three nights rather than picking one.</p>')
+
+    return (f'<h2>How much a forecast still moves</h2>\n<div class="card">'
+            f'<p class="lede">How far a forecast at each lead ends up shifting before the '
+            f'night arrives. The solid bar is the typical miss; the paler extensions behind '
+            f'it are the 8-in-10 and 9-in-10 cases.</p>'
+            f'<div class="vfs">'
+            f'<div class="vf vfh"><span class="vfl"></span><span class="vfbar"></span>'
+            f'<span class="vfv">half</span><span class="vfv dim">8/10</span>'
+            f'<span class="vfv dim">9/10</span></div>'
+            + "".join(rows) + '</div>'
+            + cond
+            + f'<p class="note" style="margin-top:.9rem"><b>What this is measured against.</b> '
+              f'{v["days"]} days of Open-Meteo previous runs, every model, core hours only, '
+              f'scored against {v["reference"]}. That is an analysis rather than an '
+              f'observation, so this measures how much a forecast <em>moves</em> between '
+              f'issue and arrival — not how wrong it finally is. For error against actual '
+              f'satellite observation see "Does waiting help?" above, which has a far better '
+              f'reference and a far smaller sample.</p>'
+            + '</div>')
+
+
 def waiting_section(sk):
     """Does another day of waiting actually buy a better forecast? Measured, not assumed."""
     ls = (sk or {}).get("lead_skill")
@@ -2480,6 +2562,24 @@ svg{{width:100%;height:auto;display:block}}
   color:var(--body);font-variant-numeric:tabular-nums}}
 .shot .fcrow span.dim{{color:var(--muted);font-weight:400}}
 
+.vfs{{display:flex;flex-direction:column;gap:.3rem;margin:.9rem 0 .5rem}}
+.vf{{display:grid;grid-template-columns:4.4rem 1fr 2.8rem 2.8rem 2.8rem;align-items:center;
+  gap:.45rem;font-family:var(--mono);font-size:.72rem}}
+.vfh{{font-size:.58rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}}
+.vfl{{color:var(--muted)}}
+.vfbar{{position:relative;height:9px;background:var(--sunken);border-radius:2px;
+  overflow:hidden}}
+.vfbar i{{position:absolute;left:0;top:0;height:100%;border-radius:2px}}
+.vfbar i.vf8{{background:var(--ink);opacity:.20}}
+.vfbar i.vf9{{background:var(--ink);opacity:.11}}
+.vfbar i.good{{background:var(--good,#2E6B4F)}}
+.vfbar i.warn{{background:var(--warn,#B5721A)}}
+.vfbar i.bad{{background:var(--bad,#B03A2C)}}
+.vfv{{text-align:right;font-variant-numeric:tabular-nums}}
+.vt{{width:100%;border-collapse:collapse;margin-top:.6rem}}
+.vt td,.vt th{{padding:.4rem .5rem;text-align:left}}
+.vt tbody tr:not(.vtd) td{{border-top:1px solid var(--rule)}}
+.vt tr.vtd td{{padding-top:0;padding-bottom:.6rem;color:var(--muted);font-size:.86rem}}
 .striprow{{margin-bottom:1rem}}
 .striphead{{display:flex;gap:.6rem;align-items:baseline;margin-bottom:.3rem}}
 .striphead b{{color:var(--ink)}}
@@ -2610,6 +2710,8 @@ td.trail{{font-family:var(--mono);font-size:1rem;letter-spacing:.12em}}
   {daytime_section(latest)}
 
   {waiting_section(_skill())}
+
+  {verification_section(_skill())}
 
   <h2>The sources</h2>
   <div class="card">

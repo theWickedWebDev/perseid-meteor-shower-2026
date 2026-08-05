@@ -312,6 +312,82 @@ def lead_skill(satlog, climo_median=None, region="dome"):
     }
 
 
+def verification(days=92):
+    """How wrong the forecast typically is at each lead, and what a bad forecast is worth.
+
+    `lead_skill` above scores against the satellite, which is the right reference but limits
+    the sample to however many hours the satellite log covers — currently a handful of night
+    episodes, which is why its error bars are wide. This function trades reference quality
+    for sample size: it scores each model's day-N forecast against that model's own day-0
+    value for the same hour, across three months. That is verification against an analysis
+    rather than an observation, so it measures how much a forecast MOVES between issue and
+    arrival rather than how wrong it finally is. Those are not the same quantity and the page
+    must say so.
+
+    Two outputs:
+
+      by_lead  - percentiles of absolute error, so the page can say "half the time within
+                 X points, nine times in ten within Y" instead of quoting a mean that a
+                 skewed distribution makes meaningless.
+
+      given    - the conditional question, which is the one actually asked while staring at a
+                 bad number: when the forecast said this at six or seven days out, how often
+                 did the night turn out fine anyway?
+    """
+    var = ",".join(["cloud_cover"] + [f"cloud_cover_previous_day{i}" for i in range(1, 8)])
+    pairs = {}          # lead -> [(forecast, reference), ...]
+    for key, name in MODELS:
+        url = (f"https://previous-runs-api.open-meteo.com/v1/forecast?latitude={SITE[0]}"
+               f"&longitude={SITE[1]}&hourly={var}&models={key}&past_days={days}"
+               f"&forecast_days=1&timezone=America%2FNew_York")
+        try:
+            h = get(url)["hourly"]
+        except Exception:
+            continue
+        ref = h.get("cloud_cover") or []
+        for lead in range(1, 8):
+            series = h.get(f"cloud_cover_previous_day{lead}") or []
+            for i, t in enumerate(h["time"]):
+                if int(t[11:13]) not in CORE_HR:
+                    continue
+                if i >= len(series) or series[i] is None or ref[i] is None:
+                    continue
+                pairs.setdefault(lead, []).append((series[i], ref[i]))
+    if not pairs:
+        return None
+
+    def pct(v, q):
+        v = sorted(v)
+        return round(v[min(len(v) - 1, int(q * len(v)))])
+
+    by_lead = {}
+    for lead, ps in sorted(pairs.items()):
+        errs = [abs(f - a) for f, a in ps]
+        by_lead[str(lead)] = {"n": len(errs), "p50": pct(errs, .50),
+                              "p80": pct(errs, .80), "p90": pct(errs, .90),
+                              "mean": round(st.mean(errs), 1)}
+
+    # The conditional table. Pooled over leads 6 and 7 — that is the range where the number
+    # looks alarming and the honest answer is a base rate rather than a forecast.
+    far = [p for lead in (6, 7) for p in pairs.get(lead, [])]
+    given = None
+    if len(far) >= 40:
+        bad = [a for f, a in far if f >= 80]
+        good = [a for f, a in far if f <= 20]
+        given = {"leads": "6-7", "n": len(far)}
+        if bad:
+            given["said_bad"] = {
+                "n": len(bad), "median_actual": round(st.median(bad)),
+                "recovered_go": round(sum(1 for a in bad if a <= GO) / len(bad) * 100),
+                "recovered_55": round(sum(1 for a in bad if a <= 55) / len(bad) * 100)}
+        if good:
+            given["said_good"] = {
+                "n": len(good), "median_actual": round(st.median(good)),
+                "collapsed_55": round(sum(1 for a in good if a > 55) / len(good) * 100)}
+    return {"by_lead": by_lead, "given": given, "days": days,
+            "reference": "each model's own day-0 value for the same hour"}
+
+
 def main():
     if "--show" in sys.argv:
         print(json.dumps(json.load(open(OUT)), indent=1) if os.path.exists(OUT)
@@ -330,6 +406,8 @@ def main():
     # The same measurement against the southern slot rather than the whole dome. If the
     # model ranking differs between them, the dome numbers are answering the wrong question.
     out["lead_skill_slot"] = lead_skill(satlog, med, region="slot")
+    print("verification (92 days of previous runs)...")
+    out["verification"] = verification()
     json.dump(out, open(OUT, "w"), indent=1)
 
     c, s = out["climatology"], out["lead_skill"]
