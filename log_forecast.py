@@ -1079,48 +1079,46 @@ def base_rate_line(sk, latest):
 
 
 def _calls_chart(v):
-    """How often the forecast called the night right. The headline of the section.
+    """How often the forecast landed within TOL points of the truth. The section headline.
 
-    Everything else here measures how far off the number was, which is not the question
-    anyone has. A cloud percentage drives exactly one decision — go or do not go — so this
-    scores that decision and nothing else.
+    A pure measurement of forecast quality. An earlier version scored whether the forecast
+    fell on the correct side of the GO threshold, which folded a question about the trip into
+    a question about the models, and counted a 5% forecast against a 25% outcome as a hit.
+    Nothing here knows or cares what the number will be used for.
 
-    Both baselines are drawn, and the second is the honest one. Most nights at this site are
-    not GO, so a predictor that simply always says "cloudy" is right 62% of the time while
-    knowing nothing whatever. Against a coin flip the forecast looks heroic at every lead;
-    against the thing that actually has to be beaten, it stops being useful around day 5.
+    The line drawn across the bars is "always say the 30-year average for the date" — the
+    least a forecast has to beat before it was worth reading at all.
     """
     calls, base = v.get("calls") or {}, v.get("baselines") or {}
     if not calls:
         return ""
-    dumb = base.get("always_no_go")
+    tol = base.get("tol", 5)
+    dumb = base.get("climatology")
     rows = []
     for k in sorted(calls, key=int):
-        d = calls[k]
-        r = d["right"]
-        cls = ("bad" if dumb and r <= dumb else "good" if r >= 72 else "warn")
+        r = calls[k]["right"]
+        cls = "good" if r >= 38 else "warn" if r >= 26 else "bad"
         rows.append(
             f'<div class="cl"><span class="cll">{k} day{"s" if k != "1" else ""}</span>'
             f'<span class="clbar"><i class="{cls}" style="width:{r}%"></i>'
             + (f'<b class="clmark" style="left:{dumb}%"></b>' if dumb else '')
             + f'</span><span class="clv">{r}%</span></div>')
-    note = ""
-    if dumb:
-        worst = [k for k in sorted(calls, key=int) if calls[k]["right"] <= dumb]
-        note = (f'<p class="note" style="margin-top:.8rem">The line across the bars is '
-                f'<b>{dumb}%</b> — what you score by ignoring the forecast entirely and '
-                f'always saying "too cloudy". Most nights here are, so that guess is right '
-                f'more often than a coin flip and knows nothing. It is the number the '
-                f'forecast actually has to beat'
-                + (f', and at {worst[0]} days out it no longer does.' if worst else '.')
-                + '</p>')
-    return (f'<p class="lede">How often the forecast <b>called the night correctly</b> — '
-            f'that is, landed on the same side of the {GO}% line as reality did. Not how '
-            f'close the number was: a forecast of 5% against an actual 25% counts as right, '
-            f'because both say go. A forecast of 29% against an actual 31% counts as wrong, '
-            f'though it missed by two. Being on the correct side is what costs you the drive '
-            f'or saves it; being numerically close is not.</p>'
-            f'<div class="cls">' + "".join(rows) + '</div>' + note)
+
+    others = ""
+    if dumb is not None:
+        others = (
+            f'<p class="note" style="margin-top:.8rem">The line across the bars is '
+            f'<b>{dumb}%</b> — what you score by ignoring the forecast and always saying '
+            f'the 30-year average for the date ({base.get("climatology_median")}%). Always '
+            f'saying overcast scores {base.get("always_overcast")}%, a random guess between '
+            f'0 and 100 about {base.get("random")}%. Those are what a forecast has to beat '
+            f'to have been worth reading. It beats all of them at every lead — but the '
+            f'margin goes from comfortable to slim across the week.</p>')
+
+    return (f'<p class="lede">How often the forecast came within <b>{tol} percentage '
+            f'points</b> of what actually happened. This measures the forecast and nothing '
+            f'else — no threshold, no verdict, and a miss is a miss whichever way it went.</p>'
+            f'<div class="cls">' + "".join(rows) + '</div>' + others)
 
 
 def _worked_example(bl, said=50):
@@ -1205,13 +1203,13 @@ def verification_section(sk):
             f'<th>Typical outcome</th></tr></thead><tbody>'
             f'<tr><td><b>80% or worse</b></td><td class="n">{bad["n"]}</td>'
             f'<td class="n">{bad["median_actual"]}%</td></tr>'
-            f'<tr class="vtd"><td colspan="3">came good ({GO}% or better) '
-            f'<b class="good">{bad["recovered_go"]}%</b> of the time · at least '
-            f'half-usable {bad["recovered_55"]}% of the time</td></tr>'
+            f'<tr class="vtd"><td colspan="3">turned out <b class="good">30% or '
+            f'clearer</b> {bad["recovered_30"]}% of the time · 55% or clearer '
+            f'{bad["recovered_55"]}% of the time</td></tr>'
             f'<tr><td><b>20% or better</b></td><td class="n">{good["n"]}</td>'
             f'<td class="n">{good["median_actual"]}%</td></tr>'
-            f'<tr class="vtd"><td colspan="3">fell apart (past 55%) '
-            f'<b class="bad">{good["collapsed_55"]}%</b> of the time</td></tr>'
+            f'<tr class="vtd"><td colspan="3">turned out <b class="bad">worse than '
+            f'55%</b> {good["collapsed_55"]}% of the time</td></tr>'
             f'</tbody></table>'
             f'<p class="note" style="margin-top:.8rem">Read the second row before taking '
             f'comfort from a good night. Six or seven days out, a forecast of clear skies '

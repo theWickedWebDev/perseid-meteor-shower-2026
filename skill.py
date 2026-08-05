@@ -35,6 +35,12 @@ UA = {"User-Agent": "perseid-meteor-shower-2026"}
 
 CORE_HR = (22, 23)
 GO = 30
+# "Right" means the forecast landed within this many percentage points of the truth, and
+# nothing else. An earlier version scored whether the forecast fell on the correct side of
+# the GO threshold, which mixed a question about astronomy into a measurement of forecast
+# quality — and counted a 5% forecast against a 25% outcome as a hit, twenty points of error
+# passed off as a good call. This section measures the forecast, not the trip.
+TOL = 5
 
 # Climatology must weight the core window exactly as the ensemble does, or the base rate
 # is not comparable with the forecast it is the yardstick for — unweighted it reads 67%,
@@ -378,31 +384,38 @@ def verification(days=92):
         if bad:
             given["said_bad"] = {
                 "n": len(bad), "median_actual": round(st.median(bad)),
-                "recovered_go": round(sum(1 for a in bad if a <= GO) / len(bad) * 100),
+                # plain cloud levels, not verdicts — this section measures the forecast
+                "recovered_30": round(sum(1 for a in bad if a <= 30) / len(bad) * 100),
                 "recovered_55": round(sum(1 for a in bad if a <= 55) / len(bad) * 100)}
         if good:
             given["said_good"] = {
                 "n": len(good), "median_actual": round(st.median(good)),
                 "collapsed_55": round(sum(1 for a in good if a > 55) / len(good) * 100)}
     # The percentile table says how far off the forecast was. It never says how often it was
-    # RIGHT, which is the question anyone actually has. A cloud percentage only ever drives
-    # one decision — go or do not go — so score that decision directly.
+    # RIGHT, which is the question anyone actually has. This is purely a measure of forecast
+    # quality — how close the number came — with no threshold or verdict of any kind in it.
     calls, base = {}, {}
     for lead, ps in sorted(pairs.items()):
-        ok = sum(1 for f, a in ps if (f <= GO) == (a <= GO))
-        calls[str(lead)] = {"right": round(ok / len(ps) * 100), "n": len(ps)}
+        calls[str(lead)] = {
+            "right": round(sum(1 for f, a in ps if abs(f - a) <= TOL) / len(ps) * 100),
+            "n": len(ps)}
     allp = [p for ps in pairs.values() for p in ps]
     if allp:
         acts = [a for _, a in allp]
-        # Two baselines, and the second matters more. Most nights here are not GO, so a
-        # predictor that always says "cloudy" scores well above a coin flip while knowing
-        # nothing. Quoting only the coin flip would flatter the forecast.
-        base["coin"] = 50
-        base["always_no_go"] = round(sum(1 for a in acts if a > GO) / len(acts) * 100)
-        base["climatology_median"] = round(st.median(acts))
+        med = st.median(acts)
+        # What the same test scores for predictors that know nothing, so the headline number
+        # has something to be measured against. All three are answering the identical
+        # question: how often does this land within TOL points of the truth.
+        base["tol"] = TOL
+        base["climatology"] = round(sum(1 for a in acts if abs(med - a) <= TOL)
+                                    / len(acts) * 100)
+        base["always_overcast"] = round(sum(1 for a in acts if abs(100 - a) <= TOL)
+                                        / len(acts) * 100)
+        base["random"] = round((2 * TOL + 1))   # a uniform 0-100 guess, in percent
+        base["climatology_median"] = round(med)
 
     return {"by_lead": by_lead, "given": given, "days": days, "calls": calls,
-            "baselines": base, "go": GO,
+            "baselines": base,
             "reference": "each model's own day-0 value for the same hour"}
 
 

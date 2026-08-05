@@ -1,5 +1,5 @@
 {
- "computed": "2026-08-05T15:12:50.824231-04:00",
+ "computed": "2026-08-05T15:18:32.371520-04:00",
  "climatology": {
   "years": 30,
   "median": 65,
@@ -405,7 +405,7 @@
    "said_bad": {
     "n": 852,
     "median_actual": 78,
-    "recovered_go": 30,
+    "recovered_30": 30,
     "recovered_55": 42
    },
    "said_good": {
@@ -417,40 +417,41 @@
   "days": 92,
   "calls": {
    "1": {
-    "right": 80,
+    "right": 44,
     "n": 1270
    },
    "2": {
-    "right": 75,
+    "right": 38,
     "n": 1286
    },
    "3": {
-    "right": 73,
+    "right": 33,
     "n": 1293
    },
    "4": {
-    "right": 67,
+    "right": 28,
     "n": 1261
    },
    "5": {
-    "right": 66,
+    "right": 26,
     "n": 1277
    },
    "6": {
-    "right": 66,
+    "right": 23,
     "n": 1270
    },
    "7": {
-    "right": 61,
+    "right": 19,
     "n": 921
    }
   },
   "baselines": {
-   "coin": 50,
-   "always_no_go": 62,
+   "tol": 5,
+   "climatology": 7,
+   "always_overcast": 28,
+   "random": 11,
    "climatology_median": 53
   },
-  "go": 30,
   "reference": "each model's own day-0 value for the same hour"
  }
 }
