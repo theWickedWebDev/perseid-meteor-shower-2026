@@ -66,15 +66,15 @@ All rows read: *the forecast for that trip night, as displayed on Sunday.*
 | Night 3 — 13 Aug | 58% | **55%** | 38–72 |
 | Spread, Night 1 | ±78 | **±45** | ±25–65 |
 | Trip joint | 83% | **74%** | 62–84 |
-| Verdict wording | better draw | **still "better draw"**, narrowly | |
+| Verdict wording | better draw | **"about what these dates normally offer"** | |
 
 ### Specific calls
 
 - **GEM capitulates — 70% confidence.** One model against five, and it has the worst measured
   error of the set at this site. I expect it into the 50s rather than all the way down.
-- **Night 3 stays the worst of the three.** Pinned at 58% for twelve straight hours with no
-  movement in any direction, which usually means agreement on a pattern rather than
-  uncertainty.
+- **Night 3 stays the worst of the three.** Pinned at 58% across all 16 snapshots — 7.3
+  hours, since the history only starts at 14:39 — with no movement in any direction, which
+  usually means agreement on a pattern rather than uncertainty.
 - **Spread narrows but does not close.** Full consensus, under ±20: only **25%** likely.
 - **Nightwatch:** core region reading flux above 1,000 with 2–4 stars on clear nights, and at
   least one night before Sunday where the star count and the satellite disagree. That
@@ -103,13 +103,35 @@ calm and saturated overnight.
 ## What this does not change
 
 Even the pessimistic case — 38 / 42 / 55 — leaves a **74% chance at least one night
-delivers, against a 70% base rate.** Still a better-than-average draw. Being right about the
-softening does not flip the go/no-go; it means the margin is thinner than tonight's chart
-suggests.
+delivers, against a 70% base rate.** Being right about the softening does not flip the
+go/no-go; it means the margin is thinner than tonight's chart suggests.
+
+Note the page will not *call* 74% a better-than-average draw. `trip_banner()` needs the
+joint at least 10 points over the base rate for that wording, i.e. 80%, so 74% renders as
+"about what these dates normally offer". Four points above the base rate is genuinely
+better than average in plain English and genuinely not by the site's own threshold, and
+the site's threshold is what gets scored.
 
 The outcome that *would* change the decision is Night 2 climbing back above 55% with GEM
 vindicated rather than capitulating. That is the minority case, and it is the one to watch
 for.
+
+---
+
+## Corrections made after writing, before the fact
+
+Recorded rather than quietly edited, since the point of writing a prediction down is that
+it cannot be reshaped afterwards.
+
+- **The verdict row contradicted the joint row.** I predicted 74% and "still a better draw".
+  Under the shipped `trip_banner()` those cannot both happen: the wording needs +10 over the
+  base rate, so 74% renders as "about what these dates normally offer". The joint is the
+  prediction; the wording follows from it mechanically, so the wording row was the error.
+  Caught by the auditing model, verified against the code before changing.
+- **"Twelve straight hours" was 7.3.** The history file begins at 14:39. The substance —
+  58% across every snapshot, not one point of movement — is unaffected.
+
+Neither correction moves a number I am betting on.
 
 ---
 
@@ -129,5 +151,5 @@ Every claim is about the forecast **for the trip nights**, read on 9 Aug.
 | Spread N1 | ±45 (±25–65) | | |
 | GEM below 70 on Night 1 | yes, 70% conf | | |
 | Night 3 worst of three | yes | | |
-| Verdict still "better draw" | yes | | |
+| Verdict reads "about what these dates normally offer" | yes | | |
 | Direction: Sunday worse than today | yes, 60% conf | | |
