@@ -621,7 +621,10 @@ def consensus(nd, late=False):
     # change every historical point on the trend chart.
     cached = nd.get("cons_late" if late else "cons")
     if cached:
-        return tuple(cached)
+        # entries compacted before the IQR field existed cache a 5-tuple; pad with the
+        # full range so callers see one shape and no site needs a length check
+        c = tuple(cached)
+        return c if len(c) >= 6 else c + (c[3],)
     m = members(nd, late)
     if not m:
         return None
@@ -631,7 +634,24 @@ def consensus(nd, late=False):
     eh = ens_hourly(nd)
     hv = [eh[f"{h:02d}"] for h in (LATE_HR if late else CORE_HR) if f"{h:02d}" in eh]
     val = int(round(sum(hv) / len(hv))) if hv else int(round(mid))
-    return val, v[0], v[-1], v[-1] - v[0], k
+    # Two spreads, because they answer different questions and one of them was doing both
+    # jobs badly. max-min is the tail: how wrong could this be if the outlier is right, and
+    # that is what the risk discussion is about. But as an AGREEMENT test across eight
+    # heterogeneous models it is useless — a single dissenter sets it, so it exceeded the
+    # 40-point gate on 143 of 144 night-readings ever recorded, including nights only one
+    # day out. A verdict that fires 99% of the time is not a verdict.
+    #
+    # The interquartile range asks the question the gate actually wants: do the models
+    # mostly agree, ignoring the extremes. It clears 40 about a third of the time, so it
+    # can discriminate.
+    if k >= 4:
+        lo_h, hi_h = v[:k // 2], v[(k + 1) // 2:]
+        med = lambda a_: (a_[len(a_) // 2] if len(a_) % 2
+                          else (a_[len(a_) // 2 - 1] + a_[len(a_) // 2]) / 2)
+        spread_iqr = med(hi_h) - med(lo_h)
+    else:
+        spread_iqr = v[-1] - v[0]
+    return val, v[0], v[-1], v[-1] - v[0], k, round(spread_iqr)
 
 
 def ens_hourly(nd):
@@ -749,10 +769,12 @@ def agreement_svg(latest):
             p.append(f'<path class="nws" d="M{x(cx):.1f},{y-9} L{x(cx)+6:.1f},{y} '
                      f'L{x(cx):.1f},{y+9} L{x(cx)-6:.1f},{y} Z"/>')
         spread = hi - lo
-        verd = ("agree" if spread < 20 else
-                "some spread" if spread < NO_CONSENSUS else "no consensus")
-        cls = "good" if spread < 20 else "warn" if spread < NO_CONSENSUS else "bad"
-        p.append(f'<text class="spread {cls}" x="{W-112}" y="{y-2}">±{spread}</text>')
+        cc = consensus(nd)
+        iqr = cc[5] if cc and len(cc) > 5 else spread
+        verd = ("agree" if iqr < 20 else
+                "some spread" if iqr < NO_CONSENSUS else "no consensus")
+        cls = "good" if iqr < 20 else "warn" if iqr < NO_CONSENSUS else "bad"
+        p.append(f'<text class="spread {cls}" x="{W-112}" y="{y-2}">±{iqr}</text>')
         p.append(f'<text class="spreadlab {cls}" x="{W-112}" y="{y+12}">{verd}</text>')
     p.append("</svg>")
     return "\n".join(p)
@@ -1877,11 +1899,12 @@ def write_page(hist):
         # The verdict is gated on agreement, not just the median. A 30% median drawn from
         # sources spanning 4-82% is not a GO - it is one model's opinion winning a vote,
         # and calling it GO is exactly the overconfidence this page exists to prevent.
-        spread = cons[3] if cons else None
+        # gate on the interquartile spread, not the extremum — see consensus()
+        spread = cons[5] if cons and len(cons) > 5 else (cons[3] if cons else None)
         if v is None:
             verdict, vc = "no data", "dim"
         elif spread is not None and spread >= NO_CONSENSUS:
-            verdict = f"UNRESOLVED · sources span {cons[1]}–{cons[2]}%"
+            verdict = f"UNRESOLVED · middle half spans {spread} pts"
             vc = "warn" if v <= 55 else "bad"
         else:
             verdict = "GO" if v <= GO else "marginal" if v <= 55 else "poor"
@@ -1903,11 +1926,13 @@ def write_page(hist):
         ltxt = ("—" if lt is None else f"{lt}%")
         lrange = (f" · sources {lcons[1]}–{lcons[2]}%" if lcons else "")
         if cons:
-            _, lo, hi, sp, k = cons
+            _, lo, hi, sp, k = cons[:5]
             scls = "good" if sp < 20 else "warn" if sp < 40 else "bad"
             src = ", ".join(sorted(members(nd)))
+            iqr = cons[5] if len(cons) > 5 else sp
             mline = (f'<span class="mrange" title="{src}">{k} sources <b>{lo}–{hi}%</b> '
-                     f'<span class="{scls}">±{sp}</span></span>')
+                     f'<span class="{scls}">±{sp}</span> '
+                     f'<span class="dim">middle half ±{iqr}</span></span>')
         else:
             mline = '<span class="mrange dim">no data</span>'
         cd = (latest.get("cond") or {}).get(label) or {}

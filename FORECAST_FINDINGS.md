@@ -365,6 +365,13 @@ survey on arrival settles it — that task is first on the Night 1 schedule for 
 
 ## 9. Things that are still weak
 
+- **Spread is reported two ways, and only one of them gates the verdict.** The full range
+  (max minus min) is the tail risk — how wrong this could be if the outlier is right. But as
+  an agreement test across eight heterogeneous models a single dissenter sets it, so it
+  exceeded the 40-point gate on **143 of 144** night-readings ever recorded, including
+  nights one day out. A verdict that fires 99% of the time is not a verdict. The gate now
+  uses the interquartile spread, which clears 40 about a third of the time and can therefore
+  discriminate; the full range is still displayed beside it.
 - **Correlated sources counted as independent votes.** NWS≈GFS, AIFS≈ECMWF. "Six sources
   agree" overstates it. The median limits the damage but does not remove it.
 - **Even member counts.** The median averages the middle two, which can produce a value no
@@ -412,8 +419,12 @@ Aug 05   0.16      Aug 07   0.44   <- well over
 Aug 06   0.30      Aug 08   0.17
 ```
 
-**The trip nights cannot be checked yet.** The aerosol forecast runs about five days, so
-11–13 Aug come into range around the 7th. Until then the cards say "haze — not forecast
+**The trip nights cannot be checked yet**, and they arrive later than previously written
+here. The aerosol feed reaches about **four days** for a whole night, not five — a night's
+window runs to 07:00 the following morning, and the feed stops before that on the last day
+it covers. So Night 1 comes into range on **7 Aug**, Night 2 on the **8th**, Night 3 not
+until the **9th**. On the 7th the page is still blind on two of the three nights, not
+sighted on all three. Until then the cards say "haze — not forecast
 this far out" rather than showing nothing, because a blank badge beside a fog badge read as
 a clean bill of health.
 
