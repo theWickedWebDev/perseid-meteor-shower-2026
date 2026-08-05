@@ -1591,15 +1591,22 @@ def webcam_section(log=None):
     for e in reversed(log[-30:]):
         t = datetime.fromisoformat(e["time"])
         ms = e.get("models") or {}
-        fc = (f'<span class="fc{" dim" if e["night"] else ""}">'
-              f'{min(ms.values())}–{max(ms.values())}%</span>'
-              if ms else '<span class="fc dim">—</span>')
 
-        # The number under the photo is the SATELLITE, not the camera. The camera's red/blue
-        # estimate is unusable at night and unreliable in low sun — it read 40% at 19:41 on
-        # 4 Aug while the satellite and all eight models read 0 — so quoting it under every
-        # frame was publishing a figure we had already decided not to trust. The satellite
-        # has a verified number for every hour, dark included.
+        # The camera's own reading sits beside the model range rather than under the photo,
+        # so the two are read as one comparison: what the models predicted for this hour,
+        # and what the camera actually saw. Only when the sun is high enough for the
+        # red/blue test to mean anything — it reads clear air as overcast in low sun.
+        cam = (e.get("cloud") if (e.get("cloud") is not None and not e["night"]
+                                  and sun_alt(t, *WEBCAM_SITE) >= SUN_MIN) else None)
+        camtag = (f'<span class="camv" title="what the camera saw, from the red/blue '
+                  f'ratio of the sky">/ {cam}%</span>' if cam is not None else '')
+        fc = (f'<span class="fc{" dim" if e["night"] else ""}" '
+              f'title="range across {len(ms)} models for this hour">'
+              f'{min(ms.values())}–{max(ms.values())}%</span>{camtag}'
+              if ms else f'<span class="fc dim">—</span>{camtag}')
+
+        # The number under the photo is the SATELLITE, not the camera — it has a verified
+        # value for every hour, dark included, which the camera does not.
         sv = satby.get(e["time"][:13])
         if sv is None:
             obs = '<span class="obs dim">—</span>'
@@ -1611,16 +1618,10 @@ def webcam_section(log=None):
                 cl = ""
             obs = f'<span class="obs {cl}">{sv}%</span>'
 
-        # the camera's own reading is kept as a second opinion, but only when the sun is
-        # high enough for it to mean anything
-        cam = ""
-        if (e.get("cloud") is not None and not e["night"]
-                and sun_alt(t, *WEBCAM_SITE) >= SUN_MIN):
-            cam = f'<span class="cam">cam {e["cloud"]}%</span>'
         img = (f'<img src="{e["shot"]}" alt="webcam {t:%d %b %H:%M}" loading="lazy">'
                if os.path.exists(e["shot"]) else '<div class="noimg"></div>')
         cells.append(f'<figure class="shot"><span class="hr">{t:%a %H:%M}</span>'
-                     f'{fc}{img}{obs}{cam}</figure>')
+                     f'<span class="fcrow">{fc}</span>{img}{obs}</figure>')
 
     return f'''
   <h2>Ground truth — satellite and webcam</h2>
@@ -1642,11 +1643,14 @@ def webcam_section(log=None):
     {score}
     <h3 style="margin-top:1.4rem">Hour by hour, forecast above the photo</h3>
     <div class="film scroll">{"".join(cells)}</div>
-    <p class="note">Above each photo, what the models forecast for that hour. Below it,
-    what the <b>satellite</b> saw — <b class="good">within 15</b> /
-    <b class="warn">30</b> / <b class="bad">beyond</b>. The camera's own estimate appears
-    only where the sun was high enough for it to be trustworthy; at dusk a reddened sky
-    reads as cloud, so those numbers are withheld rather than shown and disbelieved.</p>
+    <p class="note">Above each photo, two numbers: the <b>range across the models</b> for
+    that hour, then <b>what the camera saw</b> in the frame itself. Below it, what the
+    <b>satellite</b> saw — <b class="good">within 15</b> / <b class="warn">30</b> /
+    <b class="bad">beyond</b> the model mean. The camera figure appears only where the sun
+    was high enough for it to be trustworthy; at dusk a reddened sky reads as cloud, so
+    those numbers are withheld rather than shown and disbelieved. Where the models sit at
+    zero and the camera does not, you are looking at thin cirrus — the models threshold it
+    away, and it is the one thing that ruins a night the forecast called clear.</p>
   </div>
 '''
 
@@ -2469,7 +2473,10 @@ svg{{width:100%;height:auto;display:block}}
   background:var(--sunken)}}
 .shot .noimg{{width:100%;height:86px;border-radius:2px;background:var(--sunken)}}
 .shot .hr{{font-family:var(--mono);font-size:.62rem;letter-spacing:.06em;color:var(--muted)}}
+.shot .fcrow{{display:flex;gap:.25rem;align-items:baseline;justify-content:flex-start;
+  white-space:nowrap}}
 .shot .fc{{font-family:var(--mono);font-size:.72rem;color:var(--accent);font-weight:600}}
+.shot .camv{{font-family:var(--mono);font-size:.72rem;color:var(--muted);font-weight:600}}
 .shot .obs{{font-family:var(--mono);font-size:.8rem;font-weight:700;margin-top:.15rem}}
 .striprow{{margin-bottom:1rem}}
 .striphead{{display:flex;gap:.6rem;align-items:baseline;margin-bottom:.3rem}}
