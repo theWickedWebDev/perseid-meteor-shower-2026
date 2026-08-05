@@ -1598,25 +1598,28 @@ def webcam_section(log=None):
         # red/blue test to mean anything — it reads clear air as overcast in low sun.
         cam = (e.get("cloud") if (e.get("cloud") is not None and not e["night"]
                                   and sun_alt(t, *WEBCAM_SITE) >= SUN_MIN) else None)
-        camtag = (f'<span class="camv" title="what the camera saw, from the red/blue '
-                  f'ratio of the sky">/ {cam}%</span>' if cam is not None else '')
+        camtag = (f'<span class="camv" title="what the camera at Lopstick saw, from the '
+                  f'red/blue ratio of the sky">/ Cam: {cam}%</span>'
+                  if cam is not None else '')
         fc = (f'<span class="fc{" dim" if e["night"] else ""}" '
-              f'title="range across {len(ms)} models for this hour">'
-              f'{min(ms.values())}–{max(ms.values())}%</span>{camtag}'
-              if ms else f'<span class="fc dim">—</span>{camtag}')
+              f'title="range across {len(ms)} models for this hour, at the shooting site">'
+              f'Models {min(ms.values())}–{max(ms.values())}%</span>{camtag}'
+              if ms else f'<span class="fc dim">Models —</span>{camtag}')
 
         # The number under the photo is the SATELLITE, not the camera — it has a verified
         # value for every hour, dark included, which the camera does not.
         sv = satby.get(e["time"][:13])
         if sv is None:
-            obs = '<span class="obs dim">—</span>'
+            obs = '<span class="obs dim">Sat: —</span>'
         else:
             if ms:
                 d = abs(sv - sum(ms.values()) / len(ms))
                 cl = "good" if d < 15 else "warn" if d < 30 else "bad"
             else:
                 cl = ""
-            obs = f'<span class="obs {cl}">{sv}%</span>'
+            obs = (f'<span class="obs {cl}" title="GOES satellite over the shooting '
+                   f'site; colour is distance from the model mean, not how clear it is">'
+                   f'Sat: {sv}%</span>')
 
         img = (f'<img src="{e["shot"]}" alt="webcam {t:%d %b %H:%M}" loading="lazy">'
                if os.path.exists(e["shot"]) else '<div class="noimg"></div>')
@@ -1643,14 +1646,18 @@ def webcam_section(log=None):
     {score}
     <h3 style="margin-top:1.4rem">Hour by hour, forecast above the photo</h3>
     <div class="film scroll">{"".join(cells)}</div>
-    <p class="note">Above each photo, two numbers: the <b>range across the models</b> for
-    that hour, then <b>what the camera saw</b> in the frame itself. Below it, what the
-    <b>satellite</b> saw — <b class="good">within 15</b> / <b class="warn">30</b> /
-    <b class="bad">beyond</b> the model mean. The camera figure appears only where the sun
-    was high enough for it to be trustworthy; at dusk a reddened sky reads as cloud, so
-    those numbers are withheld rather than shown and disbelieved. Where the models sit at
-    zero and the camera does not, you are looking at thin cirrus — the models threshold it
-    away, and it is the one thing that ruins a night the forecast called clear.</p>
+    <p class="note"><b>Models</b> is the range across the four models for that hour and
+    <b>Cam</b> is what the frame itself shows, from the red/blue ratio of the sky.
+    <b>Sat</b> below is the GOES satellite. Its colour is
+    <b class="good">within 15</b> / <b class="warn">30</b> / <b class="bad">beyond</b>
+    the model mean — <em>agreement, not clear sky</em>: a satellite reading of 90% against
+    models of 85% is still green. Models and satellite are both for the shooting site;
+    only Cam describes the place in the photograph, 16.6 km away. The camera figure
+    appears only where the sun was high enough for it to mean anything — at dusk a
+    reddened sky reads as cloud, so those hours show no Cam value rather than a number we
+    would disbelieve. Where the models sit near zero and the camera does not, that is thin
+    cirrus: the models threshold it away, and it is the one thing that ruins a night the
+    forecast called clear.</p>
   </div>
 '''
 
@@ -2477,7 +2484,8 @@ svg{{width:100%;height:auto;display:block}}
   white-space:nowrap}}
 .shot .fc{{font-family:var(--mono);font-size:.72rem;color:var(--accent);font-weight:600}}
 .shot .camv{{font-family:var(--mono);font-size:.72rem;color:var(--muted);font-weight:600}}
-.shot .obs{{font-family:var(--mono);font-size:.8rem;font-weight:700;margin-top:.15rem}}
+.shot .obs{{font-family:var(--mono);font-size:.72rem;font-weight:700;margin-top:.15rem;
+  display:block}}
 .striprow{{margin-bottom:1rem}}
 .striphead{{display:flex;gap:.6rem;align-items:baseline;margin-bottom:.3rem}}
 .striphead b{{color:var(--ink)}}
