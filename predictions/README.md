@@ -6,14 +6,18 @@ when the trip nights sit at leads of 2, 3 and 4 days.
 Not forecasts of the weather on Sunday. Forecasts of the *numbers* — what the site will
 display about 11, 12 and 13 August when read on the 9th.
 
-Each is written by a different model, in isolation, without reading the others. Filenames
+The prompt is run several times a day as the trip approaches, so this is less a contest
+than a convergence study: each prediction is blind to every other, and the interesting
+question is whether they tighten toward the truth as lead time shortens or simply wander.
+Filenames are timestamps because *when* a prediction was made — and therefore how much data
+it had — is the thing that makes it interpretable. Filenames
 carry the time the prediction was made, so the record cannot be quietly reshaped afterwards:
 git holds the commit, the filename holds the claim.
 
 | File | Model | Written |
 |---|---|---|
-| [2026-08-04T2220-claude1.md](2026-08-04T2220-claude1.md) | the building model | 4 Aug, 22:20 EDT |
-| [2026-08-04T2236-claude2.md](2026-08-04T2236-claude2.md) | the auditing model | 4 Aug, 22:36 EDT |
+| [2026-08-04T2220.md](2026-08-04T2220.md) | the building model | 4 Aug, 22:20 EDT |
+| [2026-08-04T2236.md](2026-08-04T2236.md) | the auditing model | 4 Aug, 22:36 EDT |
 
 ## Why bother
 
@@ -49,6 +53,22 @@ not to read this directory.
   a forecast miss.
 
 ## Scoring
+
+```
+python3 score_predictions.py                        # against the newest snapshot
+python3 score_predictions.py --at 2026-08-09T21:00  # against the target date
+python3 score_predictions.py --table                # markdown for pasting here
+```
+
+It reads the yaml block each prediction ends with, compares against
+`forecast_history.json`, and reports per-field error plus a mean. It also correlates error
+against lead time, which is the question that actually matters once there are a dozen of
+these: **do later predictions get better?** If they do not, the models are not using the
+data arriving, and that is a finding about the exercise rather than about the weather.
+
+A prediction with no yaml block is reported as unscoreable rather than skipped quietly.
+
+## Scoring by hand
 
 On Sunday 9 August, fill in the "actual" column in each file from the snapshot nearest
 21:00 EDT in `forecast_history.json`. Nothing else changes.

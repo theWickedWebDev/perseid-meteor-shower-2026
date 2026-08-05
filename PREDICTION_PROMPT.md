@@ -71,9 +71,11 @@ measured error actually is at each lead, and which statistics are known to be fr
 
 ## What to produce
 
-Write `predictions/<timestamp>-<yourname>.md`, where `<timestamp>` is the moment you write
-it in `YYYY-MM-DDTHHMM` form and `<yourname>` distinguishes you from the models already
-there (claude3, claude4, ...), taken from `date` rather than assumed. Write the file directly —
+Write `predictions/<timestamp>.md`, where `<timestamp>` is the moment you write it in
+`YYYY-MM-DDTHHMM` form, taken from `date` rather than assumed — e.g.
+`predictions/2026-08-06T0915.md`. The timestamp alone is the identity: this prompt is run
+several times a day, so what matters is when a prediction was made and therefore how much
+data it had, not which model made it, taken from `date` rather than assumed. Write the file directly —
 do **not** list the directory first, since the filenames alone would tell you when the
 others were written and the README beside them would tell you what they said.
 
@@ -98,8 +100,23 @@ of what the sky does.
 ## Ground rules
 
 - Commit to numbers. An interval so wide it cannot be wrong is not a forecast.
-- State the date and time you are writing, and the snapshot count you are working from, so
-  the prediction can be placed against the others.
+- State the date and time you are writing, the snapshot count in `forecast_history.json`,
+  and the lead time in days to each trip night. This prompt is run repeatedly as the trip
+  approaches, so a prediction is only interpretable alongside how much data it had.
+- Put a machine-readable block at the very end, exactly in this form, so predictions can be
+  scored automatically:
+
+```yaml
+written: 2026-08-06T09:15
+snapshots: 41
+lead_days: [5, 6, 7]
+night1: 33
+night2: 40
+night3: 57
+spread1: 45
+joint: 76
+verdict: about what these dates normally offer
+```
 - Distinguish what you measured from what you assumed.
 - If the data contradicts something in the documentation, say so — that is a finding.
 - Do not hedge in prose what you have already stated as a number.
