@@ -245,5 +245,24 @@
    "ICON": 0,
    "GEM": 0
   }
+ },
+ {
+  "time": "2026-08-05T03:00:00-04:00",
+  "cloud": null,
+  "night": true,
+  "stats": {
+   "lum": 29.8,
+   "lum_sd": 4.5,
+   "lum_p90": 36.0,
+   "sat": 0.0,
+   "rb": 1.0
+  },
+  "shot": "webcam/2026-08-05T03.jpg",
+  "models": {
+   "ECMWF": 0,
+   "GFS": 0,
+   "ICON": 0,
+   "GEM": 0
+  }
  }
 ]
