@@ -294,7 +294,7 @@ td.trail{font-family:var(--mono);font-size:1rem;letter-spacing:.12em}
   <div class="eyebrow" style="margin-top:2rem">Fetched Wed 05 Aug, 13:45 EDT · forecast issued
     Wed 05 Aug 07:47 · gridpoint GYX 28,125</div>
   <h1>Forecast trend</h1>
-  <div class="next" data-cron-min="5"><span id="nextcheck"><b>Next check 15:05</b> <span class="dim">— in 46 min, then hourly</span></span><span class="dim"> · next model data: 15:05 ECMWF · 15:11 UKMO · 17:32 JMA</span></div>
+  <div class="next" data-cron-min="5"><span id="nextcheck"><b>Next check 15:05</b> <span class="dim">— in 31 min, then hourly</span></span><span class="dim"> · next model data: 15:05 ECMWF · 15:11 UKMO · 17:32 JMA</span></div>
   <p class="lede">Cloud cover. <b>Core window 10–11:30 PM</b> decides go/no-go; <b>1–4 AM</b> is
   Perseids and the scope. Each point is one forecast run.</p>
 
@@ -792,13 +792,28 @@ td.trail{font-family:var(--mono);font-size:1rem;letter-spacing:.12em}
       });
       slide.value=i;
     };
-    slide.addEventListener('input',function(){ i=+slide.value; draw(); });
-    play.addEventListener('click',function(){
-      if(timer){ clearInterval(timer); timer=null; play.textContent='▶ Play'; return; }
+    var start=function(){
+      if(timer) return;
       play.textContent='❚❚ Pause';
       timer=setInterval(function(){ i=(i+1)%F.length; draw(); },550);
-    });
+    };
+    var stop=function(){
+      if(!timer) return;
+      clearInterval(timer); timer=null; play.textContent='▶ Play';
+    };
+    // Grabbing the slider means you want to look at one frame, so scrubbing stops the
+    // loop. Without this the timer keeps yanking the position out from under the drag.
+    slide.addEventListener('input',function(){ stop(); i=+slide.value; draw(); });
+    play.addEventListener('click',function(){ timer?stop():start(); });
     draw();
+    // Runs on load — the animation is the point of this panel, and a still grid of
+    // numbers gives no hint that it moves. Anyone who wants it still can press pause.
+    if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches) start();
+    // Don't burn a timer redrawing a panel nobody is looking at.
+    document.addEventListener('visibilitychange',function(){
+      if(document.hidden){ if(timer){ stop(); play.dataset.resume='1'; } }
+      else if(play.dataset.resume){ delete play.dataset.resume; start(); }
+    });
   }
 
   var r=document.documentElement,t=document.getElementById('theme'),n=document.getElementById('night');

@@ -2717,13 +2717,28 @@ td.trail{{font-family:var(--mono);font-size:1rem;letter-spacing:.12em}}
       }});
       slide.value=i;
     }};
-    slide.addEventListener('input',function(){{ i=+slide.value; draw(); }});
-    play.addEventListener('click',function(){{
-      if(timer){{ clearInterval(timer); timer=null; play.textContent='▶ Play'; return; }}
+    var start=function(){{
+      if(timer) return;
       play.textContent='❚❚ Pause';
       timer=setInterval(function(){{ i=(i+1)%F.length; draw(); }},550);
-    }});
+    }};
+    var stop=function(){{
+      if(!timer) return;
+      clearInterval(timer); timer=null; play.textContent='▶ Play';
+    }};
+    // Grabbing the slider means you want to look at one frame, so scrubbing stops the
+    // loop. Without this the timer keeps yanking the position out from under the drag.
+    slide.addEventListener('input',function(){{ stop(); i=+slide.value; draw(); }});
+    play.addEventListener('click',function(){{ timer?stop():start(); }});
     draw();
+    // Runs on load — the animation is the point of this panel, and a still grid of
+    // numbers gives no hint that it moves. Anyone who wants it still can press pause.
+    if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches) start();
+    // Don't burn a timer redrawing a panel nobody is looking at.
+    document.addEventListener('visibilitychange',function(){{
+      if(document.hidden){{ if(timer){{ stop(); play.dataset.resume='1'; }} }}
+      else if(play.dataset.resume){{ delete play.dataset.resume; start(); }}
+    }});
   }}
 
   var r=document.documentElement,t=document.getElementById('theme'),n=document.getElementById('night');
