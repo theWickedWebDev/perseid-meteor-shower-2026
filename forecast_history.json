@@ -49199,8 +49199,8 @@
     "fog_hours": 0,
     "hours": 8,
     "worst_hr": "07:00",
-    "spread": 4.9,
-    "wind": 9.4,
+    "spread": 3.7,
+    "wind": 9.3,
     "worst_is_fog": false,
     "aod": 0.16,
     "pm25": 7.6
@@ -49208,9 +49208,9 @@
    "Lead-up 06": {
     "fog_hours": 0,
     "hours": 14,
-    "worst_hr": "07:00",
+    "worst_hr": "23:00",
     "spread": 1.0,
-    "wind": 5.1,
+    "wind": 1.8,
     "worst_is_fog": false,
     "aod": 0.27,
     "pm25": 9.7
