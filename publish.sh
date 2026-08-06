@@ -19,6 +19,12 @@ $PY webcam.py
 VENV=/home/stephen/pittsburg-trip/venv/bin/python
 if [ -x "$VENV" ]; then
     $VENV satellite.py || echo "$(date '+%F %T')  satellite read failed - continuing"
+
+# Close any hole a dropped connection left. GOES keeps granules for months, so an
+# hour missed overnight can still be recovered — and those are the dark hours every
+# model is scored against, so losing them quietly biases the scorecard.
+python3 backfill_satellite.py --write --since "$(date -d '2 days ago' +%Y-%m-%dT%H:00)" >/dev/null 2>&1 || true
+
 else
     echo "$(date '+%F %T')  no venv, skipping satellite (python3 -m venv venv && venv/bin/pip install h5py numpy)"
 fi
