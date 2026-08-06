@@ -34,7 +34,7 @@ import time
 import urllib.request
 from datetime import date, datetime, timedelta
 
-SITE = (45.2393, -71.1964)          # the lake
+SITE = (45.2393, -71.1964)          # the lake — override with --lat/--lon
 YEARS = range(1996, 2026)           # 30 full years
 NIGHT_HOURS = (22, 23, 0, 1, 2)     # attributed to the evening's date
 GO = 30                             # % cloud, shootable
@@ -43,6 +43,7 @@ DEW_WIND = 5.0                      # km/h below which dew settles
 WINDY = 20.0                        # km/h, shakes a mount
 SMOOTH = 7                          # ± days, to see season rather than noise
 OUT = "best_nights.json"
+TRIP = True          # show the 11-13 Aug block; off for other sites
 UA = {"User-Agent": "perseid-meteor-shower-2026"}
 
 
@@ -170,7 +171,7 @@ def report(rows):
         print(f"  {MONTHS[r['month']]} {r['day']:<5}{r['good_s']:>7.0f}%"
               f"{r['clear_s']:>6.0f}%{r['temp_s']:>6.0f}°")
 
-    trip = [r for r in rows if r["month"] == 8 and 11 <= r["day"] <= 13]
+    trip = [r for r in rows if r["month"] == 8 and 11 <= r["day"] <= 13] if TRIP else []
     if trip:
         rank = sorted(rows, key=lambda r: -r["good_s"])
         pos = rank.index(max(trip, key=lambda r: r["good_s"])) + 1
@@ -183,7 +184,30 @@ def report(rows):
               f"({100*pos/len(rows):.0f}th percentile).")
 
 
+def _args():
+    """--lat/--lon/--out, so this can be pointed anywhere.
+
+    Deliberately arguments rather than a config entry: the interesting comparison is a home
+    site, and home coordinates do not belong in a repository that publishes to the open web.
+    Passed on the command line they stay in the shell, and --out keeps the result out of the
+    tree unless someone chooses otherwise.
+    """
+    global SITE, OUT
+    for flag, cast in (("--lat", float), ("--lon", float), ("--out", str)):
+        if flag in sys.argv:
+            v = cast(sys.argv[sys.argv.index(flag) + 1])
+            if flag == "--lat":
+                SITE = (v, SITE[1])
+            elif flag == "--lon":
+                SITE = (SITE[0], v)
+            else:
+                OUT = v
+    if "--lat" in sys.argv or "--lon" in sys.argv:
+        globals()["TRIP"] = False
+
+
 def main():
+    _args()
     if "--show" in sys.argv:
         if not os.path.exists(OUT):
             print(f"  {OUT} not written yet — run without --show first")

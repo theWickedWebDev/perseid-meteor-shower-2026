@@ -36,3 +36,5 @@ platesolve_residuals.json
 shots/
 schedule_wx.json
 best_nights.log
+home_nights.json
+home_nights.log
