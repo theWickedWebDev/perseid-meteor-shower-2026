@@ -29,6 +29,15 @@ import log_forecast as lf
 MODELS = [("ecmwf_ifs025", "ECMWF"), ("gfs_seamless", "GFS"), ("icon_seamless", "ICON"),
           ("gem_seamless", "GEM"), ("jma_seamless", "JMA"), ("gem_hrdps_continental", "HRDPS"),
           ("ukmo_seamless", "UKMO")]
+
+# Public candidate sites, safe to keep in the file. Home is passed on the command line and
+# is never written anywhere. Order is north to south, which is also roughly darkest first.
+SITES = [
+    ("The lake", lf.SITE[1], lf.SITE[2], "Pittsburg · Bortle 2 · the plan"),
+    ("Kanc east", 44.0125, -71.2300, "Kancamagus, Conway end · roadside · terrain 2-7 deg"),
+    ("Mt Shaw", 43.74650, -71.27467, "Ossipee Range · 847 m · carry-in · terrain -1.2 deg"),
+    ("Mt Major", 43.51330, -71.28830, "Alton · 536 m · 1.5 mi walk · terrain -0.6 deg"),
+]
 ENS = [("gfs025", "GEFS"), ("ecmwf_ifs025", "ECMWF ENS"), ("gem_global", "GEM ENS")]
 
 
@@ -139,7 +148,7 @@ td b{color:var(--ink);font-size:1.05rem}
 """
 
 
-def page(verdicts, lake_e, home_e, ln, hn, cl, ch):
+def page(rows, cl, ch):
     """A local page. Never published — the point of it is a location that is not public."""
     def cell(x):
         if not x:
@@ -149,62 +158,63 @@ def page(verdicts, lake_e, home_e, ln, hn, cl, ch):
         return (f'<td><b>{x["cloud"]}%</b><br><span class="sp">span {x["spread"]}</span> '
                 f'<span class="pill {cls}">{t}%</span></td>')
 
-    rows = ""
-    for v in verdicts:
-        d = datetime.strptime(v["date"], "%Y-%m-%d")
-        rows += (f'<tr><td>{v["night"]}<br><span class="sp">{d:%a %d %b}</span></td>'
-                 + cell(v.get("lake")) + cell(v.get("home")) + '</tr>')
+    trs = ""
+    for r in sorted(rows, key=lambda r: r["mean"]):
+        trs += (f'<tr><td>{r["name"]}<br><span class="sp">{r["why"]}</span></td>'
+                + "".join(cell(r["per"].get(l)) for l, _ in lf.NIGHTS)
+                + f'<td><b>{r["mean"]}%</b></td></tr>')
 
     ens = ""
-    if lake_e and home_e:
-        for label in [v["night"] for v in verdicts]:
-            a_, b_ = lake_e["per"].get(label), home_e["per"].get(label)
-            w = ' class="win"' if (a_ or 0) >= (b_ or 0) else ''
-            w2 = ' class="win"' if (b_ or 0) > (a_ or 0) else ''
-            ens += (f'<tr><td>{label}</td><td><span{w}>{a_}%</span></td>'
-                    f'<td><span{w2}>{b_}%</span></td></tr>')
-        ens += (f'<tr><td><b>at least one</b></td><td><b>{lake_e["any"]}%</b></td>'
-                f'<td><b>{home_e["any"]}%</b></td></tr>')
+    for r in sorted(rows, key=lambda r: -((r["ens"] or {}).get("any") or 0)):
+        if not r["ens"]:
+            continue
+        ens += (f'<tr><td>{r["name"]}</td>'
+                + "".join(f'<td>{r["ens"]["per"].get(l)}%</td>' for l, _ in lf.NIGHTS)
+                + f'<td><b>{r["ens"]["any"]}%</b></td></tr>')
 
     climo = ""
     if cl and ch:
-        climo = (f'<tr><td>30-year rate for these dates</td><td>{cl}%</td>'
-                 f'<td>{ch}%</td></tr>')
+        climo = (f'<p class="note">30-year rate for these dates — the lake <b>{cl}%</b>, '
+                 f'home <b>{ch}%</b>.</p>')
+
+    hdr = "".join(f'<th>{l.replace("Night ", "N")}<br>'
+                  f'<span class="sp">{datetime.strptime(d, "%Y-%m-%d"):%a %d}</span></th>'
+                  for l, d in lf.NIGHTS)
 
     return f"""<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
-<title>Drive north, or stay home?</title><style>{CSS}</style></head><body><div class="wrap">
+<title>Where to go</title><style>{CSS}</style></head><body><div class="wrap">
 <div class="eyebrow">local only · {datetime.now():%a %d %b %H:%M}</div>
-<h1>Drive north, or stay home?</h1>
-<p class="note">The same ensemble, the same core window, run at both places.</p>
+<h1>Where to go</h1>
+<p class="note">The same ensemble and the same core window, run at every candidate.</p>
 
 <h2>What the models say</h2>
 <div class="card"><table>
-<thead><tr><th>night</th><th>the lake</th><th>home</th></tr></thead>
-<tbody>{rows}</tbody></table>
-<p class="note">Cloud in the core window, the spread between sources, and how often a
+<thead><tr><th>site</th>{hdr}<th>mean</th></tr></thead>
+<tbody>{trs}</tbody></table>
+<p class="note">Cloud in the core window, the span between sources, and how often a
 forecast with that much disagreement lands within 5 points. A wide span means the models
 have not committed and the percentage in front of it is one model winning a vote.</p></div>
 
 <h2>Chance of a clear core window</h2>
 <div class="card"><table>
-<thead><tr><th></th><th>the lake</th><th>home</th></tr></thead>
-<tbody>{ens}{climo}</tbody></table>
-<p class="note">Pooled ensemble members — {ln} at the lake, {hn} at home.</p></div>
+<thead><tr><th>site</th>{hdr}<th>any night</th></tr></thead>
+<tbody>{ens}</tbody></table>
+<p class="note">Pooled ensemble members, ~100 per site.</p>{climo}</div>
 
 <hr class="rule">
-<h2>These columns are not interchangeable</h2>
+<h2>These rows are not interchangeable</h2>
 <div class="card">
-<p>The lake is Bortle 2 and home is not. A clear night at home does not replace a clear
-night at the lake <em>for the core</em> — it replaces it for everything that does not need a
-dark background. You cannot buy a dark sky with clear weather.</p>
+<p>The lake is Bortle 2 and nothing else here is. A clear night further south does not
+replace a clear night at the lake <em>for the core</em> — it replaces it for everything that
+does not need a dark background. You cannot buy a dark sky with clear weather.</p>
 <ul class="rules">
-<li><b>Lake workable</b> — go. Home never wins that comparison.</li>
-<li><b>Lake hopeless on all three</b> — stay. Home is then salvage, not substitute:
-shoot what does not need dark.</li>
-<li><b>Lake unresolved</b> — the spread is wide and the number in front of it means
-little. Wait; it is not a decision yet.</li>
+<li><b>Lake workable</b> — go. Nothing south wins that comparison.</li>
+<li><b>Lake hopeless on all three</b> — go south. Mt Shaw or Mt Major for a carry-in
+night, the Kanc if you want to drive up and take chairs.</li>
+<li><b>Lake unresolved</b> — the spans are wide and the numbers mean little. Go; an
+unresolved night at a dark site beats a confident night at a bright one.</li>
 </ul>
 </div>
 </div></body></html>"""
@@ -214,73 +224,65 @@ def main():
     if "--lat" not in sys.argv or "--lon" not in sys.argv:
         print(__doc__.strip().split("\n\n")[1])
         return 1
-    lat = float(sys.argv[sys.argv.index("--lat") + 1])
-    lon = float(sys.argv[sys.argv.index("--lon") + 1])
+    sites = list(SITES) + [("Home", float(sys.argv[sys.argv.index("--lat") + 1]),
+                            float(sys.argv[sys.argv.index("--lon") + 1]),
+                            "the alternative to going anywhere")]
 
-    print("  fetching both sites...", flush=True)
-    lake_d = deterministic(lf.SITE[1], lf.SITE[2])
-    home_d = deterministic(lat, lon)
-    lake_e, ln = ensemble(lf.SITE[1], lf.SITE[2])
-    home_e, hn = ensemble(lat, lon)
-
-    print(f"\n  THE SAME THREE NIGHTS, TWO PLACES\n")
-    print(f"  {'night':<9}{'lake':>18}{'home':>18}")
-    print("  " + "-"*45)
-    verdicts = []
-    for label, day in lf.NIGHTS:
-        row = {"night": label, "date": day}
-        cells = []
-        for tag, d in (("lake", lake_d), ("home", home_d)):
+    rows = []
+    for name, la, lo, why in sites:
+        print(f"  {name}...", flush=True)
+        d = deterministic(la, lo)
+        e, n = ensemble(la, lo)
+        per = {}
+        for label, _ in lf.NIGHTS:
             ms = d.get(label) or {}
             if not ms:
-                cells.append("—"); row[tag] = None; continue
-            med = round(st.median(ms.values()))
-            spread = max(ms.values()) - min(ms.values())
+                continue
+            v = sorted(ms.values())
+            spread = v[-1] - v[0]
             ab = lf.agree_band(spread)
-            row[tag] = {"cloud": med, "spread": spread,
-                        "trust": ab[0] if ab else None, "models": ms}
-            cells.append(f"{med}% ±{spread}" + (f" ({ab[0]}%)" if ab else ""))
-        print(f"  {label:<9}{cells[0]:>18}{cells[1]:>18}")
-        verdicts.append(row)
+            per[label] = {"cloud": round(st.median(v)), "spread": spread,
+                          "trust": ab[0] if ab else None}
+        if per:
+            rows.append({"name": name, "why": why, "lat": la, "lon": lo, "per": per,
+                         "mean": round(st.mean(x["cloud"] for x in per.values())),
+                         "ens": e, "n": n})
 
-    print(f"\n  {'':<9}{'lake':>18}{'home':>18}")
-    print("  " + "-"*45)
-    for label, _ in lf.NIGHTS:
-        a = (lake_e or {}).get("per", {}).get(label)
-        b = (home_e or {}).get("per", {}).get(label)
-        print(f"  {label:<9}{(str(a)+'% clear') if a is not None else '—':>18}"
-              f"{(str(b)+'% clear') if b is not None else '—':>18}")
-    if lake_e and home_e:
-        print(f"  {'any night':<9}{str(lake_e['any'])+'%':>18}{str(home_e['any'])+'%':>18}")
-    print(f"  {'members':<9}{ln:>18}{hn:>18}")
+    print(f"\n  CLOUD IN THE CORE WINDOW\n")
+    print(f"  {'site':<12}" + "".join(f"{l.replace('Night ', 'N'):>13}" for l, _ in lf.NIGHTS)
+          + f"{'mean':>7}")
+    print("  " + "-"*58)
+    for r in sorted(rows, key=lambda r: r["mean"]):
+        cells = "".join(
+            (f"{str(r['per'][l]['cloud'])+'%':>7}{'±'+str(r['per'][l]['spread']):>6}"
+             if l in r["per"] else f"{'—':>13}") for l, _ in lf.NIGHTS)
+        print(f"  {r['name']:<12}{cells}{str(r['mean'])+'%':>7}")
+
+    print(f"\n  ENSEMBLE — chance the core window comes in under {lf.GO}%\n")
+    print(f"  {'site':<12}" + "".join(f"{l.replace('Night ','N'):>8}" for l, _ in lf.NIGHTS)
+          + f"{'any':>8}")
+    print("  " + "-"*44)
+    for r in sorted(rows, key=lambda r: -((r["ens"] or {}).get("any") or 0)):
+        if not r["ens"]:
+            continue
+        print(f"  {r['name']:<12}"
+              + "".join(f"{str(r['ens']['per'].get(l))+'%':>8}" for l, _ in lf.NIGHTS)
+              + f"{str(r['ens']['any'])+'%':>8}")
 
     cl, ch = climo("best_nights.json"), climo("home_nights.json")
     if cl and ch:
-        print(f"\n  30-year rate for these dates:  lake {cl}%   home {ch}%")
-
-    print(f"""
-  READ IT THIS WAY
-
-  The lake is Bortle 2 and home is not, so these columns are not interchangeable.
-  A clear night at home does not replace a clear night at the lake for the core —
-  it replaces it for everything that does not need a dark background.
-
-  Home is only the answer when the lake is hopeless. If the lake is workable, go:
-  you cannot buy a dark sky with clear weather.
+        print(f"\n  30-year rate for these dates: the lake {cl}%, home {ch}%")
+    print("""
+  The lake is Bortle 2 and nothing else here is. The south is the answer when the lake
+  is hopeless, not when it is merely mediocre.
 """)
     if "--html" in sys.argv:
-        i = sys.argv.index("--html")
-        path = (sys.argv[i + 1] if i + 1 < len(sys.argv)
-                and not sys.argv[i + 1].startswith("--") else "compare.html")
-        open(path, "w").write(page(verdicts, lake_e, home_e, ln, hn, cl, ch))
-        print(f"  wrote {path} — open it with file://{__import__('os').path.abspath(path)}")
-
-    if "--json" in sys.argv:
-        path = sys.argv[sys.argv.index("--json") + 1]
-        json.dump({"taken": datetime.now().isoformat(), "nights": verdicts,
-                   "lake_ens": lake_e, "home_ens": home_e,
-                   "climo": {"lake": cl, "home": ch}}, open(path, "w"), indent=1)
-        print(f"  wrote {path}")
+        k = sys.argv.index("--html")
+        path = (sys.argv[k + 1] if k + 1 < len(sys.argv)
+                and not sys.argv[k + 1].startswith("--") else "compare.html")
+        open(path, "w").write(page(rows, cl, ch))
+        import os
+        print(f"  wrote {path} — file://{os.path.abspath(path)}")
     return 0
 
 
