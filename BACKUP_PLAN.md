@@ -1,111 +1,143 @@
-# Backup plan — if Pittsburg is clouded out
+# Backup plan — cancel Pittsburg, or go?
 
-Written 7 Aug 2026, five days out, when nothing is decided yet. The point of writing it now
-is that the decision has to be made on **Sunday 9 August** and Sunday is a bad day to start
-thinking about it.
+Written 7 Aug 2026. The decision gets made **Sunday 9 August**, and Sunday is a bad day to
+start thinking about it.
 
-## The finding this rests on
+## It is a binary
 
-A grid search of 180 points across the northeast found a sharp boundary at about **44°N**.
-South of it the whole region is clear for the trip nights; north of it — including Pittsburg
-— is not.
+There is no mid-trip detour. Driving south from the cabin for one night is 2–3 hours each
+way, arrives after the core has set, and costs the following night to exhaustion. So:
 
-| | Tue 11 | Wed 12 | Thu 13 | mean |
-|---|---|---|---|---|
-| **Pittsburg (the lake)** | 62% | 20% | 88% | **57%** |
-| Kanc, eastern half | 27% | 4% | 35% | 22% |
-| Mt Shaw | 23% | 31% | 34% | 29% |
-| 43.5 / −71.0 | 14% | 6% | 9% | 10% |
+**A — Go to Pittsburg.** Three nights, Bortle 2, the full rig, the plan as written.
 
-Two of the three nights are lost at the lake and workable 100–200 km south. Wednesday works
-either way.
+**B — Cancel, and do one night from home.** Wednesday 12 August, the Perseid peak, at a
+summit about 1½–2 hours away. Canon + SAM-Mini in a pack, eyes and an iPhone for visual.
 
-**The band is 43.0–44.0N, best around 43.5.** Below 43.0 the cloud comes back — 42.0 is as
-bad as Pittsburg — so there is no reason to drive past it. Above 44.0 you are back under the
-northern cloud.
+Nothing in between.
 
-Everything above is a 4–6 day forecast carrying **11% reliability**. The individual numbers
-will move. What is more trustworthy is the *shape*: a boundary that appears across dozens of
-grid cells and all three nights is a synoptic feature, not point noise.
+## Why A wins unless it is hopeless
 
-## The decision, and when to make it
+Cancelling trades **three nights under Bortle 2 for one night under Bortle 4.** The bar for
+that has to be high, and right now it is nowhere near being met:
 
-**Sunday 9 August.** That is when Night 1 reaches 2 days lead and Night 2 reaches 3 — the
-range where the forecast first beats "always say overcast." Nothing before Sunday is worth
-reacting to, and today is a good illustration: Wednesday looked excellent at the lake on
-Thursday morning and had reshuffled completely by Friday.
+| | chance of a usable core window |
+|---|---|
+| **A — at least one of three nights at the lake** | **68%** |
+| B — Wednesday at Mt Shaw | 52% |
+| B — Wednesday at Mt Major | 51% |
 
-Run both tools Sunday morning:
+A is ahead on probability *and* on sky quality *and* has two extra nights of upside. Three
+draws is worth a great deal: even writing off one night entirely only costs the joint figure
+about ten points.
+
+## The rule
+
+Run this on Sunday morning:
 
 ```bash
-python3 log_forecast.py                    # the lake
-python3 where_clear.py --lat <home> --lon <home> --html where.html
+python3 log_forecast.py                                    # the lake
+python3 compare_sites.py --lat <home> --lon <home> --html compare.html
 ```
 
-Then:
+Then read the **joint** figure on the forecast page — the chance at least one night works —
+against Wednesday's ensemble number at the summits:
 
-| Lake outlook Sunday | Do this |
+| Sunday | Do |
 |---|---|
-| **Two or three nights ≤40%** | Go as planned. Nothing south is worth Bortle 2. |
-| **One night ≤40%** | Go. Shoot that night hard, treat the others as visual and Perseids. |
-| **No night ≤40% and the south is ≤30%** | Switch to Option C below. |
-| **Everything unresolved (spreads >60)** | Go. An unresolved night at a dark site beats a confident night at a bright one, and the cabin is already paid for. |
+| **Lake joint ≥ 55%** | **Go.** Comfortably ahead of one night anywhere else. |
+| **Lake joint 40–55%** | **Go**, unless a summit is above 65% for Wednesday. Two extra nights and a darker sky are worth a modest deficit. |
+| **Lake joint < 40%, and a summit is ≤ 20% with a span ≤ 30** | **Cancel and hike.** This is the case the backup exists for. |
+| **Lake joint < 40% and no summit clears that bar** | **Cancel and stay home.** Do not hike into a sucker hole. |
+| **Everything unresolved** (spans > 60 everywhere) | **Go.** Unresolved dark beats unresolved bright. |
 
-The asymmetry is deliberate. **You cannot buy a dark sky with clear weather.** Bortle 2 is
-the thing Pittsburg has that nowhere else within range does, and a marginal night there is
-worth more than a good night at Bortle 4 *for the core specifically*. The south is only the
-answer when the lake gives you nothing at all.
+You cannot buy a dark sky with clear weather, and Bortle 2 is the one thing Pittsburg has
+that nothing else in range does. That is why the thresholds favour going.
 
-## Option C — the southern night
+**But the dark-sky argument does not apply to Wednesday itself.** The Perseid radiant climbs
+to 47–61° and bright meteors punch through Bortle 4 perfectly well — you lose the faint tail,
+not the show. So if the trip is cancelled, Wednesday at a summit is a genuinely good night
+rather than a consolation prize. Which is exactly why the rule above keys on the *joint*
+figure and not on Wednesday at the lake.
 
-One night, hiked in, stripped down.
+## Option B has a higher bar than the trip, not a lower one
 
-**Sites, in the order they currently rank.** All of these need eyes on them; the horizon
-tool sees bare terrain and not the trees standing on it — which for Mt Shaw is the only open
-question, since the terrain answer could not be better than it is.
+At the lake the cabin is booked and you are there regardless. Waiting out a marginal night
+costs nothing, so the trip's threshold is the ordinary one: **30% is shootable**.
 
-| Site | Coordinates | Southern terrain | Notes |
-|---|---|---|---|
-| **Mt Shaw** | 43.74650, −71.27467 | **−1.2°** | Ossipee Range high point, 847 m by DEM. The southern skyline is *below the horizontal* across the whole arc — nothing within 25 km rises to eye level, so terrain is simply not a constraint. Best of every site measured, by a wide margin. A real hike, which suits the plan, and high enough to sit above valley fog — the failure mode that ruins clear nights in this region. |
-| **Mt Major** | 43.51330, −71.28830 | **−0.6°** | Also unobstructed, 536 m, and a far shorter walk — roughly 1.5 miles against Mt Shaw's 4–5. Weaker on darkness though: at 43.51 the southern view looks straight down the Alton–Rochester–Portsmouth corridor, and the core sits at 10–17° in exactly that direction. Better choice for a Perseid-and-visual night than a core night. |
-| **Kanc, eastern half** | −71.19 to −71.30 | 2–7° | Consistently open south. Roadside — the drive-up option, and the one to take if the chairs come. |
-| **C.L. Graham Wangan** | ~44.021, −71.232 | 2.8° | Best terrain score measured. Coordinates are approximate — verify. |
-| Kanc, Lincoln end | −71.49 to −71.59 | 11–17° | **Rejected.** Core behind a ridge by 22:30. |
-| Echo Lake / Lafayette Place | 44.14 / 44.11, −71.68 | 7.9° | Marginal for the core — 2° of margin, which trees eat. Fine for Perseids. State park, check hours. |
+The summit is the opposite. A drive, a climb, a carry, and no shelter — all committed hours
+before you can see the sky. There is no waiting it out and no salvaging it. So the bar is
+**not** the trip's threshold, and specifically it is not the sucker-hole band (30–40%),
+which is exactly the range that looks acceptable on a forecast and delivers twenty minutes
+of sky between cloud.
 
-**Kit — one backpack each.** This is a carry-in, not a drive-up, and the kit list is what
-makes a summit viable at all.
+**Only make the hike if both hold:**
 
-Comes:
-- Canon T8i + Sigma 18–35 f/1.8 on the Star Adventurer Mini, and a tripod
-- Spare batteries, power bank, dew heater strip, red headlamp, spare cards
-- iPhone — the only other "instrument"; visual is eyes
-- Warm layers. 43.7N at ~2,800 ft in August still drops to single digits °C, and you are
-  standing still from 21:00 to 03:00
+| | |
+|---|---|
+| **cloud ≤ 20%** | not 30, and certainly not the 30–40 band |
+| **span ≤ 30 points** | the models must actually agree — that band is right 77% of the time, against 26% for a split forecast |
 
-Stays home:
-- **EQ6-R, plywood pier plate, the three pavers** — the entire immovable rig
-- **The 6SE.** 25 lb plus a fork mount does not go up a mountain in the dark
-- The desktop and its power problem, and anything needing an extension cord
+Both, not either. A 15% median drawn from sources spanning 80 points is one model winning a
+vote, and it is precisely the reading that puts you on a summit at midnight under overcast.
 
-**Reconsider the chairs.** Two reclining camp chairs are on the main pack list for the
-Perseid hours and they are right for a drive-up site. For a 4–5 mile carry they are the
-single worst item in the bag — bulky, awkwardly shaped, 6–10 lb each. Closed-cell foam pads
-weigh a pound, pack flat against the back panel, and let you lie flat, which is a better
-posture for a radiant at 47–61° than any chair. Take the chairs if you drive to a pullout;
-take pads if you walk up.
+**If neither the lake nor a summit clears its bar, do nothing.** That is a legitimate
+outcome, not a failure of the plan. The Perseids run for weeks either side of the peak at
+reduced rates, the core is up until October, and Sep 5–14 is the best fortnight of the whole
+year at both sites — 33% usable against these dates' 30%, measured over thirty years. A
+wasted Wednesday costs nothing except a Wednesday.
 
-**Latitude:** aim for 43.3–44.1. There is no benefit below 43.0 — the cloud returns and the
-light pollution rises as you approach the Massachusetts corridor. Core altitude gains only
-1° per degree of latitude south, so this is a weather decision, not an astronomy one.
+## Option B, if it happens
 
-## What this plan does not know
+**Mt Major** — 43.51330, −71.28830. 536 m, about 1.5 miles and 1,100 ft of climb, roughly
+1½ hours from home. Southern terrain **−0.6°**: nothing within 25 km rises to eye level.
 
-- **Trees.** Every terrain figure here is bare-earth from a 90 m DEM. White Mountain forest
-  adds 15–25 m, which at close range is several degrees, and is usually what actually blocks
-  you.
-- **Access.** Whether you can legally be at any of these at 1 AM.
-- **Darkness.** Nothing here measures light pollution. Check every candidate against a
-  light-pollution map before committing.
-- **3 km of position moves the answer 6 points.** Mt Shaw's mean went from 23% to 29% when
-  the coordinates were corrected by 3.4 km. Do not treat any single number as precise.
+**Mt Shaw** — 43.74650, −71.27467. 847 m, 4–5 miles, roughly 2 hours from home. Southern
+terrain **−1.2°**, the best measured anywhere, and 300 m higher — which puts you above more
+of the boundary-layer aerosol that scatters city light.
+
+They are near-identical on cloud and on terrain. A crude sky-glow model over the core's arc
+puts them within 5% of each other: I had assumed Shaw was clearly darker and the arithmetic
+did not support it, because Laconia sits inside Shaw's south-west arc at 29 km and cancels
+most of its distance advantage. **Mt Major is the sensible default**; Shaw only if the extra
+elevation is worth the walk.
+
+**Kit — one pack each.**
+
+Comes: Canon T8i + Sigma 18–35 f/1.8 on the SAM-Mini, tripod, spare batteries, power bank,
+dew strip, red headlamp, cards, iPhone, warm layers. It drops to single figures °C at 2,000
+ft in August and you are standing still from 21:00 to 03:00.
+
+Stays: the EQ6-R, the pier plate, the pavers, the desktop, the 6SE, anything on mains.
+
+**Not the camping chairs.** They are right for a drive-up and the worst item in the bag for a
+carry-in — bulky, 6–10 lb each. Closed-cell foam pads weigh a pound, pack flat, and let you
+lie flat, which is the better posture for a radiant at 47–61° anyway.
+
+**Timing on 12 Aug:** astronomical dark 21:54, core sets 23:17, Perseid peak 02:00–03:45,
+dawn 03:45. Be on the summit by 21:00, which means leaving home around 18:30 for Major.
+
+## Rejected, and why
+
+**A Wednesday detour from the cabin.** Kanc east is 2.1 h each way, Mt Shaw 2.6 h, Mt Major
+3.0 h. Even the nearest gets you there after the core has set, and costs Thursday night to
+exhaustion. If the trip happens, it happens at the lake.
+
+**Kanc, Lincoln end** (−71.49 to −71.59). The core goes behind a ridge by 22:30 — terrain
+11–17°. Fine for meteors, useless for the core.
+
+**Echo Lake / Lafayette Place.** Southern terrain 7.9° against a core at 10° by 23:30. Two
+degrees of margin, which trees eat. Also inside a state park with posted hours.
+
+## What none of this knows
+
+- **Trees.** Every terrain figure is bare-earth from a 90 m DEM. White Mountain forest adds
+  15–25 m, which is several degrees at close range and is usually what actually blocks you.
+  Both summits are believed to have open ledges; neither has been verified.
+- **Access.** Whether you can legally be on either at 1 AM.
+- **Light pollution.** Nothing here measures it. The 5% figure above is a
+  distance-and-population model, not an observation.
+- **Precision.** Correcting Mt Shaw's coordinates by 3.4 km moved its cloud mean by 6 points.
+  No number here is worth more than its nearest 10.
+- **Stability.** On the morning of 7 Aug the southern sites read 22% mean against the lake's
+  57%; by that afternoon it was 36% against 46%. At this lead the whole picture can invert
+  inside a day. Nothing before Sunday means anything.
