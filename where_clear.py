@@ -21,6 +21,7 @@ import json
 import math
 import statistics as st
 import sys
+import time
 from datetime import datetime
 
 import log_forecast as lf
@@ -28,12 +29,20 @@ import log_forecast as lf
 # The northeast, coarsely. Far enough west for the Adirondacks, north for the Eastern
 # Townships, east for Maine — all inside a day's drive of southern New England.
 LAT0, LAT1, LON0, LON1, STEP = 42.0, 47.5, -74.0, -67.0, 0.5
+# --wide widens it to everything inside a long day's drive of southern New England:
+# eastern NY and the Catskills, the Adirondacks, Vermont, the Berkshires, Long Island,
+# the Jersey shore, and the Maine coast as far as Bar Harbour.
+WIDE = (40.5, 46.5, -76.0, -67.0, 0.5)
 MODELS = [("ecmwf_ifs025", "ECMWF"), ("gfs_seamless", "GFS"),
           ("icon_seamless", "ICON"), ("gem_seamless", "GEM")]
 BATCH = 120          # coordinates per request
+PAUSE = 6            # seconds between requests; the free tier rate-limits hard
 
 
 def grid():
+    global LAT0, LAT1, LON0, LON1
+    if "--wide" in sys.argv:
+        LAT0, LAT1, LON0, LON1, _ = WIDE
     pts, la = [], LAT0
     while la <= LAT1 + 1e-9:
         lo = LON0
@@ -63,11 +72,22 @@ def fetch(pts):
                    + "&longitude=" + ",".join(str(b) for _, b in chunk)
                    + f"&hourly=cloud_cover&models={key}&forecast_days=14"
                    + "&timezone=America%2FNew_York")
-            try:
-                res = lf.get(url)
-            except Exception as ex:
-                print(f"  {name} batch {i//BATCH}: {str(ex)[:60]}", flush=True)
+            res = None
+            for attempt in range(5):
+                try:
+                    res = lf.get(url)
+                    break
+                except Exception as ex:
+                    if attempt == 4:
+                        print(f"  {name} batch {i//BATCH}: {str(ex)[:60]}", flush=True)
+                    else:
+                        # 429 is the usual one. Without this the batch silently drops a
+                        # model, cells end up with fewer members, and the spread across
+                        # two models gets read as agreement across four.
+                        time.sleep(12 * (attempt + 1))
+            if res is None:
                 continue
+            time.sleep(PAUSE)
             if isinstance(res, dict):
                 res = [res]
             for pt, r in zip(chunk, res):
@@ -91,9 +111,22 @@ def fetch(pts):
 
 
 def score(raw, home):
-    rows = []
+    """Cells where a model dropped out are discarded, not scored.
+
+    A batch request that fails for one model leaves that cell with fewer members, and the
+    spread across two models is not comparable to the spread across four — a cell with a
+    single model has a spread of ZERO and sorts to the top of any ranking by agreement.
+    That is how a rate-limited batch turns into "the models agree completely here", which
+    is the most dangerous possible failure for a tool whose whole job is to say when the
+    forecast can be trusted. Require the full set or drop the cell.
+    """
+    want = len(MODELS)
+    rows, thin = [], 0
     for (la, lo), nights in raw.items():
         if len(nights) < len(lf.NIGHTS):
+            continue
+        if any(len(nights[l]) < want for l, _ in lf.NIGHTS):
+            thin += 1
             continue
         per = {}
         for label, _ in lf.NIGHTS:
@@ -113,6 +146,8 @@ def score(raw, home):
             "km_home": round(km(home[0], home[1], la, lo)),
             "km_lake": round(km(lf.SITE[1], lf.SITE[2], la, lo)),
         })
+    if thin:
+        print(f"  dropped {thin} cells that did not get all {want} models")
     return rows
 
 
@@ -135,6 +170,28 @@ def main():
           f"{lake['workable']}/3 nights workable\n")
 
     # Ranked by how much of the trip survives, then by how clear the best night is
+    # --night N ranks on one night only; --within KM drops anything further from home.
+    if "--within" in sys.argv:
+        lim = float(sys.argv[sys.argv.index("--within") + 1])
+        before = len(rows)
+        rows = [r for r in rows if r["km_home"] <= lim]
+        print(f"  {len(rows)} of {before} inside {lim:.0f} km straight-line of home\n")
+    if "--night" in sys.argv:
+        n = int(sys.argv[sys.argv.index("--night") + 1])
+        label = lf.NIGHTS[n - 1][0]
+        rows = [r for r in rows if label in r["per"]]
+        rows.sort(key=lambda r: (r["per"][label]["cloud"], r["per"][label]["spread"]))
+        print(f"  RANKED ON {label} ONLY — {lf.NIGHTS[n-1][1]}\n")
+        print(f"  {'lat':>6}{'lon':>8}{'cloud':>8}{'span':>7}{'trust':>7}{'home':>7}")
+        print("  " + "-"*45)
+        for r in rows[:20]:
+            c = r["per"][label]
+            ab = lf.agree_band(c["spread"])
+            print(f"  {r['lat']:>6}{r['lon']:>8}{c['cloud']:>7}%{c['spread']:>7}"
+                  f"{(str(ab[0])+'%') if ab else '—':>7}{r['km_home']:>6}k")
+        print(f"\n  Cells over open water are not filtered — the distance test knows "
+              f"nothing about land.")
+        return 0
     rows.sort(key=lambda r: (-r["workable"], r["mean_cloud"]))
     print(f"  BEST OF {len(rows)} LOCATIONS\n")
     print(f"  {'lat':>6}{'lon':>8}{'mean':>7}{'ok':>4}"
