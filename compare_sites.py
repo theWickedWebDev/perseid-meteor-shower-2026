@@ -39,6 +39,7 @@ SITES = [
     ("Kanc east", 44.0125, -71.2300, "Kancamagus, Conway end · roadside · terrain 2-7 deg"),
     ("Mt Shaw", 43.74650, -71.27467, "Ossipee Range · 847 m · carry-in · terrain -1.2 deg"),
     ("Mt Major", 43.51330, -71.28830, "Alton · 536 m · 1.5 mi walk · terrain -0.6 deg"),
+    ("Mt Agamenticus", 43.22316, -70.69216, "York ME · coastal · closest of the summits"),
 ]
 ENS = [("gfs025", "GEFS"), ("ecmwf_ifs025", "ECMWF ENS"), ("gem_global", "GEM ENS")]
 
