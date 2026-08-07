@@ -34,6 +34,8 @@ MODELS = [("ecmwf_ifs025", "ECMWF"), ("gfs_seamless", "GFS"), ("icon_seamless", 
 # is never written anywhere. Order is north to south, which is also roughly darkest first.
 SITES = [
     ("The lake", lf.SITE[1], lf.SITE[2], "Pittsburg · Bortle 2 · the plan"),
+    ("Kanc west", 44.0290, -71.5480, "Kancamagus, Lincoln end · core blocked 22:30 by a "
+                                     "ridge · meteors only"),
     ("Kanc east", 44.0125, -71.2300, "Kancamagus, Conway end · roadside · terrain 2-7 deg"),
     ("Mt Shaw", 43.74650, -71.27467, "Ossipee Range · 847 m · carry-in · terrain -1.2 deg"),
     ("Mt Major", 43.51330, -71.28830, "Alton · 536 m · 1.5 mi walk · terrain -0.6 deg"),
