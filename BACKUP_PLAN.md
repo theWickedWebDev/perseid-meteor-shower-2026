@@ -67,27 +67,33 @@ question, since the terrain answer could not be better than it is.
 | Site | Coordinates | Southern terrain | Notes |
 |---|---|---|---|
 | **Mt Shaw** | 43.74650, −71.27467 | **−1.2°** | Ossipee Range high point, 847 m by DEM. The southern skyline is *below the horizontal* across the whole arc — nothing within 25 km rises to eye level, so terrain is simply not a constraint. Best of every site measured, by a wide margin. A real hike, which suits the plan, and high enough to sit above valley fog — the failure mode that ruins clear nights in this region. |
-| **Kanc, eastern half** | −71.19 to −71.30 | 2–7° | Consistently open south. Roadside, so no hike, and WMNF pullouts are generally fine overnight. |
+| **Mt Major** | 43.51330, −71.28830 | **−0.6°** | Also unobstructed, 536 m, and a far shorter walk — roughly 1.5 miles against Mt Shaw's 4–5. Weaker on darkness though: at 43.51 the southern view looks straight down the Alton–Rochester–Portsmouth corridor, and the core sits at 10–17° in exactly that direction. Better choice for a Perseid-and-visual night than a core night. |
+| **Kanc, eastern half** | −71.19 to −71.30 | 2–7° | Consistently open south. Roadside — the drive-up option, and the one to take if the chairs come. |
 | **C.L. Graham Wangan** | ~44.021, −71.232 | 2.8° | Best terrain score measured. Coordinates are approximate — verify. |
 | Kanc, Lincoln end | −71.49 to −71.59 | 11–17° | **Rejected.** Core behind a ridge by 22:30. |
 | Echo Lake / Lafayette Place | 44.14 / 44.11, −71.68 | 7.9° | Marginal for the core — 2° of margin, which trees eat. Fine for Perseids. State park, check hours. |
 
-**Kit — what comes and what stays.**
+**Kit — one backpack each.** This is a carry-in, not a drive-up, and the kit list is what
+makes a summit viable at all.
 
 Comes:
-- Canon T8i + Sigma 18–35 f/1.8 on the Star Adventurer Mini
-- NexStar 6SE for visual
-- Two reclining camping chairs
-- Dew heaters, power bank, red headlamp, spare cards
-- Warm layers — 43.7N at 3,000 ft in August still drops into single digits °C
+- Canon T8i + Sigma 18–35 f/1.8 on the Star Adventurer Mini, and a tripod
+- Spare batteries, power bank, dew heater strip, red headlamp, spare cards
+- iPhone — the only other "instrument"; visual is eyes
+- Warm layers. 43.7N at ~2,800 ft in August still drops to single digits °C, and you are
+  standing still from 21:00 to 03:00
 
 Stays home:
 - **EQ6-R, plywood pier plate, the three pavers** — the entire immovable rig
-- The desktop computer and its power problem
-- Anything that needs an extension cord
+- **The 6SE.** 25 lb plus a fork mount does not go up a mountain in the dark
+- The desktop and its power problem, and anything needing an extension cord
 
-That reduction is the whole reason this backup is viable. The SAM-Mini and a camera go in a
-pack; the EQ6-R does not.
+**Reconsider the chairs.** Two reclining camp chairs are on the main pack list for the
+Perseid hours and they are right for a drive-up site. For a 4–5 mile carry they are the
+single worst item in the bag — bulky, awkwardly shaped, 6–10 lb each. Closed-cell foam pads
+weigh a pound, pack flat against the back panel, and let you lie flat, which is a better
+posture for a radiant at 47–61° than any chair. Take the chairs if you drive to a pullout;
+take pads if you walk up.
 
 **Latitude:** aim for 43.3–44.1. There is no benefit below 43.0 — the cloud returns and the
 light pollution rises as you approach the Massachusetts corridor. Core altitude gains only
