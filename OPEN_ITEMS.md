@@ -56,6 +56,12 @@ geometry. That's the part that matters.
 
 - [ ] Spare SD cards, one per night
 - [ ] Two headlamps — one red for working, one warm-white for light painting
+- [ ] **Two camping chairs — reclining**. The schedule already assumes these exist
+      (2:00–3:45, "both of you outside, in chairs, looking up") and they were never on this
+      list. The Perseid radiant climbs from 47° to 61° across those hours, so you are staring
+      most of the way up for the better part of two hours: an upright camp chair puts that
+      load straight into your neck. Anything that leans back far enough to rest your head
+      turns the peak from endurance into the best part of the night.
 
 > **Don't set up on a wooden deck**, however flat it looks. Every footstep goes into the subs
 > and you'll be walking to the 6SE all night. Grass or dirt wins.
