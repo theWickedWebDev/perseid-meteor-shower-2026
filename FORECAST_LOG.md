@@ -12,6 +12,69 @@ Sky cover is the number that matters — **PoP is not a cloud forecast.** An ove
 
 ---
 
+## Fri 07 Aug 2026, 03:05 EDT
+
+`api.weather.gov` gridpoint **GYX 28,125** · Lake spot
+
+### Night 1 · Tue 11 Aug — lead 4 days
+
+**Core window mean sky cover: 56%** · full-dark 61% · max PoP 52%
+
+| Hour (EDT) | Sky | PoP | Dewpoint |
+|---|---|---|---|
+| 18:00 | 71% | 52% | 57°F |
+| 19:00 | 71% | 49% | 57°F |
+| 20:00 | 56% | 34% | 57°F |
+| 21:00 | 56% | 32% | 57°F |
+| 22:00 | 56% | 29% | 56°F |
+| 23:00 | 56% | 26% | 56°F |
+| 00:00 | 56% | 26% | 56°F |
+| 01:00 | 56% | 25% | 56°F |
+| 02:00 | 62% | 27% | 56°F |
+| 03:00 | 62% | 26% | 56°F |
+| 04:00 | 62% | 25% | 55°F |
+| 05:00 | 62% | 24% | 55°F |
+| 06:00 | 62% | 25% | 55°F |
+| 07:00 | 62% | 26% | 55°F |
+
+### Night 2 · Wed 12 Aug — lead 5 days
+
+**Core window mean sky cover: 55%** · full-dark 59% · max PoP 49%
+
+| Hour (EDT) | Sky | PoP | Dewpoint |
+|---|---|---|---|
+| 18:00 | 67% | 49% | 55°F |
+| 19:00 | 67% | 46% | 54°F |
+| 20:00 | 55% | 33% | 54°F |
+| 21:00 | 55% | 31% | 54°F |
+| 22:00 | 55% | 29% | 53°F |
+| 23:00 | 55% | 26% | 53°F |
+| 00:00 | 55% | 26% | 53°F |
+| 01:00 | 55% | 26% | 53°F |
+| 02:00 | 61% | 27% | 53°F |
+| 03:00 | 61% | 27% | 53°F |
+| 04:00 | 61% | 27% | 53°F |
+| 05:00 | 61% | 27% | 53°F |
+| 06:00 | 61% | 30% | 53°F |
+| 07:00 | 61% | 32% | 54°F |
+
+### Night 3 · Thu 13 Aug — lead 6 days
+
+**Core window mean sky cover: 69%** · full-dark 71% · max PoP 63%
+
+| Hour (EDT) | Sky | PoP | Dewpoint |
+|---|---|---|---|
+| 18:00 | 77% | 63% | 54°F |
+| 19:00 | 77% | 61% | 53°F |
+| 20:00 | 69% | 53% | 53°F |
+| 21:00 | 69% | 51% | — |
+| 22:00 | 69% | 50% | — |
+| 23:00 | 69% | 48% | — |
+| 00:00 | 69% | —% | — |
+| 01:00 | 69% | —% | — |
+
+---
+
 ## Fri 07 Aug 2026, 02:05 EDT
 
 `api.weather.gov` gridpoint **GYX 28,125** · Lake spot
@@ -713,58 +776,19 @@ Sky cover is the number that matters — **PoP is not a cloud forecast.** An ove
 
 **Core window mean sky cover: 60%** · full-dark 64% · max PoP 52%
 
-| Hour (EDT) | Sky | PoP | Dewpoint |
-|---|---|---|---|
-| 18:00 | 68% | 52% | 57°F |
-| 19:00 | 66% | 49% | 57°F |
-| 20:00 | 56% | 34% | 57°F |
-| 21:00 | 55% | 32% | 57°F |
-| 22:00 | 58% | 29% | 56°F |
-| 23:00 | 61% | 26% | 56°F |
-| 00:00 | 61% | 25% | 56°F |
-| 01:00 | 62% | 24% | 56°F |
-| 02:00 | 62% | 27% | 56°F |
-| 03:00 | 66% | 26% | 56°F |
-| 04:00 | 70% | 25% | 55°F |
-| 05:00 | 74% | 24% | 55°F |
-| 06:00 | 69% | 25% | 55°F |
-| 07:00 | 65% | 26% | 55°F |
+_Hourly detail compacted — headline figures above._
 
 ### Night 2 · Wed 12 Aug — lead 6 days
 
 **Core window mean sky cover: 54%** · full-dark 61% · max PoP 49%
 
-| Hour (EDT) | Sky | PoP | Dewpoint |
-|---|---|---|---|
-| 18:00 | 66% | 49% | 54°F |
-| 19:00 | 64% | 46% | 54°F |
-| 20:00 | 55% | 33% | 54°F |
-| 21:00 | 55% | 32% | 54°F |
-| 22:00 | 53% | 29% | 53°F |
-| 23:00 | 56% | 27% | 53°F |
-| 00:00 | 58% | 27% | 53°F |
-| 01:00 | 59% | 27% | 53°F |
-| 02:00 | 61% | 27% | 53°F |
-| 03:00 | 64% | 27% | 53°F |
-| 04:00 | 67% | 27% | 53°F |
-| 05:00 | 70% | 27% | 53°F |
-| 06:00 | 65% | 30% | 53°F |
-| 07:00 | 60% | 33% | 54°F |
+_Hourly detail compacted — headline figures above._
 
 ### Night 3 · Thu 13 Aug — lead 7 days
 
 **Core window mean sky cover: 61%** · full-dark 66% · max PoP 63%
 
-| Hour (EDT) | Sky | PoP | Dewpoint |
-|---|---|---|---|
-| 18:00 | 76% | 63% | 53°F |
-| 19:00 | 74% | 61% | 53°F |
-| 20:00 | 69% | 53% | 53°F |
-| 21:00 | 61% | 51% | — |
-| 22:00 | 61% | 49% | — |
-| 23:00 | 61% | 48% | — |
-| 00:00 | 61% | —% | — |
-| 01:00 | 61% | —% | — |
+_Hourly detail compacted — headline figures above._
 
 ---
 
