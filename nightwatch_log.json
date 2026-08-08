@@ -13591,5 +13591,196 @@
     "stars": 0
    }
   }
+ },
+ {
+  "time": "2026-08-08T03:15:01.988737-04:00",
+  "shot": "nightwatch/2026-08-08T0315.jpg",
+  "n_frames": 60,
+  "n_stacked": 30,
+  "sigma": 1.03,
+  "sky_lum": 20.5,
+  "sources": [
+   {
+    "x": 492.25,
+    "y": 118.25,
+    "snr": 9.620488166809082,
+    "px": 4
+   },
+   {
+    "x": 1210.0,
+    "y": 413.5,
+    "snr": 9.0457181930542,
+    "px": 6
+   },
+   {
+    "x": 748.3333333333334,
+    "y": 194.66666666666666,
+    "snr": 8.588776588439941,
+    "px": 3
+   },
+   {
+    "x": 228.16666666666666,
+    "y": 238.33333333333334,
+    "snr": 8.154252052307129,
+    "px": 6
+   }
+  ],
+  "targets": {
+   "core": {
+    "alt": -18.4,
+    "az": 247.0,
+    "px": [
+     3095,
+     1386
+    ],
+    "in_frame": false,
+    "stars": 0
+   },
+   "rho": {
+    "alt": -28.5,
+    "az": 264.4,
+    "px": null,
+    "in_frame": false,
+    "stars": null
+   },
+   "teapot": {
+    "alt": -16.1,
+    "az": 237.1,
+    "px": [
+     2362,
+     1049
+    ],
+    "in_frame": false,
+    "stars": 0
+   }
+  }
+ },
+ {
+  "time": "2026-08-08T03:30:01.317713-04:00",
+  "shot": "nightwatch/2026-08-08T0330.jpg",
+  "n_frames": 60,
+  "n_stacked": 30,
+  "sigma": 0.92,
+  "sky_lum": 19.3,
+  "sources": [],
+  "targets": {
+   "core": {
+    "alt": -20.9,
+    "az": 249.4,
+    "px": [
+     3341,
+     1604
+    ],
+    "in_frame": false,
+    "stars": 0
+   },
+   "rho": {
+    "alt": -31.1,
+    "az": 266.9,
+    "px": null,
+    "in_frame": false,
+    "stars": null
+   },
+   "teapot": {
+    "alt": -18.3,
+    "az": 239.3,
+    "px": [
+     2480,
+     1162
+    ],
+    "in_frame": false,
+    "stars": 0
+   }
+  }
+ },
+ {
+  "time": "2026-08-08T03:45:01.951863-04:00",
+  "shot": "nightwatch/2026-08-08T0345.jpg",
+  "n_frames": 60,
+  "n_stacked": 30,
+  "sigma": 0.89,
+  "sky_lum": 18.5,
+  "sources": [
+   {
+    "x": 493.0,
+    "y": 119.0,
+    "snr": 7.553281784057617,
+    "px": 3
+   }
+  ],
+  "targets": {
+   "core": {
+    "alt": -23.4,
+    "az": 251.7,
+    "px": [
+     3640,
+     1878
+    ],
+    "in_frame": false,
+    "stars": 0
+   },
+   "rho": {
+    "alt": -33.8,
+    "az": 269.5,
+    "px": null,
+    "in_frame": false,
+    "stars": null
+   },
+   "teapot": {
+    "alt": -20.6,
+    "az": 241.5,
+    "px": [
+     2610,
+     1294
+    ],
+    "in_frame": false,
+    "stars": 0
+   }
+  }
+ },
+ {
+  "time": "2026-08-08T04:00:01.590442-04:00",
+  "shot": "nightwatch/2026-08-08T0400.jpg",
+  "n_frames": 60,
+  "n_stacked": 30,
+  "sigma": 0.88,
+  "sky_lum": 18.4,
+  "sources": [
+   {
+    "x": 1209.5,
+    "y": 413.0,
+    "snr": 7.195374965667725,
+    "px": 4
+   }
+  ],
+  "targets": {
+   "core": {
+    "alt": -25.9,
+    "az": 254.0,
+    "px": [
+     4014,
+     2233
+    ],
+    "in_frame": false,
+    "stars": 0
+   },
+   "rho": {
+    "alt": -36.4,
+    "az": 272.2,
+    "px": null,
+    "in_frame": false,
+    "stars": null
+   },
+   "teapot": {
+    "alt": -23.0,
+    "az": 243.7,
+    "px": [
+     2757,
+     1450
+    ],
+    "in_frame": false,
+    "stars": 0
+   }
+  }
  }
 ]
