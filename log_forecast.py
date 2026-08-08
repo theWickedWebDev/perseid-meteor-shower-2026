@@ -607,6 +607,32 @@ def write_log(hist):
 
 
 # ── chart page ───────────────────────────────────────────────────────────
+# Density levels for the trend chart slider. The log is not evenly spaced — hourly cron plus
+# every hand run — so a busy afternoon occupies as much width as a quiet day and the early
+# part of the record turns into a smear. Thinning by minimum gap fixes the reading without
+# touching the data: every level still ends on the newest snapshot.
+DENSITY = [(0, "every reading"), (120, "2 h apart"), (360, "6 h apart"), (720, "12 h apart")]
+
+
+def thin(hist, minutes):
+    """Keep snapshots at least `minutes` apart, always including first and last.
+
+    Walks backwards from the newest so the right-hand end — the part anyone is actually
+    reading — is never the one that gets dropped.
+    """
+    if minutes <= 0 or len(hist) < 3:
+        return list(range(len(hist)))
+    ts = [datetime.fromisoformat(e["taken"]) for e in hist]
+    keep, last = [len(hist) - 1], ts[-1]
+    for i in range(len(hist) - 2, -1, -1):
+        if (last - ts[i]).total_seconds() / 60 >= minutes:
+            keep.append(i)
+            last = ts[i]
+    if 0 not in keep:
+        keep.append(0)
+    return sorted(keep)
+
+
 def svg_chart(hist):
     W, H = 720, 320
     L, R, T, B = 46, 108, 18, 42
@@ -638,50 +664,83 @@ def svg_chart(hist):
     # X labels, thinned. A two-line stamp needs ~34 px and the plot is only `pw` wide, so
     # past roughly 16 snapshots every label would be drawn on top of its neighbour. Keep
     # every nth, always including the newest, and show the date only when the day changes.
-    step = max(1, -(-n * 34 // max(int(pw), 1)))
-    keep = sorted({0, n - 1} | set(range(n - 1, -1, -step)))
+    # Labels follow the MIDDLE density level, so they stay put as the slider moves rather
+    # than re-flowing under the reader.
+    base = thin(hist, DENSITY[1][0])
+    nb = len(base)
+    step = max(1, -(-nb * 34 // max(int(pw), 1)))
+    lab_k = sorted({0, nb - 1} | set(range(nb - 1, -1, -step)))
     prev_day = None
-    for i in sorted(keep):
+    for k in lab_k:
+        i = base[k]
         d = xs[i]
         if d.strftime("%d %b") != prev_day:
-            p.append(f'<text class="ax" x="{px(i):.1f}" y="{T+ph+18:.0f}" '
-                     f'text-anchor="middle">{d:%d %b}</text>')
+            p.append(f'<text class="ax" x="{L + (pw/2 if nb==1 else pw*k/(nb-1)):.1f}" '
+                     f'y="{T+ph+18:.0f}" text-anchor="middle">{d:%d %b}</text>')
             prev_day = d.strftime("%d %b")
-        p.append(f'<text class="ax dim" x="{px(i):.1f}" y="{T+ph+32:.0f}" '
-                 f'text-anchor="middle">{d:%H:%M}</text>')
+        p.append(f'<text class="ax dim" x="{L + (pw/2 if nb==1 else pw*k/(nb-1)):.1f}" '
+                 f'y="{T+ph+32:.0f}" text-anchor="middle">{d:%H:%M}</text>')
 
-    # model spread as vertical range bars — uncertainty at each forecast run
-    for si, (label, _) in enumerate(NIGHTS):
-        for i, e in enumerate(hist):
-            r = mrange(e["nights"][label])
-            if not r:
+    # One group per density level; CSS shows the selected one. The data is identical in
+    # each — only how many readings get drawn changes — so nothing is lost by thinning,
+    # and the range bars are dropped above the coarsest level because at 86 readings they
+    # are the element that turns the plot into a hedge.
+    for di, (mins, _lab) in enumerate(DENSITY):
+        keep = thin(hist, mins)
+        m = len(keep)
+
+        def kx(k):
+            return L + (pw / 2 if m == 1 else pw * k / (m - 1))
+
+        p.append(f'<g class="dens d{di}">')
+        # Range bars only where they can be read. At 86 readings they overlap into a
+        # grey wash that hides the very lines they are meant to qualify — which is the
+        # problem the slider exists to solve, so drawing them there defeats it.
+        # Only where there is room. At 35 readings the bars still overwhelm the lines
+        # they are meant to qualify — the spreads really do run 0-100, so drawing them
+        # boldly turns the plot into a solid block of colour and hides the trend.
+        if m <= 20:
+            for si, (label, _) in enumerate(NIGHTS):
+                for k, i in enumerate(keep):
+                    r = mrange(hist[i]["nights"][label])
+                    if not r:
+                        continue
+                    lo, hi, _ = r
+                    off = (si - 1) * 4
+                    p.append(f'<line class="rng{si}" x1="{kx(k)+off:.1f}" y1="{py(lo):.1f}" '
+                             f'x2="{kx(k)+off:.1f}" y2="{py(hi):.1f}"/>')
+        for si, (label, _) in enumerate(NIGHTS):
+            pts = [(k, consensus(hist[i]["nights"][label])[0])
+                   for k, i in enumerate(keep) if consensus(hist[i]["nights"][label])]
+            if not pts:
                 continue
-            lo, hi, _ = r
-            off = (si - 1) * 4          # nudge so the three don't overlap exactly
-            p.append(f'<line class="rng{si}" x1="{px(i)+off:.1f}" y1="{py(lo):.1f}" '
-                     f'x2="{px(i)+off:.1f}" y2="{py(hi):.1f}"/>')
-
-    # series
-    for si, (label, _) in enumerate(NIGHTS):
-        pts = [(i, consensus(e["nights"][label])[0]) for i, e in enumerate(hist)
-               if consensus(e["nights"][label])]
-        if not pts:
-            continue
-        dash = SERIES[si][2]
-        da = '' if dash == "none" else f' stroke-dasharray="{dash}"'
-        if len(pts) > 1:
-            d = " ".join(f"{'M' if k == 0 else 'L'}{px(i):.1f},{py(v):.1f}"
-                         for k, (i, v) in enumerate(pts))
-            p.append(f'<path class="s{si}" d="{d}" fill="none"{da}/>')
-        for i, v in pts:
-            p.append(f'<circle class="s{si} dot" cx="{px(i):.1f}" cy="{py(v):.1f}" r="4.5"/>')
-        li, lv = pts[-1]
-        p.append(f'<text class="s{si} lab" x="{px(li)+12:.1f}" y="{py(lv)+4:.1f}">'
-                 f'{label} · {lv}%</text>')
+            dash = SERIES[si][2]
+            da = '' if dash == "none" else f' stroke-dasharray="{dash}"'
+            if len(pts) > 1:
+                d = " ".join(f"{'M' if q == 0 else 'L'}{kx(k):.1f},{py(v):.1f}"
+                             for q, (k, v) in enumerate(pts))
+                p.append(f'<path class="s{si}" d="{d}" fill="none"{da}/>')
+            r_ = 4.5 if m <= 40 else 3.0
+            for k, v in pts:
+                p.append(f'<circle class="s{si} dot" cx="{kx(k):.1f}" cy="{py(v):.1f}" '
+                         f'r="{r_}"/>')
+            lk, lv = pts[-1]
+            p.append(f'<text class="s{si} lab" x="{kx(lk)+12:.1f}" y="{py(lv)+4:.1f}">'
+                     f'{label} · {lv}%</text>')
+        p.append("</g>")
 
     p.append(f'<line class="axis" x1="{L}" y1="{T+ph}" x2="{L+pw}" y2="{T+ph}"/>')
     p.append("</svg>")
-    return "\n".join(p)
+
+    opts = "".join(f'<option value="{i}">{lab}</option>' for i, (_, lab) in enumerate(DENSITY))
+    counts = [len(thin(hist, mn)) for mn, _ in DENSITY]
+    return ('<div class="chartwrap" data-dens="1">' + "\n".join(p)
+            + '<div class="densrow"><label for="densSel">Detail</label>'
+              f'<input id="densSel" type="range" min="0" max="{len(DENSITY)-1}" value="1" '
+              f'step="1" list="densTicks" aria-label="How many readings to plot">'
+              f'<datalist id="densTicks">{opts}</datalist>'
+              f'<span class="densnow" data-counts="{",".join(str(c) for c in counts)}">'
+              f'{counts[1]} of {len(hist)} readings</span></div></div>')
 
 
 def members(nd, late=False):
@@ -2741,9 +2800,9 @@ svg{{width:100%;height:auto;display:block}}
 .corelab{{fill:var(--accent);font-family:var(--mono);font-size:7px;letter-spacing:.12em}}
 .latebox{{fill:none;stroke:var(--s2);stroke-width:1.5;opacity:.75;stroke-dasharray:3 2}}
 .lateboxlab{{fill:var(--s2)}}
-.rng0{{stroke:var(--s0);stroke-width:5;opacity:.22;stroke-linecap:round}}
-.rng1{{stroke:var(--s1);stroke-width:5;opacity:.22;stroke-linecap:round}}
-.rng2{{stroke:var(--s2);stroke-width:5;opacity:.22;stroke-linecap:round}}
+.rng0{{stroke:var(--s0);stroke-width:3;opacity:.13;stroke-linecap:round}}
+.rng1{{stroke:var(--s1);stroke-width:3;opacity:.13;stroke-linecap:round}}
+.rng2{{stroke:var(--s2);stroke-width:3;opacity:.13;stroke-linecap:round}}
 path.s0{{stroke:var(--s0);stroke-width:2;stroke-linejoin:round;stroke-linecap:round}}
 path.s1{{stroke:var(--s1);stroke-width:2;stroke-linejoin:round;stroke-linecap:round}}
 path.s2{{stroke:var(--s2);stroke-width:2;stroke-linejoin:round;stroke-linecap:round}}
@@ -2783,6 +2842,15 @@ td.trail{{font-family:var(--mono);font-size:1rem;letter-spacing:.12em}}
   font-family:var(--mono);font-size:.76rem}}
 .vk{{color:var(--ink);white-space:nowrap}}
 .vv{{color:var(--muted)}}
+.chartwrap{{position:relative}}
+.chartwrap .dens{{display:none}}
+.chartwrap[data-dens="0"] .d0,.chartwrap[data-dens="1"] .d1,
+.chartwrap[data-dens="2"] .d2,.chartwrap[data-dens="3"] .d3{{display:block}}
+.densrow{{display:flex;align-items:center;gap:.6rem;margin:.1rem 0 .2rem;
+  font-family:var(--mono);font-size:.66rem;color:var(--muted)}}
+.densrow label{{letter-spacing:.08em;text-transform:uppercase}}
+.densrow input[type=range]{{flex:0 1 12rem;accent-color:var(--accent)}}
+.densnow{{font-variant-numeric:tabular-nums}}
 .scroll{{overflow-x:auto}}
 @media (prefers-reduced-motion:reduce){{*{{transition:none!important}}}}
 </style>
@@ -2971,6 +3039,19 @@ td.trail{{font-family:var(--mono);font-size:1rem;letter-spacing:.12em}}
       if(document.hidden){{ if(timer){{ stop(); play.dataset.resume='1'; }} }}
       else if(play.dataset.resume){{ delete play.dataset.resume; start(); }}
     }});
+  }}
+
+  // trend chart detail slider — swaps which pre-rendered density group is visible
+  var ds=document.getElementById('densSel');
+  if(ds){{
+    var wrap=ds.closest('.chartwrap'), now=wrap.querySelector('.densnow'),
+        counts=(now.getAttribute('data-counts')||'').split(',');
+    var apply=function(){{
+      wrap.setAttribute('data-dens', ds.value);
+      var lab=document.querySelector('#densTicks option[value="'+ds.value+'"]');
+      now.textContent=counts[ds.value]+' readings · '+(lab?lab.textContent:'');
+    }};
+    ds.addEventListener('input',apply); apply();
   }}
 
   var r=document.documentElement,t=document.getElementById('theme'),n=document.getElementById('night');
