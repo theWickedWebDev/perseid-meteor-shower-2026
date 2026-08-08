@@ -91319,8 +91319,8 @@
   "grid": "GYX 28,125",
   "trip": {
    "per": {
-    "Night 1": 44,
-    "Night 2": 43,
+    "Night 1": 41,
+    "Night 2": 47,
     "Night 3": 20
    },
    "joint": 80,
@@ -91329,11 +91329,11 @@
     {
      "thr": 40,
      "word": "sucker holes",
-     "joint": 87,
+     "joint": 84,
      "per": {
-      "Night 1": 52,
-      "Night 2": 50,
-      "Night 3": 30
+      "Night 1": 49,
+      "Night 2": 52,
+      "Night 3": 27
      }
     },
     {
@@ -91341,45 +91341,45 @@
      "word": "shootable",
      "joint": 80,
      "per": {
-      "Night 1": 44,
-      "Night 2": 43,
+      "Night 1": 41,
+      "Night 2": 47,
       "Night 3": 20
      }
     },
     {
      "thr": 20,
      "word": "genuinely good",
-     "joint": 68,
+     "joint": 67,
      "per": {
-      "Night 1": 31,
-      "Night 2": 35,
-      "Night 3": 18
+      "Night 1": 29,
+      "Night 2": 39,
+      "Night 3": 17
      }
     },
     {
      "thr": 10,
      "word": "excellent",
-     "joint": 49,
+     "joint": 48,
      "per": {
-      "Night 1": 21,
-      "Night 2": 17,
-      "Night 3": 17
+      "Night 1": 20,
+      "Night 2": 19,
+      "Night 3": 16
      }
     },
     {
      "thr": 5,
      "word": "pristine",
-     "joint": 35,
+     "joint": 33,
      "per": {
       "Night 1": 13,
       "Night 2": 15,
-      "Night 3": 11
+      "Night 3": 10
      }
     }
    ],
-   "indep": 74,
-   "floor": 44,
-   "corr": -0.081,
+   "indep": 75,
+   "floor": 47,
+   "corr": -0.043,
    "sources": {
     "GEFS": 31,
     "ECMWF ENS": 51,
@@ -91416,9 +91416,9 @@
    "Lead-up 07": {
     "fog_hours": 0,
     "hours": 8,
-    "worst_hr": "00:00",
-    "spread": 4.3,
-    "wind": 5.0,
+    "worst_hr": "06:00",
+    "spread": 2.2,
+    "wind": 5.6,
     "worst_is_fog": false,
     "aod": 0.37,
     "pm25": 10.7
