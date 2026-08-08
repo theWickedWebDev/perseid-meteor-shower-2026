@@ -53,7 +53,21 @@ NO_CONSENSUS = 40
 # one. The count of such votes is the single best predictor measured here — see
 # FORECAST_FINDINGS.md. Deliberately well under GO: the question is not "does this model
 # think the night is shootable" but "does it think there is no cloud at all".
-CLEAR_VOTE = 10           # spread at or above this and no median is worth a verdict;
+CLEAR_VOTE = 10
+# The two lowest-error sources measured at this site: AIFS 13.2 mean error and ECMWF 20.5
+# over 558 core-window readings. Marked on the dot chart so it does not read as seven equal
+# votes. Re-derive from skill.json rather than trusting this list once the sample grows.
+TOP_MODELS = {"AIFS", "ECMWF"}
+# Excluded from the TREND CHART'S RANGE BARS ONLY — never from the consensus, the cards or
+# the dot chart. GFS runs 29 points wet at this site and pins 100 whenever any single cloud
+# layer saturates; GEM has the worst measured error of the set; UKMO the worst on the larger
+# sample. Between them they held the bars at full height on almost every reading, which hid
+# whether the models anyone trusts were converging.
+#
+# This is a presentation choice and a dangerous one: dropping sources makes uncertainty LOOK
+# smaller without making it smaller. The footnote under the chart says so, and the dot chart
+# immediately below still shows every source at full spread.
+BAR_EXCLUDE = {"GFS", "GEM", "UKMO"}           # spread at or above this and no median is worth a verdict;
                             # matches the "no consensus" label on the agreement chart
 
 # Second opinion: Open-Meteo exposes individual models rather than a blend. ECMWF is the
@@ -702,7 +716,7 @@ def svg_chart(hist):
         if m <= 20:
             for si, (label, _) in enumerate(NIGHTS):
                 for k, i in enumerate(keep):
-                    r = mrange(hist[i]["nights"][label])
+                    r = mrange_trusted(hist[i]["nights"][label])
                     if not r:
                         continue
                     lo, hi, _ = r
@@ -854,6 +868,18 @@ def mrange(nd, late=False):
     return None if c is None else (c[1], c[2], c[3])
 
 
+def mrange_trusted(nd):
+    """Min and max across the sources NOT in BAR_EXCLUDE. Trend-chart bars only.
+
+    Returns None when fewer than three survive, rather than drawing a bar across two
+    points and calling it a range.
+    """
+    ms = {k: v for k, v in (nd.get("models") or {}).items() if k not in BAR_EXCLUDE}
+    if len(ms) < 3:
+        return None
+    return min(ms.values()), max(ms.values()), len(ms)
+
+
 def agreement_svg(latest):
     """Small multiples: where each model sits for each night, and how wide the spread is.
 
@@ -923,8 +949,10 @@ def agreement_svg(latest):
                 p.append(f'<line class="lead" x1="{px_:.1f}" y1="{y-7}" x2="{px_:.1f}" y2="{ly+3}"/>')
             if tv:
                 p.append(f'<line class="lead" x1="{px_:.1f}" y1="{y+7}" x2="{px_:.1f}" y2="{vy-8}"/>')
-            p.append(f'<circle class="mdot" cx="{px_:.1f}" cy="{y}" r="5"/>')
-            p.append(f'<text class="mlab" x="{px_:.1f}" y="{ly}" text-anchor="middle">{name}</text>')
+            best = " top" if name in TOP_MODELS else ""
+            p.append(f'<circle class="mdot{best}" cx="{px_:.1f}" cy="{y}" r="5"/>')
+            p.append(f'<text class="mlab{best}" x="{px_:.1f}" y="{ly}" '
+                     f'text-anchor="middle">{name}</text>')
             p.append(f'<text class="mval" x="{px_:.1f}" y="{vy}" text-anchor="middle">{v}</text>')
 
         c = consensus(nd)
@@ -2819,6 +2847,8 @@ td.better{{color:var(--good);font-weight:600}} td.worse{{color:var(--bad);font-w
 .val{{font-weight:600}}
 .rng{{stroke:var(--muted);stroke-width:3;stroke-linecap:round;opacity:.45}}
 .mdot{{fill:var(--accent);stroke:var(--surface);stroke-width:2}}
+.mdot.top{{fill:var(--s0)}}
+.mlab.top{{fill:var(--s0);font-weight:700}}
 .lead{{stroke:var(--rule);stroke-width:1}}
 .nws{{fill:none;stroke:var(--ink);stroke-width:2}}
 .nlab{{fill:var(--ink);font-family:var(--mono);font-size:11px;font-weight:600}}
@@ -2878,8 +2908,18 @@ td.trail{{font-family:var(--mono);font-size:1rem;letter-spacing:.12em}}
 
   <div class="card">
     {svg_chart(hist)}
-    <p class="note">Lower is better. Dot &amp; line = consensus · pale bar = source spread.
+    <p class="note">Lower is better. Dot &amp; line = consensus of <b>all</b> sources ·
+    pale bar = spread across the trusted subset.
     <b style="color:var(--ink)">Bars getting shorter = consensus forming.</b></p>
+    <p class="note"><b>Why the bars exclude three sources.</b> GFS, GEM and UKMO are dropped
+    from the <em>bars only</em> — never from the consensus line, the cards or the chart
+    below. GFS forecasts 29 points more cloud than verifies here and pins 100% whenever a
+    single cloud layer saturates; GEM has the worst measured error of the set and UKMO the
+    worst on the larger sample. Between them they held the bars at full height on nearly
+    every reading, which hid whether the sources worth trusting were converging.
+    <b>This makes uncertainty look smaller without making it smaller</b> — the dot chart
+    below still shows every source at full spread, and that is the honest picture.
+    <a href="findings.html#waiting">The measurements →</a></p>
   </div>
 
   <!-- Directly under the trend: that chart shows the consensus moving over time,
@@ -2888,7 +2928,9 @@ td.trail{{font-family:var(--mono);font-size:1rem;letter-spacing:.12em}}
   <h2>Do the models agree?</h2>
   <div class="card">
     <div>{agreement_svg(latest)}</div>
-    <p class="note">Dots = each source · bar = range · ◇ = consensus median · shaded = under {GO}%</p>
+    <p class="note">Dots = each source · bar = range · ◇ = consensus median · shaded = under {GO}%.
+    <b style="color:var(--s0)">Blue</b> marks the two lowest-error sources measured here —
+    AIFS and ECMWF. <a href="findings.html#waiting">Why →</a></p>
     {agreement_scale()}
   </div>
 
