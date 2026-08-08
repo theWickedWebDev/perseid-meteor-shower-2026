@@ -2882,6 +2882,16 @@ td.trail{{font-family:var(--mono);font-size:1rem;letter-spacing:.12em}}
     <b style="color:var(--ink)">Bars getting shorter = consensus forming.</b></p>
   </div>
 
+  <!-- Directly under the trend: that chart shows the consensus moving over time,
+       this shows what the consensus is made of right now. Read apart, they invite
+       treating the line as a forecast rather than as a median of a wide spread. -->
+  <h2>Do the models agree?</h2>
+  <div class="card">
+    <div>{agreement_svg(latest)}</div>
+    <p class="note">Dots = each source · bar = range · ◇ = consensus median · shaded = under {GO}%</p>
+    {agreement_scale()}
+  </div>
+
   <h2>How much each night has moved</h2>
   <div class="card"><div class="scroll">{delta_table(hist)}</div></div>
 
@@ -2892,13 +2902,6 @@ td.trail{{font-family:var(--mono);font-size:1rem;letter-spacing:.12em}}
     <p class="lede">Darker = more cloud. Rows are sources.</p>
     <div style="margin-top:1.2rem" class="scroll">{hourly_strips(latest)}</div>
     <p class="note">EDT, 6 PM–7 AM. Amber box = core window. Dashed = no data.</p>
-  </div>
-
-  <h2>Do the models agree?</h2>
-  <div class="card">
-    <div>{agreement_svg(latest)}</div>
-    <p class="note">Dots = each source · bar = range · ◇ = consensus median · shaded = under {GO}%</p>
-    {agreement_scale()}
   </div>
 
   <h2>Calibration — the nights before the trip</h2>
