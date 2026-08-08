@@ -271,6 +271,46 @@ worst. Directional at best until the sample contains clear nights.
 ---
 
 
+### The count of clear votes beats the median
+
+Measured over 717 night-hours at leads 3–6, with all four models present. Grouped by how
+many of them put the core window under 10% cloud:
+
+| sources under 10% | n | turned out clear (<20%) | median outcome |
+|---|---|---|---|
+| 0 | 388 | 37% | 57% |
+| 1 | 178 | 61% | 3% |
+| 2 | 97 | 67% | 0% |
+| 3 | 39 | **95%** | 0% |
+| 4 | 15 | 93% | 0% |
+
+Against the same data grouped by the median forecast:
+
+| median | n | turned out clear |
+|---|---|---|
+| 0–20% | 117 | 85% |
+| 21–40% | 90 | 60% |
+| 41–60% | 116 | 57% |
+| 61–80% | 104 | 53% |
+| 81–100% | 279 | 30% |
+
+The median barely separates 21–40% from 61–80% — three points across a sixty-point range of
+forecasts. The vote count runs 37 → 61 → 67 → 95.
+
+The reason is the U-shaped distribution of cloud cover. Over 930 August nights here, 67% land
+at one extreme or the other and only 10% fall in the 41–60% band. A middling median is not a
+prediction of middling cloud; it is two incompatible scenarios averaging to a value that
+rarely occurs. What the vote count measures is how much of the ensemble has committed to the
+clear branch, which is the branch you care about.
+
+**Why 10% and not the 30% GO threshold.** The question is not "does this model think the
+night is shootable" but "does it think there is no cloud at all". A model at 25% is hedging;
+a model at 5% has picked a side.
+
+Caveats: one summer, one site, and scored against each model's own day-0 analysis rather
+than an observation. The n=39 cell carrying the 95% figure is the smallest and the most
+quoted, which is the usual way to be wrong.
+
 ### How often it is right, on a much larger sample
 
 The measurements above score against the satellite, which is the honest reference and caps

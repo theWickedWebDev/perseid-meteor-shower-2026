@@ -165,6 +165,15 @@ Sep 12   dark 20:43, core 12.4° → below 10° at 21:15    32 min</pre></div>
 <blockquote><b>This also corrects earlier advice.</b> The site originally said to weight ECMWF throughout. It now says AIFS at range, ECMWF inside three days.</blockquote>
 <p><b>Read this ranking with suspicion.</b> The correlation between &quot;forecasts more cloud&quot; and &quot;scores well&quot; is <b>−0.42</b> on this sample, so it is partly ranking pessimism rather than skill: on an overcast week the gloomiest model wins on error alone. AIFS, ECMWF and UKMO happen to sit nearest the truth mean of 77%; JMA and GEM are the optimistic ones and score worst. Directional at best until the sample contains clear nights.</p>
 <hr>
+<h3 id="the-count-of-clear-votes-beats-the-median">The count of clear votes beats the median</h3>
+<p>Measured over 717 night-hours at leads 3–6, with all four models present. Grouped by how many of them put the core window under 10% cloud:</p>
+<div class="scroll"><table><thead><tr><th>sources under 10%</th><th>n</th><th>turned out clear (&lt;20%)</th><th>median outcome</th></tr></thead><tbody><tr><td>0</td><td>388</td><td>37%</td><td>57%</td></tr><tr><td>1</td><td>178</td><td>61%</td><td>3%</td></tr><tr><td>2</td><td>97</td><td>67%</td><td>0%</td></tr><tr><td>3</td><td>39</td><td><b>95%</b></td><td>0%</td></tr><tr><td>4</td><td>15</td><td>93%</td><td>0%</td></tr></tbody></table></div>
+<p>Against the same data grouped by the median forecast:</p>
+<div class="scroll"><table><thead><tr><th>median</th><th>n</th><th>turned out clear</th></tr></thead><tbody><tr><td>0–20%</td><td>117</td><td>85%</td></tr><tr><td>21–40%</td><td>90</td><td>60%</td></tr><tr><td>41–60%</td><td>116</td><td>57%</td></tr><tr><td>61–80%</td><td>104</td><td>53%</td></tr><tr><td>81–100%</td><td>279</td><td>30%</td></tr></tbody></table></div>
+<p>The median barely separates 21–40% from 61–80% — three points across a sixty-point range of forecasts. The vote count runs 37 → 61 → 67 → 95.</p>
+<p>The reason is the U-shaped distribution of cloud cover. Over 930 August nights here, 67% land at one extreme or the other and only 10% fall in the 41–60% band. A middling median is not a prediction of middling cloud; it is two incompatible scenarios averaging to a value that rarely occurs. What the vote count measures is how much of the ensemble has committed to the clear branch, which is the branch you care about.</p>
+<p><b>Why 10% and not the 30% GO threshold.</b> The question is not &quot;does this model think the night is shootable&quot; but &quot;does it think there is no cloud at all&quot;. A model at 25% is hedging; a model at 5% has picked a side.</p>
+<p>Caveats: one summer, one site, and scored against each model&#x27;s own day-0 analysis rather than an observation. The n=39 cell carrying the 95% figure is the smallest and the most quoted, which is the usual way to be wrong.</p>
 <h3 id="how-often-it-is-right-on-a-much-larger-sample">How often it is right, on a much larger sample</h3>
 <p>The measurements above score against the satellite, which is the honest reference and caps the sample at the nights the satellite has watched. A second pass trades reference quality for volume: 92 days of Open-Meteo previous runs, every model, core hours only, scored against each model&#x27;s own day-0 value for the same hour. Over a thousand readings per lead instead of a few dozen.</p>
 <p>That reference is an analysis rather than an observation, so it measures how far a forecast <b>moves</b> between issue and arrival, not how wrong it finally is. Bigger sample, weaker truth. Both numbers are worth having and neither replaces the other.</p>
@@ -250,7 +259,7 @@ Aug 06   0.30      Aug 08   0.17</pre></div>
 <div class="foot">
   <a href="forecast.html">← Back to the forecast</a> ·
   generated from <span style="font-family:var(--mono)">FORECAST_FINDINGS.md</span>,
-  last edited Wed 05 Aug 2026, 15:35 EDT
+  last edited Sat 08 Aug 2026, 09:29 EDT
 </div>
 </div>
 <script>

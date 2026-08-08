@@ -48,7 +48,12 @@ CORE_UP_MIN = 10.0          # deg. Below this the core is in the treeline, so a 
                             # flux reading is geometry, not weather — see nightwatch_section
 SCORE_MIN_N = 12            # scored webcam frames before the model ranking means anything
 SCORE_MIN_SPREAD = 30       # ...and they must span this much cloud, or every model wins
-NO_CONSENSUS = 40           # spread at or above this and no median is worth a verdict;
+NO_CONSENSUS = 40
+# A source below this is voting for a genuinely clear night rather than a merely workable
+# one. The count of such votes is the single best predictor measured here — see
+# FORECAST_FINDINGS.md. Deliberately well under GO: the question is not "does this model
+# think the night is shootable" but "does it think there is no cloud at all".
+CLEAR_VOTE = 10           # spread at or above this and no median is worth a verdict;
                             # matches the "no consensus" label on the agreement chart
 
 # Second opinion: Open-Meteo exposes individual models rather than a blend. ECMWF is the
@@ -876,6 +881,18 @@ def agreement_svg(latest):
         cls = "good" if iqr < 20 else "warn" if iqr < NO_CONSENSUS else "bad"
         p.append(f'<text class="spread {cls}" x="{W-112}" y="{y-2}">±{iqr}</text>')
         p.append(f'<text class="spreadlab {cls}" x="{W-112}" y="{y+12}">{verd}</text>')
+
+        # How many sources have committed to a genuinely clear night. This turns out to
+        # predict the outcome far better than the median does — at leads 3-6 a night with
+        # three sources under 10% came in clear 95% of the time, against 37% when none
+        # did, while the median barely separates 21-40% from 61-80%. The chart already
+        # showed it as a cluster of dots at the left edge; nothing told the reader that
+        # the cluster mattered more than the diamond.
+        nlow = sum(1 for v in mods.values() if v < CLEAR_VOTE)
+        if nlow:
+            lc = "good" if nlow >= 3 else "warn" if nlow >= 1 else "dim"
+            p.append(f'<text class="votes {lc}" x="{W-112}" y="{y+26}">'
+                     f'{nlow} under {CLEAR_VOTE}%</text>')
     p.append("</svg>")
     return "\n".join(p)
 
@@ -2750,6 +2767,7 @@ td.better{{color:var(--good);font-weight:600}} td.worse{{color:var(--bad);font-w
 .mval{{fill:var(--body);font-family:var(--mono);font-size:10px;font-variant-numeric:tabular-nums}}
 .spread{{font-family:var(--mono);font-size:15px;font-weight:700;font-variant-numeric:tabular-nums}}
 .spreadlab{{font-family:var(--mono);font-size:8.5px;letter-spacing:.1em;text-transform:uppercase}}
+.votes{{font-size:9px;letter-spacing:.06em;font-family:var(--mono)}}
 text.good{{fill:var(--good)}} text.warn{{fill:var(--warn)}} text.bad{{fill:var(--bad)}}
 .delta{{display:inline-block;margin-left:.4rem;font-size:.76rem;font-weight:600;
   letter-spacing:.02em}}
