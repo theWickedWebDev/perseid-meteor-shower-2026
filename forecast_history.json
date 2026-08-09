@@ -114565,9 +114565,9 @@
    "Lead-up 08": {
     "fog_hours": 0,
     "hours": 8,
-    "worst_hr": "03:00",
-    "spread": 2.2,
-    "wind": 5.1,
+    "worst_hr": "04:00",
+    "spread": 2.3,
+    "wind": 6.2,
     "worst_is_fog": false,
     "aod": 0.25,
     "pm25": 3.4
