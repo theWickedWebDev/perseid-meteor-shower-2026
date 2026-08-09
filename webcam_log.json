@@ -1950,5 +1950,24 @@
    "ICON": 70,
    "GEM": 5
   }
+ },
+ {
+  "time": "2026-08-09T02:00:00-04:00",
+  "cloud": null,
+  "night": true,
+  "stats": {
+   "lum": 23.1,
+   "lum_sd": 19.4,
+   "lum_p90": 26.0,
+   "sat": 0.0,
+   "rb": 1.0
+  },
+  "shot": "webcam/2026-08-09T02.jpg",
+  "models": {
+   "ECMWF": 100,
+   "GFS": 100,
+   "ICON": 96,
+   "GEM": 63
+  }
  }
 ]
