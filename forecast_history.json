@@ -134815,9 +134815,9 @@
    "Lead-up 09": {
     "fog_hours": 0,
     "hours": 14,
-    "worst_hr": "07:00",
-    "spread": 4.9,
-    "wind": 7.3,
+    "worst_hr": "06:00",
+    "spread": 4.0,
+    "wind": 7.8,
     "worst_is_fog": false,
     "aod": 0.98,
     "pm25": 7.2
