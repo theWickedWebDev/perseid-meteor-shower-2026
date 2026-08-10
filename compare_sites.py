@@ -110,6 +110,12 @@ def ensemble(lat, lon):
 FOCUS = {"name": "Mt Major", "lat": 43.5133, "lon": -71.2883, "night": "Night 1",
          "elev": 536, "walk": "1.5 mi round trip, ~1,100 ft",
          "terrain": "-0.6 deg south, 360 deg open ledges, worst 0.7 deg (W)"}
+# The same panel for home, so the drive can be judged against not driving. Coordinates come
+# from the command line and are deliberately NOT printed — the panel takes show_coords.
+HOME_FOCUS = {"name": "Home", "night": "Night 1", "elev": None, "eyebrow": "the alternative",
+              "walk": "no drive, no walk",
+              "terrain": "whatever your actual horizon is — not measured",
+              "show_coords": False}
 FOCUS_HRS = [19, 20, 21, 22, 23, 0, 1, 2, 3]
 
 
@@ -152,7 +158,7 @@ def focus_wx(lat, lon, day, nxt):
     return out
 
 
-def focus_sky(lat, lon, day, nxt):
+def focus_sky(lat, lon, day, nxt, elev=None):
     """Sun, core and Perseid radiant through the night. Returns (events, rows)."""
     try:
         from astropy.coordinates import SkyCoord, EarthLocation, AltAz, get_sun, get_body
@@ -161,7 +167,8 @@ def focus_sky(lat, lon, day, nxt):
         import numpy as np
     except Exception:
         return None, None
-    loc = EarthLocation(lat=lat * u.deg, lon=lon * u.deg, height=FOCUS["elev"] * u.m)
+    loc = EarthLocation(lat=lat * u.deg, lon=lon * u.deg,
+                        height=(elev if elev is not None else FOCUS["elev"]) * u.m)
     core = SkyCoord(ra=266.4 * u.deg, dec=-29.0 * u.deg)
     rad = SkyCoord(ra=(3 + 13 / 60) * 15 * u.deg, dec=58 * u.deg)
     ts = Time(f"{day} 18:00:00") + 4 * u.hour + np.arange(0, 660, 5) * u.min
@@ -235,6 +242,8 @@ td b{color:var(--ink);font-size:1.05rem}
 .focus{background:var(--surface);border:1px solid var(--rule);border-left:3px solid var(--accent);
   border-radius:5px;padding:1.1rem 1.2rem 1.3rem;margin:.6rem 0 2.4rem}
 .focus h1{margin:.1rem 0 .2rem}
+.focus.alt{border-left-color:var(--muted);margin-top:-1.4rem}
+.focus.alt h1{font-size:1.25rem}
 .focus h3{color:var(--ink);font-size:.74rem;font-family:var(--mono);letter-spacing:.08em;
   text-transform:uppercase;margin:1.4rem 0 .5rem}
 .focus .sub{font-family:var(--mono);font-size:.72rem;color:var(--muted);margin:0 0 .8rem;
@@ -256,21 +265,26 @@ td.c3{background:rgba(176,58,44,.28)}
 """
 
 
-def focus_panel():
-    """Everything about the one site on the one night, at the top of the page.
+def focus_panel(cfg=None, lat=None, lon=None):
+    """Everything about one site on one night.
 
     By the time the decision is a night away, a table of seven places is the wrong shape of
     information. This is the site the scouting actually converged on and the night it hangs
     on, with the two things you need standing there: when the sky does what, and where to
     point.
     """
-    label, day = next((l, d) for l, d in lf.NIGHTS if l == FOCUS["night"])
+    cfg = cfg or FOCUS
+    la = lat if lat is not None else cfg.get("lat")
+    lo = lon if lon is not None else cfg.get("lon")
+    if la is None or lo is None:
+        return ""
+    label, day = next((l, d) for l, d in lf.NIGHTS if l == cfg["night"])
     nxt = (datetime.strptime(day, "%Y-%m-%d") + timedelta(days=1)).strftime("%Y-%m-%d")
-    per = focus_hourly(FOCUS["lat"], FOCUS["lon"], day, nxt)
+    per = focus_hourly(la, lo, day, nxt)
     if not per:
         return ""
-    wx = focus_wx(FOCUS["lat"], FOCUS["lon"], day, nxt)
-    ev, sky = focus_sky(FOCUS["lat"], FOCUS["lon"], day, nxt)
+    wx = focus_wx(la, lo, day, nxt)
+    ev, sky = focus_sky(la, lo, day, nxt, elev=cfg.get("elev") or 100)
 
     hdr = "".join(f"<th>{hh:02d}</th>" for hh in FOCUS_HRS)
     body = ""
@@ -311,12 +325,18 @@ def focus_panel():
                   f'<span>moon {ev["moon"]}° from sun · <b>new</b></span></div>')
 
     d = datetime.strptime(day, "%Y-%m-%d")
+    bits = []
+    if cfg.get("show_coords", True):
+        bits.append(f"{la}, {lo}")
+    if cfg.get("elev"):
+        bits.append(f"{cfg['elev']} m")
+    bits.append(cfg["walk"])
+    eyebrow = cfg.get("eyebrow", "the plan")
     return f"""
-<div class="focus">
-<div class="eyebrow">the plan · {d:%A %d %B}</div>
-<h1>{FOCUS['name']}</h1>
-<p class="sub">{FOCUS['lat']}, {FOCUS['lon']} · {FOCUS['elev']} m · {FOCUS['walk']}<br>
-{FOCUS['terrain']}</p>
+<div class="focus{' alt' if not cfg.get('show_coords', True) else ''}">
+<div class="eyebrow">{eyebrow} · {d:%A %d %B}</div>
+<h1>{cfg['name']}</h1>
+<p class="sub">{' · '.join(bits)}<br>{cfg['terrain']}</p>
 {evline}
 
 <h3>Cloud, hour by hour, every source</h3>
@@ -336,7 +356,7 @@ it sets. One composition, all night.</p>
 """
 
 
-def page(rows, cl, ch):
+def page(rows, cl, ch, home=None):
     """A local page. Never published — the point of it is a location that is not public."""
     def cell(x):
         if not x:
@@ -375,6 +395,7 @@ def page(rows, cl, ch):
 <title>Where to go</title><style>{CSS}</style></head><body><div class="wrap">
 <div class="eyebrow">local only · {datetime.now():%a %d %b %H:%M}</div>
 {focus_panel()}
+{focus_panel(HOME_FOCUS, *home) if home else ""}
 <h1>Everywhere else</h1>
 <p class="note">The same ensemble and the same core window, run at every candidate.</p>
 
@@ -469,7 +490,7 @@ def main():
         k = sys.argv.index("--html")
         path = (sys.argv[k + 1] if k + 1 < len(sys.argv)
                 and not sys.argv[k + 1].startswith("--") else "compare.html")
-        open(path, "w").write(page(rows, cl, ch))
+        open(path, "w").write(page(rows, cl, ch, home=(float(sys.argv[sys.argv.index("--lat") + 1]), float(sys.argv[sys.argv.index("--lon") + 1]))))
         import os
         print(f"  wrote {path} — file://{os.path.abspath(path)}")
     return 0
