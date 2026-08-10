@@ -22,7 +22,7 @@ is not, would home have been usable that night. It does not tell you home is "be
 import json
 import statistics as st
 import sys
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import log_forecast as lf
 
@@ -104,6 +104,90 @@ def ensemble(lat, lon):
     return {"per": per, "any": anyn}, len(rows)
 
 
+# The site the trip has actually converged on, and the night it hangs on. Rendered as a
+# panel at the top of the page rather than another row in the table: by the time a decision
+# is one night away, a comparison of seven places is the wrong shape of information.
+FOCUS = {"name": "Mt Major", "lat": 43.5133, "lon": -71.2883, "night": "Night 1",
+         "elev": 536, "walk": "1.5 mi round trip, ~1,100 ft",
+         "terrain": "-0.6 deg south, 360 deg open ledges, worst 0.7 deg (W)"}
+FOCUS_HRS = [19, 20, 21, 22, 23, 0, 1, 2, 3]
+
+
+def focus_hourly(lat, lon, day, nxt):
+    """Per-model cloud through the night at one site. {model: [by hour]}"""
+    out = {}
+    for key, name in MODELS:
+        try:
+            h = lf.get(f"https://api.open-meteo.com/v1/forecast?latitude={lat}"
+                       f"&longitude={lon}&hourly=cloud_cover,precipitation,temperature_2m"
+                       f"&models={key}&forecast_days=14&timezone=America%2FNew_York")["hourly"]
+        except Exception:
+            continue
+        col = next((k for k in h if k.startswith("cloud_cover")), None)
+        if not col:
+            continue
+        idx = {t: i for i, t in enumerate(h["time"])}
+        row = []
+        for hh in FOCUS_HRS:
+            k = f"{day if hh >= 12 else nxt}T{hh:02d}:00"
+            row.append(h[col][idx[k]] if k in idx else None)
+        out[name] = row
+    return out
+
+
+def focus_wx(lat, lon, day, nxt):
+    """Rain and temperature through the same hours, from the blended default."""
+    try:
+        h = lf.get(f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}"
+                   f"&hourly=precipitation,temperature_2m&forecast_days=14"
+                   f"&timezone=America%2FNew_York")["hourly"]
+    except Exception:
+        return {}
+    idx = {t: i for i, t in enumerate(h["time"])}
+    out = {}
+    for hh in FOCUS_HRS:
+        k = f"{day if hh >= 12 else nxt}T{hh:02d}:00"
+        if k in idx:
+            out[hh] = (h["precipitation"][idx[k]] or 0, h["temperature_2m"][idx[k]])
+    return out
+
+
+def focus_sky(lat, lon, day, nxt):
+    """Sun, core and Perseid radiant through the night. Returns (events, rows)."""
+    try:
+        from astropy.coordinates import SkyCoord, EarthLocation, AltAz, get_sun, get_body
+        from astropy.time import Time
+        import astropy.units as u
+        import numpy as np
+    except Exception:
+        return None, None
+    loc = EarthLocation(lat=lat * u.deg, lon=lon * u.deg, height=FOCUS["elev"] * u.m)
+    core = SkyCoord(ra=266.4 * u.deg, dec=-29.0 * u.deg)
+    rad = SkyCoord(ra=(3 + 13 / 60) * 15 * u.deg, dec=58 * u.deg)
+    ts = Time(f"{day} 18:00:00") + 4 * u.hour + np.arange(0, 660, 5) * u.min
+    aa = AltAz(obstime=ts, location=loc)
+    sun = get_sun(ts).transform_to(aa).alt.deg
+    calt = core.transform_to(aa).alt.deg
+
+    def when(mask):
+        i = np.argmax(mask)
+        return (ts[i] - 4 * u.hour).datetime.strftime("%H:%M") if mask.any() else "—"
+
+    ev = {"sunset": when(sun < -0.833), "civil": when(sun < -6),
+          "nautical": when(sun < -12), "astro": when(sun < -18),
+          "core_sets": when((calt < 10) & (ts > Time(f"{nxt} 01:00:00")))}
+    mn = get_body("moon", ts[0])
+    ev["moon"] = round(float(mn.separation(get_sun(ts[0])).deg))
+    rows = []
+    for hh in FOCUS_HRS:
+        t = Time(f"{day if hh >= 12 else nxt} {hh:02d}:30:00") + 4 * u.hour
+        a1 = core.transform_to(AltAz(obstime=t, location=loc))
+        a2 = rad.transform_to(AltAz(obstime=t, location=loc))
+        rows.append((hh, float(a1.alt.deg), float(a1.az.deg),
+                     float(a2.alt.deg), float(a2.az.deg)))
+    return ev, rows
+
+
 def climo(path, month=8, days=(11, 12, 13)):
     """The 30-year usable-night rate for these dates, if best_nights has been run."""
     try:
@@ -148,6 +232,107 @@ td b{color:var(--ink);font-size:1.05rem}
 .win{background:linear-gradient(transparent 62%,rgba(181,114,26,.22) 0)}
 .rules li{margin:.35rem 0}
 .rules b{color:var(--ink)}
+.focus{background:var(--surface);border:1px solid var(--rule);border-left:3px solid var(--accent);
+  border-radius:5px;padding:1.1rem 1.2rem 1.3rem;margin:.6rem 0 2.4rem}
+.focus h1{margin:.1rem 0 .2rem}
+.focus h3{color:var(--ink);font-size:.74rem;font-family:var(--mono);letter-spacing:.08em;
+  text-transform:uppercase;margin:1.4rem 0 .5rem}
+.focus .sub{font-family:var(--mono);font-size:.72rem;color:var(--muted);margin:0 0 .8rem;
+  line-height:1.6}
+.ev{display:flex;flex-wrap:wrap;gap:.9rem;font-family:var(--mono);font-size:.68rem;
+  color:var(--muted);padding:.5rem 0;border-top:1px solid var(--rule);
+  border-bottom:1px solid var(--rule)}
+.ev b{color:var(--ink)}
+table.grid{font-size:.72rem}
+table.grid td,table.grid th{padding:.28rem .35rem;text-align:center;border:0;
+  border-top:1px solid var(--rule)}
+table.grid td.mn{text-align:left;color:var(--muted);white-space:nowrap}
+table.grid td.mn.top{color:var(--ink);font-weight:700}
+table.grid tr.sum td{border-top:1px solid var(--ink);font-weight:600}
+td.c0{background:rgba(46,107,79,.20)}
+td.c1{background:rgba(181,114,26,.16)}
+td.c2{background:rgba(201,122,99,.22)}
+td.c3{background:rgba(176,58,44,.28)}
+"""
+
+
+def focus_panel():
+    """Everything about the one site on the one night, at the top of the page.
+
+    By the time the decision is a night away, a table of seven places is the wrong shape of
+    information. This is the site the scouting actually converged on and the night it hangs
+    on, with the two things you need standing there: when the sky does what, and where to
+    point.
+    """
+    label, day = next((l, d) for l, d in lf.NIGHTS if l == FOCUS["night"])
+    nxt = (datetime.strptime(day, "%Y-%m-%d") + timedelta(days=1)).strftime("%Y-%m-%d")
+    per = focus_hourly(FOCUS["lat"], FOCUS["lon"], day, nxt)
+    if not per:
+        return ""
+    wx = focus_wx(FOCUS["lat"], FOCUS["lon"], day, nxt)
+    ev, sky = focus_sky(FOCUS["lat"], FOCUS["lon"], day, nxt)
+
+    hdr = "".join(f"<th>{hh:02d}</th>" for hh in FOCUS_HRS)
+    body = ""
+    for m in sorted(per, key=lambda m: st.mean([x for x in per[m] if x is not None] or [999])):
+        cells = ""
+        for v in per[m]:
+            if v is None:
+                cells += "<td>—</td>"
+            else:
+                cls = "c0" if v <= 10 else "c1" if v <= 30 else "c2" if v <= 60 else "c3"
+                cells += f'<td class="{cls}">{v}</td>'
+        top = " top" if m in ("AIFS", "ECMWF") else ""
+        body += f'<tr><td class="mn{top}">{m}</td>{cells}</tr>'
+    med = low = ""
+    for k in range(len(FOCUS_HRS)):
+        v = [per[m][k] for m in per if per[m][k] is not None]
+        med += f"<td><b>{round(st.median(v))}</b></td>" if v else "<td>—</td>"
+        low += f"<td>{sum(1 for x in v if x < 10)}</td>" if v else "<td>—</td>"
+    body += f'<tr class="sum"><td class="mn">median</td>{med}</tr>'
+    body += f'<tr class="sum"><td class="mn">under 10%</td>{low}</tr>'
+
+    skyrows = ""
+    for hh, ca, caz, ra_, raz in (sky or []):
+        w = wx.get(hh)
+        if not w:
+            continue
+        c = f"{ca:.0f}° / {caz:.0f}°" if ca > 2 else '<span class="sp">set</span>'
+        skyrows += (f"<tr><td>{hh:02d}:30</td><td>{c}</td>"
+                    f"<td>{ra_:.0f}° / {raz:.0f}°</td>"
+                    f"<td>{w[1]:.0f}°C</td><td>{w[0]:.1f} mm</td></tr>")
+
+    evline = ""
+    if ev:
+        evline = (f'<div class="ev"><span><b>{ev["sunset"]}</b> sunset</span>'
+                  f'<span><b>{ev["nautical"]}</b> nautical</span>'
+                  f'<span><b>{ev["astro"]}</b> astronomical dark</span>'
+                  f'<span><b>{ev["core_sets"]}</b> core below 10°</span>'
+                  f'<span>moon {ev["moon"]}° from sun · <b>new</b></span></div>')
+
+    d = datetime.strptime(day, "%Y-%m-%d")
+    return f"""
+<div class="focus">
+<div class="eyebrow">the plan · {d:%A %d %B}</div>
+<h1>{FOCUS['name']}</h1>
+<p class="sub">{FOCUS['lat']}, {FOCUS['lon']} · {FOCUS['elev']} m · {FOCUS['walk']}<br>
+{FOCUS['terrain']}</p>
+{evline}
+
+<h3>Cloud, hour by hour, every source</h3>
+<div class="scroll"><table class="grid">
+<thead><tr><th></th>{hdr}</tr></thead><tbody>{body}</tbody></table></div>
+<p class="note">Green ≤10% · amber ≤30% · orange ≤60% · red above.
+<b>AIFS</b> and <b>ECMWF</b> are the two lowest-error sources measured at the lake.</p>
+
+<h3>Where to point</h3>
+<div class="scroll"><table class="grid">
+<thead><tr><th>time</th><th>core alt/az</th><th>radiant alt/az</th>
+<th>temp</th><th>rain</th></tr></thead><tbody>{skyrows}</tbody></table></div>
+<p class="note">Frame <b>south, 180–200°, about 40° up</b>. That is 130–160° off the
+radiant, so meteor trails are at their longest, and the core sits in the same frame until
+it sets. One composition, all night.</p>
+</div>
 """
 
 
@@ -189,7 +374,8 @@ def page(rows, cl, ch):
 <meta name="robots" content="noindex,nofollow">
 <title>Where to go</title><style>{CSS}</style></head><body><div class="wrap">
 <div class="eyebrow">local only · {datetime.now():%a %d %b %H:%M}</div>
-<h1>Where to go</h1>
+{focus_panel()}
+<h1>Everywhere else</h1>
 <p class="note">The same ensemble and the same core window, run at every candidate.</p>
 
 <h2>What the models say</h2>
