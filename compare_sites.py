@@ -29,8 +29,16 @@ import log_forecast as lf
 # AIFS was missing from this list for its whole life, which mattered: it is the
 # lowest-error source measured at the lake (13.2 mean error against GFS's 36.6), and the
 # focus panel was highlighting it as one of the two to trust while never fetching it.
+#
+# GFS is gfs_global, not gfs_seamless, and HRRR is listed separately. The "seamless"
+# feeds splice a high-resolution regional model over the first 48 hours and only fall back
+# to the global run beyond that, so inside CONUS at short lead gfs_seamless IS HRRR --
+# byte-identical, verified. Labelling that row "GFS" put the 3 km convective model on the
+# page under a global model's name and left the actual global GFS off it entirely. They
+# disagree substantially at this range, so that was one source presented as another, not a
+# cosmetic naming problem.
 MODELS = [("ecmwf_aifs025_single", "AIFS"), ("ecmwf_ifs025", "ECMWF"),
-          ("gfs_seamless", "GFS"), ("icon_seamless", "ICON"),
+          ("gfs_global", "GFS"), ("gfs_hrrr", "HRRR"), ("icon_seamless", "ICON"),
           ("gem_seamless", "GEM"), ("jma_seamless", "JMA"),
           ("gem_hrdps_continental", "HRDPS"), ("ukmo_seamless", "UKMO")]
 
