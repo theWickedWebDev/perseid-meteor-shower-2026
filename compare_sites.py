@@ -26,9 +26,13 @@ from datetime import datetime, timedelta
 
 import log_forecast as lf
 
-MODELS = [("ecmwf_ifs025", "ECMWF"), ("gfs_seamless", "GFS"), ("icon_seamless", "ICON"),
-          ("gem_seamless", "GEM"), ("jma_seamless", "JMA"), ("gem_hrdps_continental", "HRDPS"),
-          ("ukmo_seamless", "UKMO")]
+# AIFS was missing from this list for its whole life, which mattered: it is the
+# lowest-error source measured at the lake (13.2 mean error against GFS's 36.6), and the
+# focus panel was highlighting it as one of the two to trust while never fetching it.
+MODELS = [("ecmwf_aifs025_single", "AIFS"), ("ecmwf_ifs025", "ECMWF"),
+          ("gfs_seamless", "GFS"), ("icon_seamless", "ICON"),
+          ("gem_seamless", "GEM"), ("jma_seamless", "JMA"),
+          ("gem_hrdps_continental", "HRDPS"), ("ukmo_seamless", "UKMO")]
 
 # Public candidate sites, safe to keep in the file. Home is passed on the command line and
 # is never written anywhere. Order is north to south, which is also roughly darkest first.
