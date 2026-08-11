@@ -184662,67 +184662,67 @@
   "grid": "GYX 28,125",
   "trip": {
    "per": {
-    "Night 1": 80,
-    "Night 2": 17,
+    "Night 1": 85,
+    "Night 2": 12,
     "Night 3": 34
    },
-   "joint": 86,
+   "joint": 88,
    "n": 103,
    "ladder": [
     {
      "thr": 40,
      "word": "sucker holes",
-     "joint": 89,
+     "joint": 91,
      "per": {
-      "Night 1": 83,
-      "Night 2": 24,
+      "Night 1": 89,
+      "Night 2": 17,
       "Night 3": 39
      }
     },
     {
      "thr": 30,
      "word": "shootable",
-     "joint": 86,
+     "joint": 88,
      "per": {
-      "Night 1": 80,
-      "Night 2": 17,
+      "Night 1": 85,
+      "Night 2": 12,
       "Night 3": 34
      }
     },
     {
      "thr": 20,
      "word": "genuinely good",
-     "joint": 76,
+     "joint": 77,
      "per": {
-      "Night 1": 71,
-      "Night 2": 11,
+      "Night 1": 76,
+      "Night 2": 5,
       "Night 3": 28
      }
     },
     {
      "thr": 10,
      "word": "excellent",
-     "joint": 48,
+     "joint": 50,
      "per": {
-      "Night 1": 43,
-      "Night 2": 3,
+      "Night 1": 47,
+      "Night 2": 2,
       "Night 3": 17
      }
     },
     {
      "thr": 5,
      "word": "pristine",
-     "joint": 38,
+     "joint": 39,
      "per": {
-      "Night 1": 35,
-      "Night 2": 1,
-      "Night 3": 14
+      "Night 1": 37,
+      "Night 2": 0,
+      "Night 3": 13
      }
     }
    ],
-   "indep": 89,
-   "floor": 80,
-   "corr": 0.121,
+   "indep": 92,
+   "floor": 85,
+   "corr": 0.178,
    "sources": {
     "GEFS": 31,
     "ECMWF ENS": 51,
@@ -184849,7 +184849,7 @@
      },
      {
       "h": 17,
-      "pop": 6,
+      "pop": 7,
       "mm": 0.0,
       "t": 20.1,
       "cloud": 8,
@@ -184857,7 +184857,7 @@
      },
      {
       "h": 18,
-      "pop": 7,
+      "pop": 10,
       "mm": 0.0,
       "t": 19.8,
       "cloud": 3,
@@ -184865,7 +184865,7 @@
      },
      {
       "h": 19,
-      "pop": 8,
+      "pop": 14,
       "mm": 0.0,
       "t": 18.6,
       "cloud": 92,
@@ -184873,7 +184873,7 @@
      }
     ],
     "pop_max": 15,
-    "pop_mean": 7,
+    "pop_mean": 8,
     "rain_mm": 0.0,
     "wet_hours": 0,
     "wet_from": null,
@@ -184928,7 +184928,7 @@
      },
      {
       "h": 13,
-      "pop": 3,
+      "pop": 2,
       "mm": 0.0,
       "t": 18.9,
       "cloud": 100,
@@ -184936,7 +184936,7 @@
      },
      {
       "h": 14,
-      "pop": 4,
+      "pop": 3,
       "mm": 0.0,
       "t": 18.3,
       "cloud": 100,
@@ -184952,7 +184952,7 @@
      },
      {
       "h": 16,
-      "pop": 19,
+      "pop": 16,
       "mm": 0.0,
       "t": 16.3,
       "cloud": 100,
@@ -184960,7 +184960,7 @@
      },
      {
       "h": 17,
-      "pop": 14,
+      "pop": 9,
       "mm": 0.0,
       "t": 16.5,
       "cloud": 88,
@@ -184968,7 +184968,7 @@
      },
      {
       "h": 18,
-      "pop": 9,
+      "pop": 7,
       "mm": 0.0,
       "t": 17.0,
       "cloud": 4,
@@ -184976,15 +184976,15 @@
      },
      {
       "h": 19,
-      "pop": 11,
+      "pop": 8,
       "mm": 0.0,
       "t": 16.3,
       "cloud": 11,
       "code": 0
      }
     ],
-    "pop_max": 19,
-    "pop_mean": 6,
+    "pop_max": 16,
+    "pop_mean": 5,
     "rain_mm": 2.2,
     "wet_hours": 1,
     "wet_from": "15:00",
