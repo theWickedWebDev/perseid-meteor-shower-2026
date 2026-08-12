@@ -7680,5 +7680,40 @@
    "AIFS": 8,
    "JMA": 1
   }
+ },
+ {
+  "cloud_webcam": 0,
+  "slot": {
+   "near": 0,
+   "mid": 0,
+   "far": 0
+  },
+  "octants": {
+   "N": 0,
+   "NE": 0,
+   "E": 0,
+   "SE": 0,
+   "S": 0,
+   "SW": 0,
+   "W": 0,
+   "NW": 0
+  },
+  "upwind": 0,
+  "wind_from": 283,
+  "time": "2026-08-12T03:00:00-04:00",
+  "scan": "2026-08-12T03:01:00-04:00",
+  "cloud": 0,
+  "pixel": 0,
+  "prob": 0.04,
+  "off_km": 0.46,
+  "granule": "OR_ABI-L2-ACMC-M6_G19_s20262240701178_e20262240703552_c20262240704298.nc",
+  "models": {
+   "ECMWF": 4,
+   "GFS": 0,
+   "ICON": 57,
+   "GEM": 0,
+   "AIFS": 9,
+   "JMA": 8
+  }
  }
 ]
