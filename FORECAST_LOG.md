@@ -12,6 +12,52 @@ Sky cover is the number that matters — **PoP is not a cloud forecast.** An ove
 
 ---
 
+## Thu 13 Aug 2026, 08:05 EDT
+
+`api.weather.gov` gridpoint **GYX 28,125** · Lake spot
+
+### Night 1 · Tue 11 Aug — lead -2 days
+
+_Outside the forecast window — no data yet._
+
+### Night 2 · Wed 12 Aug — lead -1 days
+
+**Core window mean sky cover: None%** · full-dark 82% · max PoP 29%
+
+| Hour (EDT) | Sky | PoP | Dewpoint |
+|---|---|---|---|
+| 00:00 | 79% | 29% | 52°F |
+| 01:00 | 69% | 2% | 51°F |
+| 02:00 | 75% | 9% | 52°F |
+| 03:00 | 80% | 16% | 52°F |
+| 04:00 | 94% | 9% | 52°F |
+| 05:00 | 93% | 22% | 52°F |
+| 06:00 | 87% | 24% | 52°F |
+| 07:00 | 81% | 15% | 53°F |
+
+### Night 3 · Thu 13 Aug — lead 0 days
+
+**Core window mean sky cover: 66%** · full-dark 62% · max PoP 73%
+
+| Hour (EDT) | Sky | PoP | Dewpoint |
+|---|---|---|---|
+| 18:00 | 82% | 73% | 54°F |
+| 19:00 | 75% | 58% | 53°F |
+| 20:00 | 69% | 24% | 52°F |
+| 21:00 | 66% | 24% | 51°F |
+| 22:00 | 71% | 23% | 52°F |
+| 23:00 | 61% | 11% | 51°F |
+| 00:00 | 59% | 11% | 50°F |
+| 01:00 | 45% | 6% | 51°F |
+| 02:00 | 55% | 1% | 50°F |
+| 03:00 | 45% | 1% | 50°F |
+| 04:00 | 52% | 1% | 50°F |
+| 05:00 | 56% | 1% | 50°F |
+| 06:00 | 62% | 1% | 48°F |
+| 07:00 | 69% | 0% | 48°F |
+
+---
+
 ## Thu 13 Aug 2026, 07:05 EDT
 
 `api.weather.gov` gridpoint **GYX 28,125** · Lake spot
@@ -588,43 +634,13 @@ _Outside the forecast window — no data yet._
 
 **Core window mean sky cover: 72%** · full-dark 63% · max PoP 40%
 
-| Hour (EDT) | Sky | PoP | Dewpoint |
-|---|---|---|---|
-| 18:00 | 45% | 17% | 51°F |
-| 19:00 | 39% | 18% | 51°F |
-| 20:00 | 57% | 19% | 50°F |
-| 21:00 | 75% | 12% | 50°F |
-| 22:00 | 71% | 12% | 51°F |
-| 23:00 | 72% | 21% | 50°F |
-| 00:00 | 69% | 20% | 50°F |
-| 01:00 | 66% | 18% | 51°F |
-| 02:00 | 63% | 32% | 52°F |
-| 03:00 | 62% | 30% | 52°F |
-| 04:00 | 67% | 40% | 52°F |
-| 05:00 | 59% | 36% | 53°F |
-| 06:00 | 69% | 35% | 52°F |
-| 07:00 | 66% | 34% | 53°F |
+_Hourly detail compacted — headline figures above._
 
 ### Night 3 · Thu 13 Aug — lead 1 day
 
 **Core window mean sky cover: 68%** · full-dark 62% · max PoP 71%
 
-| Hour (EDT) | Sky | PoP | Dewpoint |
-|---|---|---|---|
-| 18:00 | 82% | 71% | 54°F |
-| 19:00 | 69% | 51% | 53°F |
-| 20:00 | 64% | 46% | 52°F |
-| 21:00 | 62% | 43% | 51°F |
-| 22:00 | 71% | 44% | 51°F |
-| 23:00 | 66% | 46% | 51°F |
-| 00:00 | 54% | 26% | 50°F |
-| 01:00 | 42% | 11% | 51°F |
-| 02:00 | 50% | 2% | 50°F |
-| 03:00 | 63% | 0% | 50°F |
-| 04:00 | 74% | 0% | 50°F |
-| 05:00 | 53% | 0% | 50°F |
-| 06:00 | 64% | 0% | 48°F |
-| 07:00 | 53% | 0% | 48°F |
+_Hourly detail compacted — headline figures above._
 
 ---
 
