@@ -223456,237 +223456,13 @@
      "UKMO": 91,
      "HRRR": 98
     },
-    "models_hourly": {
-     "ECMWF": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      39,
-      74,
-      99,
-      100,
-      100,
-      98,
-      91,
-      82
-     ],
-     "GFS": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      4,
-      98,
-      98,
-      99,
-      99,
-      99,
-      99,
-      47
-     ],
-     "ICON": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      100,
-      100,
-      100,
-      100,
-      100,
-      100,
-      100,
-      100
-     ],
-     "GEM": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      3,
-      6,
-      0,
-      52,
-      15,
-      56,
-      100,
-      100
-     ],
-     "AIFS": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      88,
-      95,
-      99,
-      100,
-      100,
-      98,
-      95,
-      91
-     ],
-     "JMA": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      58,
-      68,
-      75,
-      80,
-      83,
-      85,
-      85,
-      85
-     ],
-     "UKMO": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      72,
-      72,
-      100,
-      100,
-      100,
-      100,
-      100,
-      100
-     ],
-     "HRRR": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      4,
-      98,
-      98,
-      99,
-      99,
-      99,
-      99,
-      47
-     ]
-    },
-    "hour_labels": [
-     "18",
-     "19",
-     "20",
-     "21",
-     "22",
-     "23",
-     "00",
-     "01",
-     "02",
-     "03",
-     "04",
-     "05",
-     "06",
-     "07"
-    ],
-    "rows": [
-     {
-      "h": "18:00",
-      "sky": null,
-      "pop": null,
-      "dew": null
-     },
-     {
-      "h": "19:00",
-      "sky": null,
-      "pop": null,
-      "dew": null
-     },
-     {
-      "h": "20:00",
-      "sky": null,
-      "pop": null,
-      "dew": null
-     },
-     {
-      "h": "21:00",
-      "sky": null,
-      "pop": null,
-      "dew": null
-     },
-     {
-      "h": "22:00",
-      "sky": null,
-      "pop": null,
-      "dew": null
-     },
-     {
-      "h": "23:00",
-      "sky": null,
-      "pop": null,
-      "dew": null
-     },
-     {
-      "h": "00:00",
-      "sky": 79,
-      "pop": 29,
-      "dew": 11.11111111111111
-     },
-     {
-      "h": "01:00",
-      "sky": 69,
-      "pop": 2,
-      "dew": 10.555555555555555
-     },
-     {
-      "h": "02:00",
-      "sky": 75,
-      "pop": 9,
-      "dew": 11.11111111111111
-     },
-     {
-      "h": "03:00",
-      "sky": 80,
-      "pop": 16,
-      "dew": 11.11111111111111
-     },
-     {
-      "h": "04:00",
-      "sky": 94,
-      "pop": 9,
-      "dew": 11.11111111111111
-     },
-     {
-      "h": "05:00",
-      "sky": 93,
-      "pop": 22,
-      "dew": 11.11111111111111
-     },
-     {
-      "h": "06:00",
-      "sky": 87,
-      "pop": 24,
-      "dew": 11.11111111111111
-     },
-     {
-      "h": "07:00",
-      "sky": 81,
-      "pop": 15,
-      "dew": 11.666666666666666
-     }
+    "cons_late": [
+     90,
+     19,
+     100,
+     81,
+     9,
+     24
     ]
    },
    "Night 3": {
@@ -223721,237 +223497,21 @@
      "UKMO": 42,
      "HRRR": 70
     },
-    "models_hourly": {
-     "ECMWF": [
-      85,
-      92,
-      98,
-      99,
-      98,
-      98,
-      99,
-      99,
-      100,
-      100,
-      100,
-      100,
-      100,
-      100
-     ],
-     "GFS": [
-      51,
-      70,
-      80,
-      53,
-      65,
-      100,
-      93,
-      15,
-      100,
-      95,
-      69,
-      28,
-      23,
-      84
-     ],
-     "ICON": [
-      100,
-      100,
-      100,
-      100,
-      80,
-      68,
-      81,
-      88,
-      64,
-      71,
-      68,
-      51,
-      35,
-      26
-     ],
-     "GEM": [
-      9,
-      7,
-      100,
-      85,
-      19,
-      37,
-      35,
-      10,
-      90,
-      100,
-      100,
-      100,
-      100,
-      100
-     ],
-     "AIFS": [
-      54,
-      52,
-      50,
-      47,
-      44,
-      40,
-      37,
-      34,
-      32,
-      30,
-      29,
-      28,
-      27,
-      28
-     ],
-     "JMA": [
-      34,
-      30,
-      26,
-      24,
-      24,
-      25,
-      25,
-      25,
-      24,
-      21,
-      16,
-      11,
-      6,
-      2
-     ],
-     "UKMO": [
-      28,
-      34,
-      58,
-      70,
-      38,
-      50,
-      58,
-      38,
-      38,
-      50,
-      72,
-      72,
-      56,
-      38
-     ],
-     "HRRR": [
-      51,
-      70,
-      80,
-      53,
-      65,
-      100,
-      93,
-      15,
-      100,
-      95,
-      69,
-      28,
-      23,
-      84
-     ]
-    },
-    "hour_labels": [
-     "18",
-     "19",
-     "20",
-     "21",
-     "22",
-     "23",
-     "00",
-     "01",
-     "02",
-     "03",
-     "04",
-     "05",
-     "06",
-     "07"
+    "cons": [
+     64,
+     24,
+     98,
+     74,
+     9,
+     47
     ],
-    "rows": [
-     {
-      "h": "18:00",
-      "sky": 82,
-      "pop": 73,
-      "dew": 12.222222222222221
-     },
-     {
-      "h": "19:00",
-      "sky": 75,
-      "pop": 58,
-      "dew": 11.666666666666666
-     },
-     {
-      "h": "20:00",
-      "sky": 69,
-      "pop": 24,
-      "dew": 11.11111111111111
-     },
-     {
-      "h": "21:00",
-      "sky": 66,
-      "pop": 24,
-      "dew": 10.555555555555555
-     },
-     {
-      "h": "22:00",
-      "sky": 71,
-      "pop": 23,
-      "dew": 11.11111111111111
-     },
-     {
-      "h": "23:00",
-      "sky": 61,
-      "pop": 11,
-      "dew": 10.555555555555555
-     },
-     {
-      "h": "00:00",
-      "sky": 59,
-      "pop": 11,
-      "dew": 10
-     },
-     {
-      "h": "01:00",
-      "sky": 45,
-      "pop": 6,
-      "dew": 10.555555555555555
-     },
-     {
-      "h": "02:00",
-      "sky": 55,
-      "pop": 1,
-      "dew": 10
-     },
-     {
-      "h": "03:00",
-      "sky": 45,
-      "pop": 1,
-      "dew": 10
-     },
-     {
-      "h": "04:00",
-      "sky": 52,
-      "pop": 1,
-      "dew": 10
-     },
-     {
-      "h": "05:00",
-      "sky": 56,
-      "pop": 1,
-      "dew": 10
-     },
-     {
-      "h": "06:00",
-      "sky": 62,
-      "pop": 1,
-      "dew": 8.88888888888889
-     },
-     {
-      "h": "07:00",
-      "sky": 69,
-      "pop": 0,
-      "dew": 8.88888888888889
-     }
+    "cons_late": [
+     56,
+     23,
+     100,
+     77,
+     9,
+     35
     ]
    },
    "Lead-up 05": {
@@ -242565,6 +242125,1376 @@
    "Lead-up 10": {
     "date": "2026-08-10",
     "lead": -3,
+    "core": null,
+    "core_best": null,
+    "core_best_hr": null,
+    "late": null,
+    "late_best": null,
+    "late_best_hr": null,
+    "dark": null,
+    "pop": null,
+    "flat": null,
+    "models": {},
+    "models_late": {},
+    "models_hourly": {},
+    "hour_labels": [
+     "18",
+     "19",
+     "20",
+     "21",
+     "22",
+     "23",
+     "00",
+     "01",
+     "02",
+     "03",
+     "04",
+     "05",
+     "06",
+     "07"
+    ],
+    "rows": [
+     {
+      "h": "18:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "19:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "20:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "21:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "22:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "23:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "00:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "01:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "02:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "03:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "04:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "05:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "06:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "07:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     }
+    ]
+   }
+  }
+ },
+ {
+  "taken": "2026-08-14T00:05:15.132247-04:00",
+  "issued": "2026-08-13T22:45:54+00:00",
+  "runs": {
+   "ECMWF": [
+    "18Z",
+    "13 Aug 21:09",
+    1786669784.0
+   ],
+   "GFS": [
+    "18Z",
+    "13 Aug 19:36",
+    1786664185.0
+   ],
+   "ICON": [
+    "00Z",
+    "13 Aug 23:47",
+    1786679269.0
+   ],
+   "AIFS": [
+    "18Z",
+    "13 Aug 19:42",
+    1786664538.0
+   ],
+   "JMA": [
+    "18Z",
+    "13 Aug 23:33",
+    1786678381.0
+   ],
+   "UKMO": [
+    "18Z",
+    "13 Aug 21:08",
+    1786669704.0
+   ],
+   "HRRR": [
+    "02Z",
+    "13 Aug 23:38",
+    1786678708.0
+   ]
+  },
+  "grid": "GYX 28,125",
+  "trip": null,
+  "cond": {
+   "Night 3": {
+    "fog_hours": 0,
+    "hours": 8,
+    "worst_hr": "00:00",
+    "spread": 1.9,
+    "wind": 7.8,
+    "worst_is_fog": false,
+    "aod": 0.11,
+    "pm25": 3.6
+   }
+  },
+  "daytime": {
+   "Fri 14": {
+    "date": "2026-08-14",
+    "hours": [
+     {
+      "h": 8,
+      "pop": 0,
+      "mm": 0.0,
+      "t": 11.2,
+      "cloud": 8,
+      "code": 0
+     },
+     {
+      "h": 9,
+      "pop": 0,
+      "mm": 0.0,
+      "t": 12.5,
+      "cloud": 1,
+      "code": 0
+     },
+     {
+      "h": 10,
+      "pop": 0,
+      "mm": 0.0,
+      "t": 13.7,
+      "cloud": 0,
+      "code": 0
+     },
+     {
+      "h": 11,
+      "pop": 0,
+      "mm": 0.0,
+      "t": 14.5,
+      "cloud": 1,
+      "code": 0
+     },
+     {
+      "h": 12,
+      "pop": 0,
+      "mm": 0.0,
+      "t": 15.1,
+      "cloud": 15,
+      "code": 0
+     },
+     {
+      "h": 13,
+      "pop": 0,
+      "mm": 0.0,
+      "t": 15.7,
+      "cloud": 4,
+      "code": 0
+     },
+     {
+      "h": 14,
+      "pop": 0,
+      "mm": 0.0,
+      "t": 16.1,
+      "cloud": 34,
+      "code": 1
+     },
+     {
+      "h": 15,
+      "pop": 0,
+      "mm": 0.0,
+      "t": 16.2,
+      "cloud": 33,
+      "code": 1
+     },
+     {
+      "h": 16,
+      "pop": 0,
+      "mm": 0.0,
+      "t": 15.8,
+      "cloud": 34,
+      "code": 1
+     },
+     {
+      "h": 17,
+      "pop": 0,
+      "mm": 0.0,
+      "t": 15.5,
+      "cloud": 29,
+      "code": 1
+     },
+     {
+      "h": 18,
+      "pop": 0,
+      "mm": 0.0,
+      "t": 15.1,
+      "cloud": 6,
+      "code": 0
+     },
+     {
+      "h": 19,
+      "pop": 0,
+      "mm": 0.0,
+      "t": 14.0,
+      "cloud": 0,
+      "code": 0
+     }
+    ],
+    "pop_max": 0,
+    "pop_mean": 0,
+    "rain_mm": 0.0,
+    "wet_hours": 0,
+    "wet_from": null,
+    "wet_to": null,
+    "t_hi": 16,
+    "t_lo": 11,
+    "wind_max": 23,
+    "cloud_mean": 14
+   }
+  },
+  "nights": {
+   "Night 1": {
+    "date": "2026-08-11",
+    "lead": -3,
+    "core": null,
+    "core_best": null,
+    "core_best_hr": null,
+    "late": null,
+    "late_best": null,
+    "late_best_hr": null,
+    "dark": null,
+    "pop": null,
+    "flat": null,
+    "models": {},
+    "models_late": {},
+    "models_hourly": {},
+    "hour_labels": [
+     "18",
+     "19",
+     "20",
+     "21",
+     "22",
+     "23",
+     "00",
+     "01",
+     "02",
+     "03",
+     "04",
+     "05",
+     "06",
+     "07"
+    ],
+    "rows": [
+     {
+      "h": "18:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "19:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "20:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "21:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "22:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "23:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "00:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "01:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "02:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "03:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "04:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "05:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "06:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "07:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     }
+    ]
+   },
+   "Night 2": {
+    "date": "2026-08-12",
+    "lead": -2,
+    "core": null,
+    "core_best": null,
+    "core_best_hr": null,
+    "late": null,
+    "late_best": null,
+    "late_best_hr": null,
+    "dark": null,
+    "pop": null,
+    "flat": null,
+    "models": {},
+    "models_late": {},
+    "models_hourly": {},
+    "hour_labels": [
+     "18",
+     "19",
+     "20",
+     "21",
+     "22",
+     "23",
+     "00",
+     "01",
+     "02",
+     "03",
+     "04",
+     "05",
+     "06",
+     "07"
+    ],
+    "rows": [
+     {
+      "h": "18:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "19:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "20:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "21:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "22:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "23:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "00:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "01:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "02:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "03:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "04:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "05:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "06:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "07:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     }
+    ]
+   },
+   "Night 3": {
+    "date": "2026-08-13",
+    "lead": -1,
+    "core": 74,
+    "core_best": 72,
+    "core_best_hr": 23,
+    "late": 72,
+    "late_best": 69,
+    "late_best_hr": 2,
+    "dark": 76,
+    "pop": 73,
+    "flat": false,
+    "models": {},
+    "models_late": {
+     "ECMWF": 87,
+     "GFS": 0,
+     "ICON": 72,
+     "GEM": 42,
+     "AIFS": 17,
+     "JMA": 90,
+     "UKMO": 51,
+     "HRRR": 0
+    },
+    "models_hourly": {
+     "ECMWF": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      26,
+      66,
+      96,
+      100,
+      100,
+      100,
+      96,
+      90
+     ],
+     "GFS": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      6,
+      0,
+      0,
+      0,
+      1,
+      22,
+      16,
+      17
+     ],
+     "ICON": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      71,
+      82,
+      63,
+      71,
+      77,
+      60,
+      57,
+      52
+     ],
+     "GEM": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      100,
+      2,
+      26,
+      98,
+      91,
+      94,
+      98,
+      83
+     ],
+     "AIFS": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      26,
+      20,
+      16,
+      14,
+      14,
+      15,
+      17,
+      20
+     ],
+     "JMA": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      75,
+      89,
+      94,
+      87,
+      72,
+      52,
+      31,
+      12
+     ],
+     "UKMO": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      56,
+      47,
+      73,
+      34,
+      39,
+      61,
+      69,
+      63
+     ],
+     "HRRR": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      6,
+      0,
+      0,
+      0,
+      1,
+      22,
+      16,
+      17
+     ]
+    },
+    "hour_labels": [
+     "18",
+     "19",
+     "20",
+     "21",
+     "22",
+     "23",
+     "00",
+     "01",
+     "02",
+     "03",
+     "04",
+     "05",
+     "06",
+     "07"
+    ],
+    "rows": [
+     {
+      "h": "18:00",
+      "sky": 87,
+      "pop": 73,
+      "dew": 12.777777777777779
+     },
+     {
+      "h": "19:00",
+      "sky": 85,
+      "pop": 58,
+      "dew": 12.222222222222221
+     },
+     {
+      "h": "20:00",
+      "sky": 78,
+      "pop": 50,
+      "dew": 12.222222222222221
+     },
+     {
+      "h": "21:00",
+      "sky": 77,
+      "pop": 42,
+      "dew": 11.666666666666666
+     },
+     {
+      "h": "22:00",
+      "sky": 75,
+      "pop": 22,
+      "dew": 11.11111111111111
+     },
+     {
+      "h": "23:00",
+      "sky": 72,
+      "pop": 8,
+      "dew": 11.11111111111111
+     },
+     {
+      "h": "00:00",
+      "sky": 70,
+      "pop": 2,
+      "dew": 11.11111111111111
+     },
+     {
+      "h": "01:00",
+      "sky": 70,
+      "pop": 1,
+      "dew": 11.11111111111111
+     },
+     {
+      "h": "02:00",
+      "sky": 69,
+      "pop": 0,
+      "dew": 11.11111111111111
+     },
+     {
+      "h": "03:00",
+      "sky": 78,
+      "pop": 2,
+      "dew": 10.555555555555555
+     },
+     {
+      "h": "04:00",
+      "sky": 81,
+      "pop": 0,
+      "dew": 10.555555555555555
+     },
+     {
+      "h": "05:00",
+      "sky": 74,
+      "pop": 2,
+      "dew": 10.555555555555555
+     },
+     {
+      "h": "06:00",
+      "sky": 74,
+      "pop": 0,
+      "dew": 10
+     },
+     {
+      "h": "07:00",
+      "sky": 74,
+      "pop": 0,
+      "dew": 9.444444444444445
+     }
+    ]
+   },
+   "Lead-up 05": {
+    "date": "2026-08-05",
+    "lead": -9,
+    "core": null,
+    "core_best": null,
+    "core_best_hr": null,
+    "late": null,
+    "late_best": null,
+    "late_best_hr": null,
+    "dark": null,
+    "pop": null,
+    "flat": null,
+    "models": {},
+    "models_late": {},
+    "models_hourly": {},
+    "hour_labels": [
+     "18",
+     "19",
+     "20",
+     "21",
+     "22",
+     "23",
+     "00",
+     "01",
+     "02",
+     "03",
+     "04",
+     "05",
+     "06",
+     "07"
+    ],
+    "rows": [
+     {
+      "h": "18:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "19:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "20:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "21:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "22:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "23:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "00:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "01:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "02:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "03:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "04:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "05:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "06:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "07:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     }
+    ]
+   },
+   "Lead-up 06": {
+    "date": "2026-08-06",
+    "lead": -8,
+    "core": null,
+    "core_best": null,
+    "core_best_hr": null,
+    "late": null,
+    "late_best": null,
+    "late_best_hr": null,
+    "dark": null,
+    "pop": null,
+    "flat": null,
+    "models": {},
+    "models_late": {},
+    "models_hourly": {},
+    "hour_labels": [
+     "18",
+     "19",
+     "20",
+     "21",
+     "22",
+     "23",
+     "00",
+     "01",
+     "02",
+     "03",
+     "04",
+     "05",
+     "06",
+     "07"
+    ],
+    "rows": [
+     {
+      "h": "18:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "19:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "20:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "21:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "22:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "23:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "00:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "01:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "02:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "03:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "04:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "05:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "06:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "07:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     }
+    ]
+   },
+   "Lead-up 07": {
+    "date": "2026-08-07",
+    "lead": -7,
+    "core": null,
+    "core_best": null,
+    "core_best_hr": null,
+    "late": null,
+    "late_best": null,
+    "late_best_hr": null,
+    "dark": null,
+    "pop": null,
+    "flat": null,
+    "models": {},
+    "models_late": {},
+    "models_hourly": {},
+    "hour_labels": [
+     "18",
+     "19",
+     "20",
+     "21",
+     "22",
+     "23",
+     "00",
+     "01",
+     "02",
+     "03",
+     "04",
+     "05",
+     "06",
+     "07"
+    ],
+    "rows": [
+     {
+      "h": "18:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "19:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "20:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "21:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "22:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "23:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "00:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "01:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "02:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "03:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "04:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "05:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "06:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "07:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     }
+    ]
+   },
+   "Lead-up 08": {
+    "date": "2026-08-08",
+    "lead": -6,
+    "core": null,
+    "core_best": null,
+    "core_best_hr": null,
+    "late": null,
+    "late_best": null,
+    "late_best_hr": null,
+    "dark": null,
+    "pop": null,
+    "flat": null,
+    "models": {},
+    "models_late": {},
+    "models_hourly": {},
+    "hour_labels": [
+     "18",
+     "19",
+     "20",
+     "21",
+     "22",
+     "23",
+     "00",
+     "01",
+     "02",
+     "03",
+     "04",
+     "05",
+     "06",
+     "07"
+    ],
+    "rows": [
+     {
+      "h": "18:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "19:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "20:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "21:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "22:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "23:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "00:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "01:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "02:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "03:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "04:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "05:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "06:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "07:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     }
+    ]
+   },
+   "Lead-up 09": {
+    "date": "2026-08-09",
+    "lead": -5,
+    "core": null,
+    "core_best": null,
+    "core_best_hr": null,
+    "late": null,
+    "late_best": null,
+    "late_best_hr": null,
+    "dark": null,
+    "pop": null,
+    "flat": null,
+    "models": {},
+    "models_late": {},
+    "models_hourly": {},
+    "hour_labels": [
+     "18",
+     "19",
+     "20",
+     "21",
+     "22",
+     "23",
+     "00",
+     "01",
+     "02",
+     "03",
+     "04",
+     "05",
+     "06",
+     "07"
+    ],
+    "rows": [
+     {
+      "h": "18:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "19:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "20:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "21:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "22:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "23:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "00:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "01:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "02:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "03:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "04:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "05:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "06:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     },
+     {
+      "h": "07:00",
+      "sky": null,
+      "pop": null,
+      "dew": null
+     }
+    ]
+   },
+   "Lead-up 10": {
+    "date": "2026-08-10",
+    "lead": -4,
     "core": null,
     "core_best": null,
     "core_best_hr": null,
