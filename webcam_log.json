@@ -1,24 +1,5 @@
 [
  {
-  "time": "2026-08-07T23:00:00-04:00",
-  "cloud": null,
-  "night": true,
-  "stats": {
-   "lum": 19.3,
-   "lum_sd": 2.8,
-   "lum_p90": 23.0,
-   "sat": 0.0,
-   "rb": 1.0
-  },
-  "shot": "webcam/2026-08-07T23.jpg",
-  "models": {
-   "ECMWF": 99,
-   "GFS": 100,
-   "ICON": 100,
-   "GEM": 8
-  }
- },
- {
   "time": "2026-08-08T00:00:00-04:00",
   "cloud": null,
   "night": true,
@@ -2733,6 +2714,25 @@
    "GFS": 2,
    "ICON": 85,
    "GEM": 2
+  }
+ },
+ {
+  "time": "2026-08-14T01:00:00-04:00",
+  "cloud": null,
+  "night": true,
+  "stats": {
+   "lum": 32.6,
+   "lum_sd": 3.2,
+   "lum_p90": 37.0,
+   "sat": 0.0,
+   "rb": 1.0
+  },
+  "shot": "webcam/2026-08-14T01.jpg",
+  "models": {
+   "ECMWF": 35,
+   "GFS": 1,
+   "ICON": 81,
+   "GEM": 80
   }
  }
 ]
